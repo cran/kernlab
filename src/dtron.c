@@ -131,7 +131,7 @@ c     **********
 	}
 
 	while (search)
-	{
+	{ 
 
 		/* Save the best function value and the best x. */   
 		fc = f;

@@ -395,6 +395,7 @@ setClass("kpca", representation(pcv = "matrix",
                                 rotated = "matrix",
                                 xmatrix = "matrix",
                                 kcall = "ANY",
+                                kterms = "ANY",
                                 n.action = "ANY"))
 #accessor functions 
 if(!isGeneric("pcv")){
@@ -453,6 +454,12 @@ setReplaceMethod("xmatrix","kpca", function(x, value){
 setMethod("kcall","kpca", function(object) object@kcall)
 setReplaceMethod("kcall","kpca", function(x, value){
   x@kcall <- value
+  x
+})
+
+setMethod("kterms","kpca", function(object) object@kterms)
+setReplaceMethod("kterms","kpca", function(x, value){
+  x@kterms <- value
   x
 })
 

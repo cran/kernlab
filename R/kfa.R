@@ -28,6 +28,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     ## fix up call to refer to the generic, but leave arg name as `formula'
     cl[[1]] <- as.name("kfa")
     kcall(res) <- cl
+    attr(Terms,"intercept") <- 0
     kterms(res) <- Terms
     if(!is.null(na.act))
         n.action(res) <- na.act
@@ -144,7 +145,7 @@ function(object , x)
 setMethod("show",signature(object="kfa"),
 function(object)
   {
-    cat(paste("Number of features :",dim(alpha)[2],"\n"))
+    cat(paste("Number of features :",dim(alpha(object))[2],"\n"))
     show(kernelf(object))
   })
   

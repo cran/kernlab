@@ -51,8 +51,8 @@
   \describe{
     \item{\code{type}:}{Object of class \code{"character"}  containing
       the problem support vector machine problem type
-      ("C-classification", "nu-classification", "spoc-classification",
-      "one-classification", "eps-regression", "nu-regression")}
+      ("C-svc", "nu-svc", "C-bsvc", "spoc-svc",
+      "one-svc", "eps-svr", "nu-svr", "eps-bsvr")}
     \item{\code{param}:}{Object of class \code{"list"} containing the
       Support Vector Machine parameters (C, nu, epsilon)}
     \item{\code{kernelf}:}{Object of class \code{"function"} containing

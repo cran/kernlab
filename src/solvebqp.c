@@ -1,13 +1,19 @@
-#include "bsvm.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include <R_ext/BLAS.h>
 /* LEVEL 1 BLAS */
-extern double ddot_(int *, double *, int *, double *, int *);
+/*extern double ddot_(int *, double *, int *, double *, int *); */
 /* LEVEL 2 BLAS */
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
+/*extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);*/
 /* MINPACK 2 */
 extern void dtron(int, double *, double *, double *, double, double, double, double, int, double);
+
+struct BQP
+{
+        double eps;
+        int n;
+        double *x, *C, *Q, *p;
+};
 
 int nfev, inc = 1;
 double one = 1, zero = 0, *A, *g0;
@@ -21,15 +27,15 @@ int ugrad(int n, double *x, double *g)
 {
 	/* evaluate the gradient g = A*x + g0 */
 	memcpy(g, g0, sizeof(double)*n);
-	dsymv_("U", &n, &one, A, &n, x, &inc, &one, g, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &one, g, &inc);
 	return 0;
 }
 int ufv(int n, double *x, double *f)
 {
 	/* evaluate the function value f(x) = 0.5*x'*A*x + g0'*x */  
 	double *t = (double *) malloc(sizeof(double)*n);
-	dsymv_("U", &n, &one, A, &n, x, &inc, &zero, t, &inc);
-	*f = ddot_(&n, x, &inc, g0, &inc) + 0.5*ddot_(&n, x, &inc, t, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &zero, t, &inc);
+	*f = F77_CALL(ddot)(&n, x, &inc, g0, &inc) + 0.5 * F77_CALL(ddot)(&n, x, &inc, t, &inc);
 	free(t);
 	return ++nfev;
 }

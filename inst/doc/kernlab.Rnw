@@ -59,8 +59,9 @@ options(width = 80)
   framework for creating and using kernel-based algorithms.  The package
   contains dot product primitives (kernels), implementations of support
   vector machines and the relevance vector machine, Gaussian processes,
-  a ranking algorithm, kernel PCA, kernel CCA, and a spectral clustering
-  algorithm.  Moreover it provides a general purpose quadratic
+  a ranking algorithm, kernel PCA, kernel CCA, kernel feature analysis,
+  online kernel methods and a spectral clustering
+  algorithm. Moreover it provides a general purpose quadratic
   programming solver, and an incomplete Cholesky decomposition method.
 \end{abstract}
 
@@ -259,12 +260,13 @@ codes.  The data was collected to answer the following question: Can you
 predict who would be interested in buying a caravan insurance policy and
 give an explanation why?
 
-The \texttt{promotergene} data set is a data set with 106 observations and 58 
-variables. Promoters have a region where a protein (RNA polymerase) must make 
+The \texttt{promotergene} data set is a data set of 
+E. Coli promoter gene sequences (DNA) with 106 observations and 58 
+variables available at the UCI Machine Learning repository. 
+Promoters have a region where a protein (RNA polymerase) must make 
 contact and the helical DNA sequence must have a valid conformation so that
 the two pieces of the contact region spatially align. The data contains 
 DNA sequences of promoters and non-promoters.
-
 
 The \texttt{spirals} data set was created by the
 \texttt{mlbench.spirals} function in the \pkg{mlbench} package
@@ -404,6 +406,22 @@ K <- kernelMatrix(kernel, x)
 K <- kernelMatrix(kernel, x1, x2)
 \end{verbatim}
   computes the matrix $K_{ij} = k(x1_i, x2_j)$.
+
+\item[\texttt{kernelFast}]
+This method is different to \texttt{kernelMatrix} for \texttt{rbfdot}, \texttt{besseldot}, 
+and the \texttt{laplacedot} kernel, which are all RBF kernels. 
+It is identical to \texttt{kernelMatrix}, 
+except that it also requires the squared norm of the 
+first argument as additional input.
+It is mainly used in kernel algorithms, where columns
+of the kernel matrix are computed per invocation. In these cases,
+evaluating the norm of each column-entry as it is done on a \texttt{kernelMatrix} 
+invocation on an RBF kernel, over and over again would cause
+significant computational overhead. Its invocation is via
+\begin{verbatim}
+K = kernelFast(kernel, x1, x2, a)
+\end{verbatim}
+Here $a$ is a vector containing the squared norms of $x1$.
   
  \item[\texttt{kernelMult}] is a convenient way of computing kernel
   expansions.  It returns the vector $f = (f(x_1), \dots, f(x_m))$ where
@@ -543,12 +561,11 @@ each binary classifiers class probability output is combined by the
 \texttt{couple} method which implements methods for combing class
 probabilities proposed in \citep{kernlab:Wu:2003}.
 
-In order to create a similar probability output for regression 
-we suppose that the SVM is trained on data from the model 
+In order to create a similar probability output for regression, following 
+\citep{kernlab:Weng:2004}, we suppose that the SVM is trained on data from the model 
 \begin{equation}
 y_i = f(x_i) + \delta_i
 \end{equation}
-
 where $f(x_i)$ is the underlying function and $delta_i$ is independent and identical distributed
 random noise. Given a test data $x$ the distribution of $y$ given $x$ and allows 
 one to draw probabilistic inferences about $y$ e.g. one can construct 
@@ -568,8 +585,6 @@ For the Laplace distribution the maximum likelihood estimate is :
 \begin{equation}
 \sigma = \frac{\sum_{i=1}^m|\eta_i|}{m}
 \end{equation}
-
-
 
 Another approach for multi-class classification supported by the
 \texttt{ksvm} function is the one proposed in
@@ -640,7 +655,7 @@ predict(gene, genetest, type="probabilities")
 x <- rbind(matrix(rnorm(120),,2),matrix(rnorm(120,mean=3),,2))
 y <- matrix(c(rep(1,60),rep(-1,60)))
 
-svp <- ksvm(x,y,type="C-classification")
+svp <- ksvm(x,y,type="C-svc")
 plot(svp)
 @  
 \caption{A contour plot of the SVM decision values for a toy binary classification problem using the plot function}
@@ -806,27 +821,27 @@ plot(ran, cex=c[ranked[,3]]/40)
 \subsection{Online Learning with Kernels}
 
 The \texttt{onlearn} function in \pkg{kernlab} implements the online kernel algorithms 
-for classification, novelty detection and regression descibed  in \citep{kernlab:Kivinen:2004}.
+for classification, novelty detection and regression descibed in \citep{kernlab:Kivinen:2004}.
 In batch learning, it is typically assumed that all the examples are immediately 
 available and are drawn independently from some distribution $P$. One natural measure 
 of quality for some $f$ in that case is the expected risk 
 \begin{equation}
 R[f,P] := E_{(x,y)~P}[l(f(x),y)]
 \end{equation}  
-Since usually $P$ is unkown a standart approach is to instead minimize the empirical risk 
+Since usually $P$ is unknown a standard approach is to instead minimize the empirical risk 
 \begin{equation}
 R_{emp}[f,P] := \frac{1}{m}\sum_{t=1}^m l(f(x_t),y_t)
 \end{equation}
 Minimizing $R_{emp}[f]$ may lead to overfitting (complex functions that fit well on the training
-data but do not generalise to unseen data). One way to avoid this is to penalise complex functions by 
-instead minimizing the regularised risk.
+data but do not generalize to unseen data). One way to avoid this is to penalize complex functions by 
+instead minimizing the regularized risk.
 \begin{equation}
 R_{reg}[f,S] := R_{reg,\lambda}[f,S] := R_{emp}[f] = \frac{\lambda}{2}\|f\|_{H}^2
 \end{equation}
 where $\lambda > 0$ and $\|f\|_{H} = {\langle f,f \rangle}_{H}^{\frac{1}{2}}$ does indeed measure
 the complexity of $f$ in a sensible way. The constant $\lambda$ needs to be chosen appropriately for each problem.
 Since in online learning one is interested in dealing with one example at the time the definition 
-of an instanteneous regularised risk on a single example is needed
+of an instantaneous regularized risk on a single example is needed
 \begin{equation}
 R_inst[f,x,y] := R_{inst,\lambda}[f,x,y] := R_{reg,\lambda}[f,((x,y))]
 \end{equation}
@@ -850,11 +865,23 @@ f_{t+1} := (1 - \eta\lambda)f_t -\eta_t \lambda '( f_t(x_t),y_t)k(x_t,\cdotp)
 \end{equation}
 
 The \texttt{onlearn} function implements the online learning algorithm for regression, classification and novelty 
-detection. The online nature of the algorith requires a differnt aproach to the use of the function. An object 
-is used to store the state of the algorithm at each iteration $t$ this object is passed to the function ans an argument and
-is returned at each  iteration $t+1$ containing the model paramemeter state at this step. 
-An empty object is initialized using the \texttt{inlearn} function. 
+detection. The online nature of the algorithm requires a different approach to the use of the function. An object 
+is used to store the state of the algorithm at each iteration $t$ this object is passed to the function as an 
+argument and is returned at each iteration $t+1$ containing the model parameter state at this step. 
+An empty object of class \texttt{onlearn} is initialized using the \texttt{inlearn} function. 
+<<<onlearn, echo = TRUE>>=
+## create toy data set
+x <- rbind(matrix(rnorm(90),,2),matrix(rnorm(90)+3,,2))
+y <- matrix(c(rep(1,45),rep(-1,45)),,1)
 
+## initialize onlearn object
+on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+ind <- sample(1:90,90)
+## learn one data point at the time
+for(i in ind)
+on <- onlearn(on,x[i,],y[i],nu=0.03,lambda=0.1)
+sign(predict(on,x))
+@ 
 \subsection{Spectral Clustering}
 
 Spectral clustering \citep{kernlab:Ng:2001} is a recently emerged promising alternative to
@@ -950,10 +977,10 @@ First the computational complexity of the standard version of KPCA, the algorith
 $O(m^3)$ and secondly the resulting feature extractors are given as a dense expansion in terms
 of the of the training patterns. 
 Sparse solutions are often achieven in supervised learning settings by using an $l_1$ penalty on the 
-expansion coefficients. An algorithm can be derived using the same approach in feature extraction requiring only $n$ 
-basis functions to compute the first $n$ feature.
-Kernel feature analysis is computationaly simple and scales approximately one order of magnitute
-better on large data sets then standard KPCA.    
+expansion coefficients. An algorithm can be derived using the same approach in feature extraction 
+requiring only $n$ basis functions to compute the first $n$ feature.
+Kernel feature analysis \citep{kernlab:Olvi:2000} is computationaly simple and scales approximately
+ one order of magnitute better on large data sets then standard KPCA.    
 Choosing $\Omega [f] = \sum_{i=1}^m |\alpha_i |$ 
 this yields 
 \begin{equation}
@@ -965,11 +992,24 @@ This setting leads to the first ``principal vector'' in the $l_1$ context
 \mathbf{\nu}^1 = \mathrm{argmax}_{\mathbf{\nu} \in F_{LP}} \frac{1}{m} \sum_{i=1}^m \langle \mathbf{\nu},\mathbf{\Phi}(x_i) - \frac{1}{m}\sum_{j=1}^m\mathbf{\Phi}(x_i)  \rangle^2 
 \end{equation}
 
-Subsequent ``principal vectors'' can be defined by enforcing optimality with respect to the remaining orthogonal subspaces.
-Due to the $l_1$ constrain the solution has the favorable property of beeing sparse in terms of the coefficients $\alpha_i$.
+Subsequent ``principal vectors'' can be defined by enforcing optimality with respect to the remaining 
+orthogonal subspaces. Due to the $l_1$ constrain the solution has the favorable property of beeing 
+sparse in terms of the coefficients $\alpha_i$.
 
-The function \texttt{kfa} in \pkg{kernlab} implements Kernel Feature Analysis by using a projection pursuit technique on a 
-sample of the data. Results are then returned in an \textsf{S4} object. 
+The function \texttt{kfa} in \pkg{kernlab} implements Kernel Feature Analysis by using a projection 
+pursuit technique on a sample of the data. Results are then returned in an \textsf{S4} object. 
+
+\begin{figure}
+\centering
+<<kfa, echo = TRUE,fig=TRUE,width=7,height=7>>=
+data(promotergene)
+f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",kpar=list(sigma=0.013))
+plot(predict(f,promotergene),col=as.numeric(promotergene[,1]),xlab="1st Feature",ylab="2nd Feature")
+@ 
+\caption{Projection of the spam data on two features using an RBF kernel}
+\label{fig:KFA}
+\end{figure}
+
 
 \subsection{Kernel Canonical Correlation Analysis}
 

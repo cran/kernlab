@@ -4,8 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <R.h>
-#include <Rinternals.h>
+
 struct svm_node
 {
 	int index;
@@ -14,13 +13,13 @@ struct svm_node
 
 struct svm_problem
 {
-	int l;
+  int l, n;
 	double *y;
 	struct svm_node **x;
 };
 
-enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR };	/* svm_type */
-enum { LINEAR, POLY, RBF, SIGMOID, R, LAPLACE, BESSEL, ANOVA};	/* kernel_type */
+enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR, C_BSVC, EPSILON_BSVR, SPOC, KBB };	/* svm_type */
+enum { LINEAR, POLY, RBF, SIGMOID, R, LAPLACE, BESSEL, ANOVA };	/* kernel_type */
 
 struct svm_parameter
 {
@@ -29,7 +28,7 @@ struct svm_parameter
 	double degree;	/* for poly */
 	double gamma;	/* for poly/rbf/sigmoid */
 	double coef0;	/* for poly/sigmoid */
-        double lim; /* for bessel kernel */
+
 	/* these are for training only */
 	double cache_size; /* in MB */
 	double eps;	/* stopping criteria */
@@ -40,23 +39,20 @@ struct svm_parameter
 	double nu;	/* for NU_SVC, ONE_CLASS, and NU_SVR */
 	double p;	/* for EPSILON_SVR */
 	int shrinking;	/* use the shrinking heuristics */
-	SEXP expr;
-	SEXP rho;
-	int d;
+        int qpsize;
+        double Cbegin, Cstep;   /* for linear kernel */
+        double lim; /* for bessel kernel */
+        double *K; /* pointer to kernel matrix */
+        int m;
 };
 
-struct svm_model *svm_train(const struct svm_problem *prob,
-			    const struct svm_parameter *param);
+struct BQP
+ {
+   double eps;
+   int n;
+   double *x, *C, *Q, *p;
+};
 
-int svm_save_model(const char *model_file_name, const struct svm_model *model);
-
-struct svm_model *svm_load_model(const char *model_file_name);
-
-double svm_predict(const struct svm_model *model, const struct svm_node *x);
-
-void svm_destroy_model(struct svm_model *model);
-
-const char *svm_check_parameter(const struct svm_problem *prob, const struct svm_parameter *param);
 
 #ifdef __cplusplus
 }

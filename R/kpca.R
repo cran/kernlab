@@ -16,11 +16,14 @@ function(x, data = NULL, na.action = na.omit, ...)
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
     na.act <- attr(mf, "na.action")
+    Terms <- attr(mf, "terms")
     x <- model.matrix(mt, mf)
     res <- kpca(x, ...)
     ## fix up call to refer to the generic, but leave arg name as `formula'
     cl[[1]] <- as.name("kpca")
     kcall(res) <- cl
+    attr(Terms,"intercept") <- 0
+    kterms(res) <- Terms
     if(!is.null(na.act)) 
         n.action(res) <- na.act
     #    if(!is.null(sc <- res$scores))
@@ -72,6 +75,14 @@ setMethod("kpca",signature(x="matrix"),
 setMethod("predict",signature(object="kpca"),
 function(object , x)
   {
+    if (!is.null(kterms(object)))
+      {
+        if(!is.matrix(x))
+          x <- model.matrix(delete.response(kterms(object)), as.data.frame(x), na.action = n.action(object))
+      }
+    else
+      x  <- if (is.vector(x)) t(t(x)) else as.matrix(x)
+
     if (is.vector(x)||is.data.frame(x))
       x<-as.matrix(x)
     if (!is.matrix(x)) stop("x must be a matrix a vector or a data frame")

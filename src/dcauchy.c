@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <R_ext/RS.h>
+#include <R_ext/BLAS.h>
 
 extern void *xmalloc(size_t);
 /* LEVEL 1 BLAS */
@@ -125,7 +125,7 @@ c     **********
 			{
 				F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
 				gts = F77_CALL(ddot)(&n, g, &inc, s, &inc);
-				q = 0.5*F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
+				q = 0.5 * F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
 				search = q > mu0*gts ? 1 : 0;
 			} 			
 		}	
@@ -149,7 +149,7 @@ c     **********
 			{
 				F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
 				gts = F77_CALL(ddot)(&n, g, &inc, s, &inc);
-				q = 0.5*F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
+				q = 0.5 * F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
 				search = q < mu0*gts ? 1 : 0;
 			}
 			else

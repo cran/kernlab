@@ -11,7 +11,8 @@
   \eqn{l <= x <= u}
 }
 \usage{
-ipop(c, H, A, b, l, u, r, sigf = 7, maxiter = 40, margin = 0.05, bound = 10, verb = 0)
+ipop(c, H, A, b, l, u, r, sigf = 7, maxiter = 40, margin = 0.05, bound = 10, 
+     verb = 0)
 }
 
 \arguments{

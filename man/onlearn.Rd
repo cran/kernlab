@@ -43,7 +43,6 @@ detection, and regression.
 \references{ Kivinen J. Smola A.J. Williamson R.C. \cr
   \emph{Online Learning with Kernels}\cr
   IEEE Transactions on Signal Processing vol. 52, Issue 8, 2004\cr
-
   \url{http://mlg.anu.edu.au/~smola/papers/KivSmoWil03.pdf}}
 
 \author{Alexandros Karatzoglou\cr

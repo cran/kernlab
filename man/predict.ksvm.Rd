@@ -25,8 +25,8 @@
 }
 
 \value{
-   If \code{type(object)} is \code{C-classification},
-     \code{nu-classification} or \code{spoc-classification}
+   If \code{type(object)} is \code{C-svc},
+     \code{nu-svc}, \code{C-bsvm} or \code{spoc-svc}
      the vector returned depends on the argument \code{type}:
      
      \item{response}{predicted classes (the classes with majority vote).}
@@ -37,8 +37,8 @@
      \item{votes}{matrix of vote counts (one column for each class and one row
        for each new input)}
      
-     If \code{type(object)} is \code{eps-regression},or
-     \code{nu-regression} a vector of predicted values is returned.
+     If \code{type(object)} is \code{eps-svr}, \code{eps-bsvr} or
+     \code{nu-svr} a vector of predicted values is returned.
      If \code{type(object)} is \code{one-classification} a vector of
      logical values is returned.
    }

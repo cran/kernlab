@@ -39,7 +39,7 @@ couple(probin, coupler = "minpair")
   Ting-Fan Wu, Chih-Jen Lin, ruby C. Weng\cr
   \emph{Probability Estimates for Multi-class Classification by Pairwise
     Coupling}\cr
-  Neural Information Processing Symposium 2003
+  Neural Information Processing Symposium 2003 \cr
   \url{http://books.nips.cc/papers/files/nips16/NIPS2003_0538.pdf}
   }
 \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at} }

@@ -7,21 +7,25 @@
 \alias{coeff,ksvm-method}
 \title{Support Vector Machines}
 \description{
-  Support Vector Machines are an excellent tool
-  for classification as well as regression. \code{ksvm} supports the
-  classical C-classification, nu-classification, one-class-classification
-  e-regression, nu-regression along with the Crammer-Singer method
-  for multi-class classification spoc-classification.\cr
-  The implementation also supports class-probabilities output and confidence intervals for regression.
+  Support Vector Machines are an excellent tool for classification 
+  novelty detection as well as regression. \code{ksvm} supports the 
+  well known C-svc, nu-svc, (classification) one-class-svc (novelty)
+  eps-svr, nu-svr (regression) formulations along with the Crammer-Singer 
+  for multi-class classification formulation spoc-svc and 
+  bound-constraint SVM C-bsvc, eps-bsvr.\cr
+  The implementation also supports class-probabilities output and 
+  confidence intervals for regression.
 }
 \usage{
 \S4method{ksvm}{formula}(x, data = NULL, ..., subset, na.action = na.omit, scaled = TRUE)
 
 \S4method{ksvm}{vector}{x, ...}
 
-\S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", kpar = list(sigma = 0.1),
-C = 1, nu = 0.2, epsilon = 0.1, prob.model = FALSE, class.weights = NULL, cachesize = 40, tol = 0.001,
-shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
+\S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", 
+     kpar = list(sigma = 0.1), C = 1, nu = 0.2, epsilon = 0.1, 
+     prob.model = FALSE, class.weights = NULL, cachesize = 40, 
+     tol = 0.001, shrinking = TRUE, cross = 0, fit = TRUE, ..., 
+     subset, na.action = na.omit)
 }
 
 \arguments{
@@ -45,15 +49,17 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   \item{type}{\code{ksvm} can be used for classification
     , for regression, or for novelty detection.
     Depending on whether \code{y} is
-    a factor or not, the default setting for \code{type} is \code{C-classification} or \code{eps-regression}, respectively, but can be overwritten by setting an explicit value.\cr
+    a factor or not, the default setting for \code{type} is \code{C-svc} or \code{eps-svr}, respectively, but can be overwritten by setting an explicit value.\cr
     Valid options are:
     \itemize{
-      \item \code{C-classification}
-      \item \code{nu-classification}
-      \item \code{spoc-classification} (Crammer Singer multi-class)
-      \item \code{one-classification} (novelty detection)
-      \item \code{eps-regression}
-      \item \code{nu-regression}
+      \item \code{C-svc}   (classification)
+      \item \code{nu-svc}  (classification)
+      \item \code{C-bsvc}  bound-constraint svm (classification) 
+      \item \code{spoc-svc}  (Crammer Singer multi-class)
+      \item \code{one-svc}  (novelty detection)
+      \item \code{eps-svr}  (regression)
+      \item \code{nu-svr}   (regression)
+      \item \code{eps-svr}  bound-constraint svm (regression)
     }
   }
   \item{kernel}{the kernel function used in training and predicting.
@@ -92,12 +98,12 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   \code{sigest} to calculate a good \code{sigma} value for the data.}
   \item{C}{cost of constraints violation (default: 1)---it is the
     `C'-constant of the regularization term in the Lagrange formulation.}
-  \item{nu}{parameter needed for \code{nu-classification},
-    \code{one-classification}, and \code{nu-regression}. The \code{nu}
+  \item{nu}{parameter needed for \code{nu-svc},
+    \code{one-svc}, and \code{nu-svr}. The \code{nu}
     parameter sets the upper bound on the training error and the lower
     bound on the fraction of data points to become Support Vectors (default: 0.2).}
   \item{epsilon}{epsilon in the insensitive-loss function used for
-    \code{eps-regression} and \code{nu-regression} (default: 0.1)}
+    \code{eps-svr}, \code{nu-svr} and \code{eps-bsvm} (default: 0.1)}
   \item{prob.model}{if set to \code{TRUE} builds a model for calculating class
     probabilities or in case of regression, calculates the scaling
     parameter of the Laplacian distribution fitted on the residuals.
@@ -196,6 +202,12 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
      \url{http://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.ps.gz}
 
      \item
+	C.-W. Hsu and C.-J. Lin. \cr
+	\emph{ A simple decomposition method for support vector machines}\cr 
+	 Machine Learning 46(2002), 291-314.\cr
+	 \url{http://www.csie.ntu.edu.tw/~cjlin/papers/decomp.ps.gz}
+
+     \item
      K. Crammer, Y. Singer\cr
      \emph{On the learnability and design of output codes for multiclass prolems}\cr
      Computational Learning Theory, 35-46, 2000.\cr
@@ -244,8 +256,8 @@ data(iris)
 rbf <- rbfdot(sigma=0.1)
 rbf
 
-## train a support vector machine
-irismodel <- ksvm(Species~.,data=iris,kernel=rbf,C=10,prob.model=TRUE)
+## train a bound constraint support vector machine
+irismodel <- ksvm(Species~.,data=iris,type="C-bsvc",kernel=rbf,C=10,prob.model=TRUE)
 
 irismodel
 
@@ -260,10 +272,22 @@ predict(irismodel, iris[,-5], type="probabilities")
 x <- rbind(matrix(rnorm(120),,2),matrix(rnorm(120,mean=3),,2))
 y <- matrix(c(rep(1,60),rep(-1,60)))
 
-svp <- ksvm(x,y,type="C-classification")
+svp <- ksvm(x,y,type="C-svc")
 plot(svp)
 
 
+
+#### Use custom kernel 
+
+k <- function(x,y) {(sum(x*y) +1)*exp(0.001*sum((x-y)^2))}
+class(k) <- "kernel"
+
+data(promotergene)
+
+## train svm using custom kernel
+gene <- ksvm(Class~.,data=promotergene,kernel=k,C=10,cross=5)
+
+gene
 
 ## regression
 # create data

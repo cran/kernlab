@@ -68,7 +68,7 @@ The kernel version of canonical correlation analysis.
 \author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
 
-\seealso{\code{cancor}  \code{kpca}}
+\seealso{\code{\link{cancor}}  \code{\link{kpca}}}
 \examples{
 
 }
