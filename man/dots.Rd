@@ -1,0 +1,90 @@
+\name{dots}
+\alias{dots}
+\alias{rbfdot}
+\alias{polydot}
+\alias{tanhdot}
+\alias{vanilladot}
+\alias{kpar}
+\alias{show,kernel-method}
+\title{Kernel Functions}
+\description{
+  The kernel generating functions provided in kernlab. \cr
+  The Gaussian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|^2)} \cr
+  the Polynomial kernel \eqn{k(x,x') = (scale <x, x'> + offset)^degree}.\cr
+  the Linear kernel \eqn{k(x,x') = <x, x'>}\cr
+  and the  Hyperbolic tangent kernel \eqn{k(x, x') = \tanh(scale <x, x'> + offset)}
+}
+\usage{
+rbfdot(sigma = 1)
+
+polydot(degree = 1, scale = 1, offset = 1)
+
+tanhdot(scale = 1, offset = 1)
+
+vanilladot()
+}
+
+\arguments{
+  \item{sigma}{The inverse kernel width used by the Gaussian kernel}
+  \item{degree}{The degree of the polynomial kernel. This has to be an integer.}
+  \item{scale}{The scaling parameter is a convenient way of normalizing
+    patterns without the need to modify the data itself}
+  \item{offset}{The offset used in a polynomial or hyperbolic tangent kernel}
+}
+\details{
+  The kernel generating function are used to initialize a kernel
+  function
+  which calculates the dot (inner) product between two feature vectors in a
+  Hilbert Space. These functions can be based as a \code{kernel} argument on almost all
+  functions in kernlab (eg. \code{ksvm}, \code{kpca}  etc).
+  Although using one of the above mentioned existing kernel functions as a
+  \code{kernel} argument in various functions in kernlab has the
+  advantage that use of optimize kernel utilities methods are used
+  any other function implementing a dot product of class kernel can also be used as a kernel
+  argument. This allows the user to use test an develop special kernels
+  for a given data set and algorithm.
+  }
+\value{
+ Return an S4 object of class \code{kernel} which extents the
+ \code{function} class. The resulting function implements the given
+ kernel calculating the inner (dot) product between two vectors.
+ \item{kpar}{a list containing the kernel parameters (hyperparameters)
+   used.}
+ the kernel parameters can be accessed by the \code{kpar} function.
+ }
+
+\author{Alexandros Karatzoglou\cr
+  \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
+
+\note{If the offset in the Polynomial kernel is set to $0$, we obtain homogeneous polynomial
+  kernels, for positive values, we have inhomogeneous
+  kernels. Note that for negative values the kernel does not satisfy Mercer's
+  condition and thus the optimizers may fail. \cr
+
+  In the Hyperbolic tangent kernel if the offset is negative the likelihood of obtaining a kernel
+  matrix that is not positive definite is much higher (since then even some
+  diagonal elements may be negative), hence if this kernel has to be used, the
+  offset should always be positive. Note, however, that this is no guarantee
+  that the kernel will be positive.
+}
+
+
+
+
+\seealso{ \code{\link{kernelMatrix} }, \code{\link{kernelMult}}, \code{\link{kernelPol}}}
+\examples{
+rbfkernel <- rbfdot(sigma = 0.1)
+rbfkernel
+
+kpar(rbfkernel)
+
+## create two vectors
+x <- rnorm(10)
+y <- rnorm(10)
+
+## calculate dot product
+rbfkernel(x,y)
+
+}
+\keyword{symbolmath}
+

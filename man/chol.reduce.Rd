@@ -1,0 +1,93 @@
+\name{chol.reduce}
+\alias{chol.reduce}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{Incomplete Cholesky decomposition}
+\description{
+  \code{chol.reduce} computes the incomplete Cholesky decomposition
+  of the kernel matrix from a data matrix. 
+}
+\usage{
+chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = dim(x)[1], verbose = 0)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{x}{The data matrix indexed by row}
+  \item{kernel}{the kernel function used in training and predicting.
+    This parameter can be set to any function, of class kernel, which computes a dot product between two
+    vector arguments. kernlab provides the most popular kernel functions
+    which can be used by setting the kernel parameter to the following
+    strings:
+    \itemize{
+      \item \code{rbfdot} (Radial Basis kernel function)
+      \item \code{polydot} (Polynomial kernel function)
+      \item \code{vanilladot} (Linear kernel function)
+      \item \code{tanhdot} (Hyperbolic tangent kernel function)
+    }
+    The kernel parameter can also be set to a user defined function of
+    class kernel by passing the function name as an argument.
+  }
+
+  \item{kpar}{the list of hyper-parameters (kernel parameters).
+    This is a list which contains the parameters to be used with the
+    kernel function. For valid parameters for existing kernels are :
+    \itemize{
+      \item \code{sigma} (inverse kernel width for the Radial Basis kernel function "rbfdot")
+      \item \code{degree, scale, offset} (for the Polynomial kernel "polydot")
+      \item \code{scale, offset} (for the Hyperbolic tangent kernel
+      function "tanhdot")
+    }
+    Hyper-parameters for user defined kernels can be passed through the
+    kpar parameter as well.
+  }
+  
+  \item{tol}{algorithm stops when remaining pivots bring less accuracy
+    then \code{tol} (default: 0.001)}
+  \item{max.iter}{maximum number of iterations }
+  \item{verbose}{print info on algorithm convergence }
+}
+\details{An incomplete cholesky decomposition calculates
+  \eqn{Z} where \eqn{K= ZZ'} \eqn{K} being the kernel matrix.
+  Since the rank of a kernel matrix is usually low, \eqn{Z} tends to be smaller
+  then the complete kernel matrix. The decomposed matrix can be
+  used to create memory efficient kernel-based algorithms without the
+  need to compute and store a complete kernel matrix in memory.}
+\value{
+  An S4 object of class "inc.chol" which is an extension of the class
+  "matrix". The object is the decomposed kernel matrix along with 
+  the slots :
+  \item{pivots}{Indices on which pivots where done}
+  \item{diag.residues}{Residuals left on the diagonal}
+  \item{maxresiduals}{Residuals picked for pivoting}
+
+  slots can be accessed either by \code{object@slot}
+or by accessor functions with the same name (e.g. \code{pivots(object))}}
+\references{ \item
+      Francis R. Bach, Michael I. Jordan\cr
+      \emph{Kernel Independent Component Analysis}\cr
+      Journal of Machine Learning Research  3, 1-48\cr
+      \url{http://www.jmlr.org/papers/volume3/bach02a/bach02a.pdf}
+    }
+ }
+\author{Alexandros Karatzoglou (based on Matlab code by 
+  S.V.N. (Vishy) Vishwanathan and Alex Smola)\cr
+\email{alexandros.karatzoglou@ci.tuwien.ac.at}}
+
+\seealso{\code{\link{chol}}}
+\examples{
+
+data(iris)
+datamatrix <- as.matrix(iris[,-5])
+# initialize kernel function
+rbf <- rbfdot(sigma=0.1)
+rbf
+Z <- chol.reduce(datamatrix,kernel=rbf)
+dim(Z)
+pivots(Z)
+# calculate kernel matrix
+K <- crossprod(t(Z))
+# difference between approximated and real kernel matrix
+(K - kernelMatrix(kernel=rbf, datamatrix))[6,]
+
+}
+\keyword{algebra}
+\keyword{array}
