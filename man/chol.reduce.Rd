@@ -18,10 +18,13 @@ chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = di
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{
-      \item \code{rbfdot} (Radial Basis kernel function)
-      \item \code{polydot} (Polynomial kernel function)
-      \item \code{vanilladot} (Linear kernel function)
-      \item \code{tanhdot} (Hyperbolic tangent kernel function)
+      \item \code{rbfdot} Radial Basis kernel function "Gaussian"
+      \item \code{polydot} Polynomial kernel function
+      \item \code{vanilladot} Linear kernel function
+      \item \code{tanhdot} Hyperbolic tangent kernel function
+      \item \code{laplacedot} Laplacian kernel function
+      \item \code{besseldot} Bessel kernel function
+      \item \code{anovadot} ANOVA RBF kernel function
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
@@ -31,10 +34,13 @@ chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = di
     This is a list which contains the parameters to be used with the
     kernel function. For valid parameters for existing kernels are :
     \itemize{
-      \item \code{sigma} (inverse kernel width for the Radial Basis kernel function "rbfdot")
-      \item \code{degree, scale, offset} (for the Polynomial kernel "polydot")
-      \item \code{scale, offset} (for the Hyperbolic tangent kernel
-      function "tanhdot")
+      \item \code{sigma} inverse kernel width for the Radial Basis
+      kernel function "rbfdot" and the Laplacian kernel "laplacedot".
+      \item \code{degree, scale, offset} for the Polynomial kernel "polydot"
+      \item \code{scale, offset} for the Hyperbolic tangent kernel
+      function "tanhdot"
+      \item \code{sigma, order, degree} for the Bessel kernel "besseldot". 
+      \item \code{sigma, degree} for the ANOVA kernel "anovadot".
     }
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.

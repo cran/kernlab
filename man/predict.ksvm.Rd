@@ -77,7 +77,8 @@ spamtrain <- spam[traindex, ]
 spamtest <- spam[-traindex, ]
 
 ## train a support vector machine
-filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3)
+filter <-
+ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3,prob.model=TRUE)
 filter
 
 ## predict mail type probabilities on the test set

@@ -9,6 +9,7 @@
 \alias{cross}
 \alias{error}
 \alias{fit}
+\alias{prob.model}
 \alias{type}
 \alias{kernelf}
 \alias{xmatrix}
@@ -16,6 +17,7 @@
 \alias{scaling}
 \alias{lev}
 \alias{kcall}
+\alias{prior}
 \alias{show}
 \alias{SVindex,ksvm-method}
 \alias{alpha,ksvm-method}
@@ -23,6 +25,8 @@
 \alias{cross,ksvm-method}
 \alias{error,ksvm-method}
 \alias{fit,ksvm-method}
+\alias{prior,ksvm-method}
+\alias{prob.model,ksvm-method}
 \alias{kernelf,ksvm-method}
 \alias{kpar,ksvm-method}
 \alias{lev,ksvm-method}
@@ -31,6 +35,8 @@
 \alias{type,ksvm-method}
 \alias{xmatrix,ksvm-method}
 \alias{ymatrix,ksvm-method}
+
+
 
 \title{Class "ksvm" }
 \description{An S4 class containing the output (model) of the
@@ -63,8 +69,11 @@
     \item{\code{fit}:}{Object of class \code{"ANY"} with the fitted values,
       predictions using the training set.}
     \item{\code{lev}:}{Object of class \code{"vector"} with the levels of the
-      response (in the case of classifiaction)
-    }
+      response (in the case of classifiaction)}
+    \item{\code{prob.model}:}{Object of class \code{"list"} with the
+      class prob. model}
+    \item{\code{prior}:}{Object of class \code{"list"} with the
+      prior of the training set}
     \item{\code{nclass}:}{Object of class \code{"numeric"}  containing
       the number of classes (in the case of classification)}
     \item{\code{alpha}:}{Object of class \code{"ANY"} containing the
@@ -93,7 +102,7 @@
     \item{alpha}{\code{signature(object = "ksvm")}: returns the complete
     alpha vector (wit zero values)}
     \item{alphaindex}{\code{signature(object = "ksvm")}: returns the
-      indexes of non-zero alphas (support vectors}
+      indexes of non-zero alphas (support vectors)}
     \item{cross}{\code{signature(object = "ksvm")}: returns the
       cross-validation error }
     \item{error}{\code{signature(object = "ksvm")}: returns the training
@@ -106,6 +115,10 @@
       parameters (hyperparameters)}
     \item{lev}{\code{signature(object = "ksvm")}: returns the levels in
       case of classification  }
+    \item{prob.model}{\code{signature(object="ksvm")}: returns class
+      prob. model values}
+    \item{prior}{\code{signature(object="ksvm")}: returns 
+      the prior of the training set}
     \item{kcall}{\code{signature(object="ksvm")}: returns the
     \code{ksvm} function call}
     \item{scaling}{\code{signature(object = "ksvm")}: returns the

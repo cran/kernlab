@@ -1,0 +1,31 @@
+chol.reduce             Incomplete Cholesky decomposition
+couple                  Probabilities Coupling function
+dots                    Kernel Functions
+gausspr                 Gaussian processes for regression and
+                        classification
+gausspr-class           Class "gausspr"
+inc.chol-class          Class "inc.chol"
+income                  Income Data
+ipop                    Quadratic Programming Solver
+ipop-class              Class "ipop"
+kcca                    Kernel Canonical Correlation Analysis
+kcca-class              Class "kcca"
+kernel-class            Class "kernel" "rbfkernel" "polykernel",
+                        "tanhkernel", "vanillakernel"
+kernelMatrix            Kernel Matrix functions
+kpca                    Kernel Principal Components Analysis
+kpca-class              Class "kpca"
+ksvm                    Support Vector Machines
+ksvm-class              Class "ksvm"
+predict.ksvm            predict method for support vector object
+ranking                 Ranking
+ranking-class           Class "ranking"
+rvm                     Relevance Vector Machine
+rvm-class               Class "rvm"
+sigest                  Hyperparameter estimation for the Gaussian
+                        Radial Basis kernel
+spam                    Spam E-mail Database
+specc                   Spectral Clustering
+specc-class             Class "specc"
+spirals                 Spirals Dataset
+ticdata                 The Insurance Company Data

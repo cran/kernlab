@@ -9,14 +9,24 @@
 \alias{kernelMatrix,polykernel,matrix-method}
 \alias{kernelMatrix,vanillakernel,matrix-method}
 \alias{kernelMatrix,tanhkernel,matrix-method}
+\alias{kernelMatrix,laplacekernel,matrix-method}
+\alias{kernelMatrix,anovakernel,matrix-method}
+\alias{kernelMatrix,besselkernel,matrix-method}
 \alias{kernelMult,rbfkernel,matrix-method}
 \alias{kernelMult,polykernel,matrix-method}
 \alias{kernelMult,tanhkernel,matrix-method}
+\alias{kernelMult,laplacekernel,matrix-method}
+\alias{kernelMult,besselkernel,matrix-method}
+\alias{kernelMult,anovakernel,matrix-method}
 \alias{kernelMult,vanillakernel,matrix-method}
 \alias{kernelPol,rbfkernel,matrix-method}
 \alias{kernelPol,polykernel,matrix-method}
 \alias{kernelPol,tanhkernel,matrix-method}
 \alias{kernelPol,vanillakernel,matrix-method}
+\alias{kernelPol,anovakernel,matrix-method}
+\alias{kernelPol,besselkernel,matrix-method}
+\alias{kernelPol,laplacekernel,matrix-method}
+
 
 \title{Kernel Matrix functions}
 \description{
@@ -55,12 +65,13 @@
   which can be initialized by using the following
   functions:
     \itemize{
-      \item \code{rbfdot} (Radial Basis kernel function)
-      \item \code{polydot} (Polynomial kernel function)
-      \item \code{vanilladot} (Linear kernel function)
-      \item \code{tanhdot} (Hyperbolic tangent kernel function)
-
-
+      \item \code{rbfdot} Radial Basis kernel function
+      \item \code{polydot} Polynomial kernel function
+      \item \code{vanilladot} Linear kernel function
+      \item \code{tanhdot} Hyperbolic tangent kernel function
+      \item \code{laplacedot} Laplacian kernel function
+      \item \code{besseldot} Bessel kernel function
+      \item \code{anovadot} ANOVA RBF kernel function
     }  (see example.)
   }
   

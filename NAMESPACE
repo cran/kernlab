@@ -2,9 +2,12 @@
 export(	
 ## kernel functions
 	"rbfdot",
+	"laplacedot",
+	"besseldot",
 	"polydot",
 	"tanhdot",
 	"vanilladot",
+	"anovadot",
 	"kernelMatrix",
 	"kernelMult",
 	"kernelPol",
@@ -16,6 +19,7 @@ export(
 	"ksvm",
 	"rvm",
 	"gausspr",
+	"ranking",
 
 ## Utility functions
 	"ipop",
@@ -25,6 +29,7 @@ export(
 ## Accessor functions
 	## VM
 	"type",
+	"prior",
 	"alpha",
 	"alphaindex",
 	"coeff",
@@ -40,7 +45,8 @@ export(
 	"cross",
 	"SVindex",
 	"RVindex",
-	
+	"prob.model",	
+
 	## kpca
 	"rotated",
 	"eig",
@@ -51,7 +57,7 @@ export(
 	"dual",
 	"how",
 
- 	## kcca
+ 	# kcca
 	"kcor",
 	"xcoef",
         "ycoef",
@@ -59,14 +65,17 @@ export(
 	"yvar",
 	
 	## specc
-	"cluster",	
 	"size",
 	"centers",
+	"withinss",
 		
 	## rvm
 	"mlike",
 	"nvar",
-	
+
+	## ranking
+	"convergence",
+	"edgegraph",
 		
 	## inc.chol
 	"pivots",
@@ -78,7 +87,7 @@ importFrom("stats","predict")
 
 exportMethods(predict,show)
 
-exportClasses("ksvm", "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","tanhkernel","polykernel","vanillakernel", "inc.chol")
+exportClasses("ksvm",  "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "specc", "ranking","inc.chol")
 
 useDynLib("kernlab")
 	

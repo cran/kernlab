@@ -1,6 +1,11 @@
 #
 # TRON directory.
 #
+include $(RHOME)/src/gnuwin32/MkRules
+
+CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/src/include
+CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
+CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
 
 RANLIB = ranlib 
 

@@ -182,8 +182,12 @@ private:
 	const double degree;
 	const double gamma;
 	const double coef0;
+        const double lim;
+        const int  d;  
 
 	static double dot(const svm_node *px, const svm_node *py);
+        static double anova(const svm_node *px, const svm_node *py, const double sigma, const int d, const double degree);
+
 	double kernel_linear(int i, int j) const
 	{
 		return dot(x[i],x[j]);
@@ -196,6 +200,25 @@ private:
 	{
 		return exp(-gamma*(x_square[i]+x_square[j]-2*dot(x[i],x[j])));
 	}
+	double kernel_laplace(int i, int j) const
+        {
+                return exp(-gamma*sqrt(fabs(x_square[i]+x_square[j]-2*dot(x[i],x[j]))));
+        }
+        double kernel_bessel(int i, int j) const
+        { 
+	  double bkt = gamma*sqrt(fabs(x_square[i]+x_square[j]-2*dot(x[i],x[j])));
+	  if (bkt < 0.000001){
+            return 1 ;
+	  }
+          else {
+	    return(pow(((jn((int)degree, bkt)*pow(bkt,(-degree)))/lim),coef0));
+	  }
+	}
+
+        double kernel_anova(int i, int j) const
+        {
+	 return  anova(x[i], x[j], gamma, d, degree);
+	}
 	double kernel_sigmoid(int i, int j) const
 	{
 		return tanh(gamma*dot(x[i],x[j])+coef0);
@@ -204,7 +227,7 @@ private:
 
 Kernel::Kernel(int l, svm_node * const * x_, const svm_parameter& param)
 :kernel_type(param.kernel_type), degree(param.degree),
- gamma(param.gamma), coef0(param.coef0)
+ gamma(param.gamma), coef0(param.coef0),lim(param.lim),d(param.d)
 {
 	switch(kernel_type)
 	{
@@ -217,14 +240,24 @@ Kernel::Kernel(int l, svm_node * const * x_, const svm_parameter& param)
 		case RBF:
 			kernel_function = &Kernel::kernel_rbf;
 			break;
-		case SIGMOID:
+		case LAPLACE:
+                        kernel_function = &Kernel::kernel_laplace;
+                        break;
+        	case BESSEL:
+	                kernel_function = &Kernel::kernel_bessel;
+			break;
+		case ANOVA:
+	                kernel_function = &Kernel::kernel_anova;
+			break;
+			
+	       case SIGMOID:
 			kernel_function = &Kernel::kernel_sigmoid;
 			break;
 	}
 
 	clone(x,x_,l);
 
-	if(kernel_type == RBF)
+	if(kernel_type == RBF || kernel_type == LAPLACE|| kernel_type == BESSEL)
 	{
 		x_square = new double[l];
 		for(int i=0;i<l;i++)
@@ -261,6 +294,45 @@ double Kernel::dot(const svm_node *px, const svm_node *py)
 	}
 	return sum;
 }
+
+
+double Kernel::anova(const svm_node *px, const svm_node *py, const double sigma, const int d, const double degree)
+{
+
+	double sum = 0;
+        //int zero = d; 
+	double tv;
+	while(px->index != -1 && py->index != -1)
+	{
+		if(px->index == py->index)
+		  { 	
+		    tv = (px->value - py->value) * (px->value - py->value);
+		    // if (fabs(tv) < 0.000001)
+		    //	sum ++;
+		    // else
+			sum += exp( - sigma * tv);
+		    ++px;
+		    ++py;
+		}
+		else
+		{
+			if(px->index > py->index)
+			  { 
+			    sum += exp( - sigma * (py->value * py->value));
+			    ++py;
+			  }
+			else
+			  {
+			    sum += exp( - sigma * (px->value * px->value));
+			    ++px;
+			  }
+		}
+		//zero--;
+	}
+	return (pow(sum,degree));
+}
+
+
 
 double Kernel::k_function(const svm_node *x, const svm_node *y,
 			  const svm_parameter& param)
@@ -2412,7 +2484,11 @@ const char *svm_check_parameterb(const svm_problem *prob, const svm_parameter *p
 	if(kernel_type != LINEAR &&
 	   kernel_type != POLY &&
 	   kernel_type != RBF &&
-	   kernel_type != SIGMOID)
+	   kernel_type != SIGMOID &&
+	   kernel_type != R &&
+	   kernel_type != LAPLACE&&
+	   kernel_type != BESSEL&&
+	   kernel_type != ANOVA)
 		return "unknown kernel type";
 
 	// cache_size,eps,C,nu,p,shrinking
@@ -2488,6 +2564,36 @@ extern "C" {
     
     return sparse;
   }
+
+
+struct svm_node ** transsparseb (double *x, int r, int *rowindex, int *colindex)
+{
+    struct svm_node** sparse;
+    int i, ii, count = 0, nnz = 0;
+
+    sparse = (struct svm_node **) malloc (r * sizeof(struct svm_node*));
+    for (i = 0; i < r; i++) {
+        /* allocate memory for column elements */
+        nnz = rowindex[i+1] - rowindex[i];
+        sparse[i] = (struct svm_node *) malloc ((nnz + 1) * sizeof(struct svm_node));
+
+        /* set column elements */
+        for (ii = 0; ii < nnz; ii++) {
+            sparse[i][ii].index = colindex[count];
+            sparse[i][ii].value = x[count];
+            count++;
+        }
+
+        /* set termination element */
+        sparse[i][ii].index = -1;
+    }
+
+    return sparse;
+
+}
+
+
+
   
   void lala3(const svm_problem *prob, const svm_parameter* param, 
 		  double *alpha,  double *weighted_C, Solver_B::SolutionInfo* sii, int nr_class, int *count)
@@ -2728,7 +2834,10 @@ extern "C" {
   SEXP tron_optim(SEXP x,
 		  SEXP r, 
 		  SEXP c, 
-		  SEXP y, 
+		  SEXP y,
+		  SEXP colindex,
+		  SEXP rowindex,
+		  SEXP sparse,
 		  SEXP nclass,
 		  SEXP countc,
 		  SEXP kernel_type, 
@@ -2784,14 +2893,19 @@ extern "C" {
     }
     param.p           = *REAL(eps);
     param.shrinking   = *INTEGER(shrinking);
-
+    param.d           = *INTEGER(c);
+    param.lim = 1/(tgamma(param.degree+1)*pow(2,param.degree));    
     /* set problem */
     prob.l = *INTEGER(r);
     prob.y =  (double *) malloc (sizeof(double) * prob.l);
     memcpy(prob.y, REAL(y), prob.l*sizeof(double));
-    prob.x = sparsifyb(REAL(x), *INTEGER(r), *INTEGER(c)); 
+
+    if (*INTEGER(sparse) > 0)
+      prob.x = transsparseb(REAL(x), *INTEGER(r), INTEGER(rowindex), INTEGER(colindex));
+    else
+      prob.x = sparsifyb(REAL(x), *INTEGER(r), *INTEGER(c)); 
+
     s = svm_check_parameterb(&prob, &param);
-   
     if (s) 
       printf("%s",s);
     else {
