@@ -101,8 +101,7 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   \item{prob.model}{if set to \code{TRUE} builds a model for calculating class
     probabilities or in case of regression, calculates the scaling
     parameter of the Laplacian distribution fitted on the residuals.
-   
-    is fitted on output data created by performing a
+    Fitting is done  on output data created by performing a
     3-fold cross-validation on the training data. For details see
     references. (default: \code{FALSE})}
   \item{class.weights}{a named vector of weights for the different
@@ -143,6 +142,9 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   \item{nSV}{The number of Support Vectors}
   \item{error}{Training error}
   \item{cross}{Cross validation error, (when cross > 0)}
+  \item{prob.model}{Contains the width of the Laplacian fitted on the
+    residuals in case of regression, or the parameters of the sigmoid
+    fitted on the decision values in case of classification.}
 }
 
   

@@ -957,12 +957,12 @@ function(object){
   cat("\n")
  show(kernelf(object))
   cat(paste("\nNumber of Support Vectors :", nSV(object),"\n"))
-  if(!is.null(fit(object)))
+
 
 ##    if(type(object)=="C-classification" || type(object) == "nu-classification")
 ##      cat(paste("Margin width :",margin(object),"\n"))
-    
-  cat(paste("Training error :", round(error(object),6),"\n"))
+  if(!is.null(fit(object)))
+    cat(paste("Training error :", round(error(object),6),"\n"))
   if(cross(object)!= -1)
     cat("Cross validation error :",round(cross(object),6),"\n")
   if(!is.null(prob.model(object)[[1]])&&(type(object)=="eps-regression" ||type(object)=="nu-regression"))
