@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <R_ext/BLAS.h>
 
 extern void *xmalloc(size_t);
 extern double mymin(double, double);
@@ -10,10 +11,10 @@ extern int ufv(int, double *, double *);
 extern int ugrad(int, double *, double *);
 extern int uhes(int, double *, double **);
 /* LEVEL 1 BLAS */
-extern double dnrm2_(int *, double *, int *);
-extern double ddot_(int *, double *, int *, double *, int *);
+/*extern double dnrm2_(int *, double *, int *);*/
+/*extern double ddot_(int *, double *, int *, double *, int *);*/
 /* LEVEL 2 BLAS */
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
+/*extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);*/
 /* MINPACK 2 */
 extern double dgpnrm(int, double *, double *, double *, double *);
 extern void dcauchy(int, double *, double *, double *, double *, double *, double, double *, double *, double *);
@@ -118,7 +119,7 @@ c     **********
 	uhes(n, x, &A);
 	ugrad(n, x, g);	
 	ufv(n, x, &f);	
-	gnorm0 = dnrm2_(&n, g, &inc);
+	gnorm0 = F77_CALL(dnrm2)(&n, g, &inc);
 	delta = 1000*gnorm0;
 	gnorm = dgpnrm(n, x, xl, xu, g);
 	if (gnorm <= gtol*gnorm0)
@@ -152,19 +153,19 @@ c     **********
 
 		/* Compute the predicted reduction. */
 		memcpy(wa, g, sizeof(double)*n);
-		dsymv_("U", &n, &p5, A, &n, s, &inc, &one, wa, &inc);
-		prered = -ddot_(&n, s, &inc, wa, &inc);
+		F77_CALL(dsymv)("U", &n, &p5, A, &n, s, &inc, &one, wa, &inc);
+		prered = -F77_CALL(ddot)(&n, s, &inc, wa, &inc);
                         
 		/* Compute the actual reduction. */
 	        actred = fc - f;                
                                     
 		/* On the first iteration, adjust the initial step bound. */
-		snorm = dnrm2_(&n, s, &inc);
+		snorm = F77_CALL(dnrm2)(&n, s, &inc);
 		if (iter == 1)
 			delta = mymin(delta, snorm);
 
 		/* Compute prediction alpha*snorm of the step. */
-		gs = ddot_(&n, g, &inc, s, &inc);
+		gs = F77_CALL(ddot)(&n, g, &inc, s, &inc);
 
 		if (f - fc - gs <= 0)
 			alpha = sigma3;

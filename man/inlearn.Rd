@@ -1,17 +1,17 @@
-\name{kcca}
-\alias{kcca}
-\alias{kcca,matrix-method}
-\title{Kernel Canonical Correlation Analysis}
+\name{inlearn}
+\alias{inlearn}
+\alias{inlearn,numeric-method}
+\title{Onlearn object initialization}
 \description{
-Computes the canonical correlation analysis in a feature space.
+ Online Kernel Algorithm object \code{onlearn} initialization function.
 }
 \usage{
-\S4method{kcca}{matrix}(x, y, kernel="rbfdot", kpar=list(sigma=0.1), ...)
+
+\S4method{inlearn}{numeric}(d, kernel = "rbfdot", kpar = list(sigma = 0.1), type = "novelty", buffersize = 1000)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{a matrix containing data index by row}
-  \item{y}{a matrix containing data index by row}
+  \item{d}{the dimensionality of the data to be learned}
+  
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which computes a dot product between two
     vector arguments. kernlab provides the most popular kernel functions
@@ -39,38 +39,45 @@ Computes the canonical correlation analysis in a feature space.
       \item \code{degree, scale, offset} for the Polynomial kernel "polydot"
       \item \code{scale, offset} for the Hyperbolic tangent kernel
       function "tanhdot"
-      \item \code{sigma, order, degree} for the Bessel kernel "besseldot". 
+      \item \code{sigma, order, degree} for the Bessel kernel "besseldot".
       \item \code{sigma, degree} for the ANOVA kernel "anovadot".
     }
- 
     Hyper-parameters for user defined kernels can be passed through the
-    kpar parameter as well.}
+    \code{kpar} parameter as well.}
 
-  \item{\dots}{adittional parameters for the \code{kpca} function}
+   \item{type}{the type of problem to be learned by the online algorithm
+     :
+   \code{classification}, \code{regression}, \code{novelty}}
+ \item{buffersize}{the size of the buffer to be used}
 }
 \details{
-The kernel version of canonical correlation analysis. 
+The \code{inlearn} is used to initialize a blank \code{onlearn} object.
 }
 \value{
-  An S4 object containg the following slots:
-  \item{kcor}{Correlation coefficients in feature space}
-  \item{xcoef}{estimated coefficients for the \code{x} variables in the
-    feature space}
-  \item{ycoef}{estimated coefficients for the \code{y} variables in the
-    feature space}
-  \item{xvar}{The canonical variates for \code{x}}
-  \item{yvar}{The canonical variates for \code{y}}
-    
+ The function returns an \code{S4} object of class \code{onlearn} that
+ can be used by the \code{onlearn} function.
 }
-\references{ Malte Kuss, Thore Graepel \cr 
-	\emph{The Geometry Of Kernel Canonical Correlation Analysis}\cr
-	\url{http://www.kyb.tuebingen.mpg.de/publications/pdfs/pdf2233.pdf}}
-\author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
+\author{Alexandros Karatzoglou\cr
+\email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
-
-\seealso{\code{cancor}  \code{kpca}}
+\seealso{ \code{\link{onlearn}}, \code{\link{onlearn-class}} }
 \examples{
 
-}
-\keyword{multivariate}
+## create toy data set
+x <- rbind(matrix(rnorm(100),,2),matrix(rnorm(100)+3,,2))
+y <- matrix(c(rep(1,50),rep(-1,50)),,1)
 
+## initialize onlearn object
+on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+
+## learn one data point at the time
+for(i in sample(1:100,100))
+on <- onlearn(on,x[i,],y[i],nu=0.03,lambda=0.1)
+
+sign(predict(on,x))
+
+}
+\keyword{classif}
+\keyword{neural}
+\keyword{regression}
+\keyword{ts}

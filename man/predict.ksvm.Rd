@@ -69,21 +69,20 @@
 
 \examples{
 
-## example using the spam data set
-data(spam)
+## example using the promotergene data set
+data(promotergene)
+
 ## create test and training set
-traindex <- sample(1:dim(spam)[1],2*dim(spam)[1]/3)
-spamtrain <- spam[traindex, ]
-spamtest <- spam[-traindex, ]
+ind <- sample(1:dim(promotergene)[1],20)
+genetrain <- promotergene[-ind, ]
+genetest <- promotergene[ind, ]
 
 ## train a support vector machine
-filter <-
-ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3,prob.model=TRUE)
-filter
+gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",kpar=list(sigma=0.015),C=70,cross=4,prob.model=TRUE)
+gene
 
-## predict mail type probabilities on the test set
-mailtype <- predict(filter,spamtest,type="probabilities")
-mailtype[c(1:10,1000:1010),]
-
+## predict gene type probabilities on the test set
+genetype <- predict(gene,genetest,type="probabilities")
+genetype
 }
 

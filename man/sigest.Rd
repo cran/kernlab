@@ -66,28 +66,27 @@ Proc of NIPS workshop on Statitsical methods for computational experiments in vi
 }
 \examples{
 
-## estimate good sigma values for spam
-data(spam)
-srange <- sigest(type~.,data = spam)
+## estimate good sigma values for promotergene
+data(promotergene)
+srange <- sigest(Class~.,data = promotergene)
 srange
-## Use that to build a spam filter
+
 s <- sum(srange)/2
 s
 ## create test and training set
-index <- sample(1:dim(spam)[1])
-spamtrain <- spam[index[1:floor(2 * dim(spam)[1]/3)], ]
-spamtest <- spam[index[((2 * ceiling(dim(spam)[1]/3)) + 1):dim(spam)[1]], ]
+ind <- sample(1:dim(promotergene)[1],20)
+genetrain <- promotergene[-ind, ]
+genetest <- promotergene[ind, ]
 
 ## train a support vector machine
-filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma = s),C=50,cross=3)
-filter
+gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",kpar=list(sigma = s),C=50,cross=3)
+gene
 
-## predict mail type on the test set
-mailtype <- predict(filter,spamtest[,-58])
+## predict gene type on the test set
+mailtype <- predict(gene,genetest[,-1])
 
 ## Check results
-table(mailtype,spamtest[,58])
-
+table(mailtype,genetest[,1])
 }
 \keyword{classif}
 \keyword{regression}

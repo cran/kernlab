@@ -11,6 +11,7 @@ export(
 	"kernelMatrix",
 	"kernelMult",
 	"kernelPol",
+	"kernelFast",
 	
 ## High level functions 
 	"kpca",
@@ -20,6 +21,7 @@ export(
 	"rvm",
 	"gausspr",
 	"ranking",
+	
 
 ## Utility functions
 	"ipop",
@@ -45,7 +47,9 @@ export(
 	"cross",
 	"SVindex",
 	"RVindex",
-	"prob.model",	
+	"prob.model",
+	"b",
+##        "margin",
 
 	## kpca
 	"rotated",
@@ -76,7 +80,17 @@ export(
 	## ranking
 	"convergence",
 	"edgegraph",
-		
+	
+
+	## onlearn
+	"onlearn",
+	"inlearn",
+	"buffer",
+	"rho",
+
+	## kfa
+	"kfa",
+	
 	## inc.chol
 	"pivots",
 	"diag.residues",
@@ -84,10 +98,11 @@ export(
 
 import(methods)
 importFrom("stats","predict")
+importFrom("graphics","plot")
 
-exportMethods(predict,show)
+exportMethods(predict,show,plot)
 
-exportClasses("ksvm",  "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "specc", "ranking","inc.chol")
+exportClasses("ksvm",  "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "specc", "ranking","inc.chol","onlearn", "kfa")
 
 useDynLib("kernlab")
 	

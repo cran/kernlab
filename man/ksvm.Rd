@@ -12,7 +12,7 @@
   classical C-classification, nu-classification, one-class-classification
   e-regression, nu-regression along with the Crammer-Singer method
   for multi-class classification spoc-classification.\cr
-  A probabilistic prediction function for classification is also included.
+  The implementation also supports class-probabilities output and confidence intervals for regression.
 }
 \usage{
 \S4method{ksvm}{formula}(x, data = NULL, ..., subset, na.action = na.omit, scaled = TRUE)
@@ -98,8 +98,11 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
     bound on the fraction of data points to become Support Vectors (default: 0.2).}
   \item{epsilon}{epsilon in the insensitive-loss function used for
     \code{eps-regression} and \code{nu-regression} (default: 0.1)}
-  \item{prob.model}{if set to \code{TRUE} a model for calculating class
-    probabilities is fitted on output data created by performing a
+  \item{prob.model}{if set to \code{TRUE} builds a model for calculating class
+    probabilities or in case of regression, calculates the scaling
+    parameter of the Laplacian distribution fitted on the residuals.
+   
+    is fitted on output data created by performing a
     3-fold cross-validation on the training data. For details see
     references. (default: \code{FALSE})}
   \item{class.weights}{a named vector of weights for the different
@@ -148,6 +151,11 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   trained; the appropriate class is found by a voting scheme.\cr
   If the predictor variables include factors, the formula interface must be used to get a
   correct model matrix.
+  In classification when \code{prob.model} is \code{TRUE} a 3-fold cross validation is
+  performed on the data and a sigmoid function is fitted on the
+  resulting decision values \eqn{f}.
+  The \code{plot} function for binary classification \code{ksvm} objects
+  displays a contour plot of the decision values.
   The predict function can return probabilistic output (probability
   matrix) in the case of
   classification by setting the \code{type} parameter to "probabilities".
@@ -203,6 +211,7 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
 \keyword{regression}
 \keyword{nonlinear}
 \keyword{classif}
+\keyword{neural}
 
 \examples{
 
@@ -243,6 +252,15 @@ fit(irismodel)
 
 ## Test on the training set with probabilities as output
 predict(irismodel, iris[,-5], type="probabilities")
+
+
+## Demo of the plot function
+x <- rbind(matrix(rnorm(120),,2),matrix(rnorm(120,mean=3),,2))
+y <- matrix(c(rep(1,60),rep(-1,60)))
+
+svp <- ksvm(x,y,type="C-classification")
+plot(svp)
+
 
 
 ## regression

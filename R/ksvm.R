@@ -46,7 +46,7 @@ function (x,
           scaled    = TRUE,
           type      = NULL,
           kernel    = "rbfdot",
-          kpar      = list(sigma = 0.1),
+          kpar      = "automatic",
           C         = 1,
           nu        = 0.2,
           epsilon   = 0.1,
@@ -66,7 +66,6 @@ function (x,
     if (!require(SparseM))
       stop("Need SparseM package for handling of sparse structures!")
   }
-  
   ## subsetting and na-handling for matrices
   ret <- new("ksvm")
   if (!missing(subset)) x <- x[subset,]
@@ -100,7 +99,6 @@ function (x,
     if(!is.null(y)) na.fail(y)
     x <- t(t(x)) ## make shure that col-indices are sorted
   }
-
 
   unscaledx <- x  
   x.scale <- y.scale <- NULL
@@ -141,11 +139,12 @@ function (x,
       kpar <- NULL
     }
   }
-  if (!is.list(kpar)&&is.character(kpar)&&( class(kernel)=="rbfkernel" || kernel=="rbfdot")){
+  if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
       kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
-   cat("Using automatic sigma estimation (sigest) for RBF kernel","\n")
+   cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
+   
   }
   if(!is(kernel,"kernel"))
     {
@@ -191,10 +190,10 @@ function (x,
         stop ("dependent variable has to be of factor or integer type for classification mode.")
 
       if (type(ret) != "eps-regression" || type(ret) != "nu-regression")
-        lev(ret) <- unique (y)
+        lev(ret) <- sort(unique (y))
     }
  ## initialize    
-  nclass(ret) <- length (lev(ret))
+  nclass(ret) <- length (unique(y))
   p <- 0
   svindex <- problem <- NULL
   sigma <- 0.1
@@ -260,7 +259,7 @@ function (x,
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- weightlabels[c(i,j)]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -269,7 +268,7 @@ function (x,
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- weightlabels[c(j,i)]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -280,7 +279,7 @@ function (x,
         md <- length(yd)
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
-        
+
         resv <- .Call("smo_optim",
                       as.double(t(xd)),
                       as.integer(nrow(xd)),
@@ -322,6 +321,7 @@ function (x,
         problem[p] <- list(c(i,j))
         ##store C  in return object
         param(ret)$C <- C
+##        margin(ret)[p] <- (min(kernelMult(kernel,xd[1:li,],,alpha(ret)[[p]][1:li])) - max(kernelMult(kernel,xd[li:(li+lj),],,alpha(ret)[[p]][li:(li+lj)])))/2
       }
     }
   } 
@@ -340,10 +340,24 @@ if(type(ret) == "nu-classification"){
         xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
         xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
-          yd <- c(rep(1,li),rep(-1,lj))
+          {
+            yd <- c(rep(1,li),rep(-1,lj))
+            if(!is.null(class.weights)){
+            weight <- class.weights[weightlabels[c(i,j)]]
+            wl <- c(1,0)
+            nweights <- 2
+          }
+          }
         else
-          yd <- c(rep(-1,li),rep(1,lj))
-
+          {
+            yd <- c(rep(-1,li),rep(1,lj))
+            if(!is.null(class.weights)){
+            weight <- class.weights[weightlabels[c(j,i)]]
+            wl <- c(0,1)
+            nweigths <- 2
+          }
+          }
+       
         boolabel <- yd >= 0
         prior1 <- sum(boolabel)
         md <- length(yd)
@@ -368,9 +382,9 @@ if(type(ret) == "nu-classification"){
                       as.double(sigma),
                       as.double(degree),
                       as.double(offset),
-                      as.integer(0), #weightlabl.
-                      as.double(0),
-                      as.integer(0),
+                      as.integer(wl), #weightlabl.
+                      as.double(weight),
+                      as.integer(nweights),
                       as.double(cache),
                       as.double(tol), 
                       as.integer(shrinking),
@@ -390,6 +404,9 @@ if(type(ret) == "nu-classification"){
         ## used to reconstruct indexes for the patterns matrix x from "indexes"
                problem[p] <- list(c(i,j))
                param(ret)$nu <- nu
+        
+##        margin(ret)[p] <- (min(kernelMult(kernel,xd[1:li,],,alpha(ret)[[p]][1:li])) - max(kernelMult(kernel,xd[li:(li+lj),],,alpha(ret)[[p]][li:(li+lj)])))/2
+    
       }
     }
   } 
@@ -398,7 +415,7 @@ if(type(ret) == "nu-classification"){
 if(type(ret) =="spoc-classification")
   {
     if(!is.null(class.weights))
-     weightedC <- weightlabels * rep(C,nclass(ret))
+     weightedC <- class.weights[weightlabels] * rep(C,nclass(ret))
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
@@ -638,14 +655,19 @@ if(type(ret) =="kbb-classification")
     cat("\n","cross should be >1 no cross-validation done!","\n","\n")
   else if (cross > 1)
     {
+     
       cerror <- 0
       suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
       for(i in 1:cross)
         {
-           cind <- unsplit(vgr[-i],1:(m-length(vgr[[i]])))
+         
+          cind <- unsplit(vgr[-i],1:(m-length(vgr[[i]])))
           if(type(ret)=="C-classification"||type(ret)=="nu-classification"||type(ret)=="spoc-classification"||type(ret)=="kbb-classification")
-            { 
-              cret <- ksvm(x[cind,],factor (lev(ret)[y[cind]], levels = lev(ret)),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+            {
+              if(is.null(class.weights))
+                cret <- ksvm(x[cind,],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache)
+              else
+                cret <- ksvm(x[cind,],lev(ret)[y[cind]],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
@@ -655,7 +677,7 @@ if(type(ret) =="kbb-classification")
               cres <- predict(cret, x[vgr[[i]],])
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
             }
-        }
+         }
       cross(ret) <- cerror
     }
 
@@ -663,52 +685,67 @@ if(type(ret) =="kbb-classification")
   
   if(prob.model)
     {
-      p <- 0
-      for (i in 1:(nclass(ret)-1)) {
-        jj <- i+1
-        for(j in jj:nclass(ret)) {
-          p <- p+1
-          ##prepare data
-          li <- length(indexes[[i]])
-          lj <- length(indexes[[j]])
-          xd <- matrix(0,(li+lj),dim(x)[2])
-          xdi <- 1:(li+lj) <= li
-          xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-          xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-          if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
-            {
-              yd <- c(rep(1,li),rep(-1,lj))
-              if(!is.null(class.weights)){
-                weight <- weightlabels[c(i,j)]
-                wl <- c(1,0)
-                nweights <- 2
-              }
-            }
-          else
-            {
-              yd <- c(rep(-1,li),rep(1,lj))
-              if(!is.null(class.weights)){
-                weight <- weightlabels[c(j,i)]
-                wl <- c(0,1)
-                nweigths <- 2
-              }
-            }
-          pres <- NULL
-          m <- li+lj
-          suppressWarnings(vgr<-split(sample(1:m,m),1:3))
-          for(k in 1:3)
-            {
-              cind <- unsplit(vgr[-k],1:(m-length(vgr[[k]])))
-              if(type(ret)=="C-classification"||type(ret)=="nu-classification")
-                { 
+
+      pres <- NULL
+      if(type(ret)=="C-classification"||type(ret)=="nu-classification")
+        {
+          p <- 0
+          for (i in 1:(nclass(ret)-1)) {
+            jj <- i+1
+            for(j in jj:nclass(ret)) {
+              p <- p+1
+              ##prepare data
+              li <- length(indexes[[i]])
+              lj <- length(indexes[[j]])
+              xd <- matrix(0,(li+lj),dim(x)[2])
+              xdi <- 1:(li+lj) <= li
+              xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
+              xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
+              if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
+                {
+                  yd <- c(rep(1,li),rep(-1,lj))
+                  if(!is.null(class.weights)){
+                    weight <- weightlabels[c(i,j)]
+                    wl <- c(1,0)
+                    nweights <- 2
+                  }
+                }
+              else
+                {
+                  yd <- c(rep(-1,li),rep(1,lj))
+                  if(!is.null(class.weights)){
+                    weight <- weightlabels[c(j,i)]
+                    wl <- c(0,1)
+                    nweigths <- 2
+                  }
+                }
+              m <- li+lj
+              suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+              for(k in 1:3)
+                {
+                  cind <- unsplit(vgr[-k],1:(m-length(vgr[[k]])))
                   cret <- ksvm(xd[cind,], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE,cache = cache, prob.model=FALSE)
                   pres <- rbind(pres,predict(cret, xd[vgr[[k]],],type="decision"))
+                  
                 }
+              prob.model(ret)[[p]] <- .probPlatt(pres)
             }
-          prob.model(ret)[[p]] <- .probPlatt(pres)
+          }
         }
+      if(type(ret) == "eps-regression"||type(ret) == "nu-regression"){
+        suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+        for(i in 1:3)
+          {
+            cind <- unsplit(vgr[-i],1:(m-length(vgr[[i]])))
+            cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+            cres <- predict(cret, x[vgr[[i]],])
+            pres <- rbind(pres,predict(cret, x[vgr[[i]],],type="decision"))
+          }
+        pres[abs(pres) > (5*sd(pres))] <- 0
+        prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
       }
     }
+ 
   xmatrix(ret) <- x
   ## loss(ret) <- sum((1 - y * fitted(ret))[(1 - y * fitted(ret))>0]/m)
   return(ret)
@@ -733,15 +770,24 @@ if(type(ret) =="kbb-classification")
 setMethod("predict", signature(object = "ksvm"),
 function (object, newdata, type = "response", coupler = "minpair")
 {
-  if (missing(newdata))
+  sc <- 0
+  type <- match.arg(type,c("response","probabilities","votes","decision"))
+  if (missing(newdata) && type!="response")
     return(fit(object))
+  else if(missing(newdata))
+    {
+      newdata <- xmatrix(object)
+      sc <- 1
+    }
+  
   ncols <- ncol(xmatrix(object))
   nrows <- nrow(xmatrix(object))
   oldco <- ncols
 
   if (!is.null(kterms(object)))
-    {  
-      newdata <- model.matrix(delete.response(kterms(object)), as.data.frame(newdata), na.action = n.action(object))
+    {
+      if(!is.matrix(newdata))
+        newdata <- model.matrix(delete.response(kterms(object)), as.data.frame(newdata), na.action = n.action(object))
     }
   else
     newdata  <- if (is.vector(newdata)) t(t(newdata)) else as.matrix(newdata)
@@ -754,16 +800,16 @@ function (object, newdata, type = "response", coupler = "minpair")
   if (oldco != newco) stop ("test vector does not match model !")
   p<-0
 
-  if (is.list(scaling(object)))
+  if (is.list(scaling(object)) && sc != 1)
     newdata[,scaling(object)$scaled] <-
       scale(newdata[,scaling(object)$scaled, drop = FALSE],
             center = scaling(object)$x.scale$"scaled:center",
             scale  = scaling(object)$x.scale$"scaled:scale"
             )
 
-  type <- match.arg(type,c("response","probabilities","votes","decision"))
+
  
-  if(type == "response" || type =="decision")
+  if(type == "response" || type =="decision"||type=="votes")
     {
   if(type(object)=="C-classification"||type(object)=="nu-classification")
     {
@@ -785,7 +831,12 @@ function (object, newdata, type = "response", coupler = "minpair")
           }
       }
       if(type == "decision")
-        predres <- t(votematrix)
+        {
+          if (nclass(object) == 2)
+            predres <- t(votematrix)[,1,drop = FALSE]
+          else
+            predres <-  t(votematrix)
+        }
       else 
         predres <- sapply(predres, function(x) which.max(votematrix[,x]))
     }
@@ -848,32 +899,39 @@ function (object, newdata, type = "response", coupler = "minpair")
     {
       ret <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object),]),coeff(object)) - b(object)
       ret[ret>0]<-1
+      ##one-class-classification: return TRUE/FALSE (probabilities ?)
+      return(ret == 1)      
     }
-  
-  if(type(object)=="eps-regression"||type(object)=="nu-regression")
-    {
-      predres <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object),]),coeff(object)) - b(object)
-    }
-  
-  if (is.character(lev(object)) && type!="decision")
-    {
+  else {
+    if(type(object)=="eps-regression"||type(object)=="nu-regression")
+      {
+        predres <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object),]),coeff(object)) - b(object)
+      }
+    else {
+      ##classification & votes : return votematrix
+      if(type == "votes")
+        return(votematrix)
+      
       ##classification & probabilities : return probability matrix
       if(type == "probabilities")
         {
           colnames(multiprob) <- lev(object)
           return(multiprob)
         }
-      ##classification & type response: return factors
-      if(type == "response")
-        return(factor (lev(object)[predres], levels = lev(object)))
-      ##classification & votes : return votematrix
-      if(type == "votes")
-        return(votematrix)
+
+      if(is.numeric(lev(object)) && type == "response")
+         return(lev(object)[predres])
+      
+      if (is.character(lev(object)) && type!="decision")
+        {
+          ##classification & type response: return factors
+          if(type == "response")
+            return(factor (lev(object)[predres], levels = lev(object)))
+        }
     }
-  else if (type(object) == "one-classification")
-    ##one-class-classification: return TRUE/FALSE (probabilities ?)
-    return(ret == 1)
-  else if (!is.null(scaling(object)$y.scale))
+  }
+ 
+  if (!is.null(scaling(object)$y.scale))
     ## return raw values, possibly scaled back
     return(predres * scaling(object)$y.scale$"scaled:scale" + scaling(object)$y.scale$"scaled:center")
   else
@@ -900,11 +958,97 @@ function(object){
  show(kernelf(object))
   cat(paste("\nNumber of Support Vectors :", nSV(object),"\n"))
   if(!is.null(fit(object)))
+
+##    if(type(object)=="C-classification" || type(object) == "nu-classification")
+##      cat(paste("Margin width :",margin(object),"\n"))
+    
   cat(paste("Training error :", round(error(object),6),"\n"))
   if(cross(object)!= -1)
     cat("Cross validation error :",round(cross(object),6),"\n")
+  if(!is.null(prob.model(object)[[1]])&&(type(object)=="eps-regression" ||type(object)=="nu-regression"))
+    cat("Laplace distr. width :",round(prob.model(object)[[1]],6),"\n")
   ##train error & loss
 })
+
+
+setMethod("plot", signature(x = "ksvm", y ="missing"),
+function(x, data = NULL, grid = 50, slice = list(), ...) {
+
+  if (type(x) =="C-classification" || type(x) == "nu-classification") {
+    if(nclass(x) > 2)
+      stop("plot function only supports binary classification")
+  
+    if (!is.null(kterms(x))&&!is.null(data))
+      {
+        if(!is.matrix(data))
+          sub <- model.matrix(delete.response(kterms(x)), as.data.frame(data), na.action = n.action(x))
+      }
+    else if(!is.null(data))
+      sub <-  as.matrix(data)
+    else
+      sub <- xmatrix(x)
+      
+    sub <- sub[,!colnames(xmatrix(x))%in%names(slice)]
+    xr <- seq(min(sub[,2]), max(sub[,2]), length = grid)
+    yr <- seq(min(sub[,1]), max(sub[,1]), length = grid)
+    sc <- 0
+    if(is.null(data))
+      {
+        sc  <- 1
+        data <- xmatrix(x)
+      }
+    if(is.data.frame(data) || !is.null(kterms(x))){
+      lis <- c(list(yr), list(xr), slice)
+      names(lis)[1:2] <- colnames(sub)
+      new <- expand.grid(lis)[,labels(kterms(x))]
+    }
+    else
+      new <- expand.grid(xr,yr)
+    
+    if(sc== 1) 
+      scaling(x) <- NULL
+
+    preds <- predict(x, new ,type = "decision")
+    
+    if(is.null(kterms(x)))
+      xylb <- colnames(sub)
+    else
+      xylb <- names(lis)
+    lvl <- 37
+    
+    mymax <- max(abs(preds))
+    mylevels <- pretty(c(0, mymax), 15)
+    ##Z$ mycols <- rev(heat.colors(length(mylevels)-1))
+    ##Z# mycols <- c(rev(mycols), mycols)
+    nl <- length(mylevels)-2
+    mycols <- c(hsv(0, (nl:0/nl)^1.3, 1), hsv(2/3, (0:nl/nl)^1.3, 1))
+    mylevels <- c(-rev(mylevels[-1]), mylevels)
+
+    index <- max(which(mylevels < min(preds))):min(which(mylevels > max(preds)))
+    mycols <- mycols[index]
+    mylevels <- mylevels[index]
+    
+    
+    filled.contour(xr, yr, matrix(as.numeric(preds), nr = length(xr), byrow = TRUE), col = mycols, levels = mylevels
+                    ,plot.axes = {
+                     axis(1)
+                     axis(2)
+                     if(!is.null(data)){
+                       points(sub[-SVindex(x),2], sub[-SVindex(x),1],col= (ymatrix(x)[-SVindex(x)]+3))
+                       points(sub[SVindex(x),2], sub[SVindex(x),1], pch = "x",col=(ymatrix(x)[SVindex(x)]+3))}
+                     else{
+                       points(sub[-SVindex(x),],col=(ymatrix(x)[-SVindex(x)]+3))
+                       points(sub[SVindex(x),], pch ="x",col=(ymatrix(x)[SVindex(x)]+3))
+                     }},
+                   nlevels = lvl,
+                   plot.title = title(main = "SVM classification plot", xlab = xylb[2], ylab = xylb[1]),
+                   ...
+                   )
+  } else {
+    stop("Only plots of classification ksvm objects supported")
+  }
+})
+
 
 setGeneric(".probPlatt", function(deci) standardGeneric(".probPlatt"))
 setMethod(".probPlatt",signature(deci="ANY"),

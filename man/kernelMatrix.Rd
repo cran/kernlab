@@ -2,6 +2,7 @@
 \alias{kernelMatrix}
 \alias{kernelMult}
 \alias{kernelPol}
+\alias{kernelFast}
 \alias{kernelPol,kernel-method}
 \alias{kernelMatrix,kernel-method}
 \alias{kernelMult,kernel-method}
@@ -26,6 +27,14 @@
 \alias{kernelPol,anovakernel,matrix-method}
 \alias{kernelPol,besselkernel,matrix-method}
 \alias{kernelPol,laplacekernel,matrix-method}
+\alias{kernelFast,rbfkernel,matrix-method}
+\alias{kernelFast,polykernel,matrix-method}
+\alias{kernelFast,tanhkernel,matrix-method}
+\alias{kernelFast,vanillakernel,matrix-method}
+\alias{kernelFast,anovakernel,matrix-method}
+\alias{kernelFast,besselkernel,matrix-method}
+\alias{kernelFast,laplacekernel,matrix-method}
+
 
 
 \title{Kernel Matrix functions}
@@ -35,7 +44,10 @@
   \code{kernelPol} computes the quadratic kernel expression  \eqn{H = z_i z_j
     k(x_i,x_j)}, \eqn{H = z_i k_j k(x_i,y_j)}.\cr
     \code{kernelMult} calculates the kernel expansion \eqn{f(x_i) =
-      sum_{i=1}^m z k(x_i,x_j)} 
+      \sum_{i=1}^m z k(x_i,x_j)}\cr
+    \code{kernelFast} computes the kernel matrix this function identical
+    to \code{kernelMatrix}, except that it also requires the squared
+    norm of the first argument as additional input.
  }
 \usage{
 \S4method{kernelMatrix}{kernel}(kernel, x, y = NULL)
@@ -43,23 +55,27 @@
 \S4method{kernelPol}{kernel}(kernel, x, y = NULL, z, k = NULL)
 
 \S4method{kernelMult}{kernel}(kernel, x, y = NULL, z, blocksize = 256)
+
+\S4methods{kernelFast}{kernel}(kernel, x, y, a)
 }
 
 \arguments{
   \item{kernel}{the kernel function to be used to calculate the kernel
     matrix.
-  This has to be a function of class \code{kernel}}
+  This has to be a function of class \code{kernel}, i.e. either one of the build in 
+  kernel functions or a fnction taking two vector arguments and returning a scalar.}
   \item{x}{a data matrix to be used to calculate the kernel matrix}
   \item{y}{second data matrix to calculate the kernel matrix}
   \item{z}{a suitable vector or matrix}
   \item{k}{a suitable vector or matrix}
+  \item{a}{the squared norm of \code{x} e.g. \code{rowSums(x^2)}}
   \item{blocksize}{the kernel expansion computations are done block wise
     to avoid storing the kernel matrix into memory. \code{blocksize}
     defines the size of the computational blocks.}
 }
 \details{
   Common functions used during kernel based computations.\cr
-  This \code{kernel} parameter can be set to any function, of class
+  The \code{kernel} parameter can be set to any function, of class
   kernel, which computes a dot product between two
   vector arguments. kernlab provides the most popular kernel functions
   which can be initialized by using the following
@@ -73,12 +89,17 @@
       \item \code{besseldot} Bessel kernel function
       \item \code{anovadot} ANOVA RBF kernel function
     }  (see example.)
+
+    \code{kernelFast} is mainly used in situations where colums of the
+    kernel matrix are computed per invocation. In these cases,
+    evaluating the norm of each row-entry over and over again would
+    cause significant computational overhead.
   }
   
 \value{
-  \code{kernelMatrix} returns a symmetric diagonal semi-definite matrix.
-  \code{kernelPol} returns a matrix.
-  \code{kernelMult}{usually returns a one-column matrix}
+  \code{kernelMatrix} returns a symmetric diagonal semi-definite matrix.\cr
+  \code{kernelPol} returns a matrix.\cr
+  \code{kernelMult} usually returns a one-column matrix.
 }
 \author{Alexandros Karatzoglou \cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

@@ -27,7 +27,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     return(res)
   })
 
-setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", kpar = "automatic", iterations = 200,mod.sample =  0.6, na.action = na.omit, ...)
+setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", kpar = "automatic", iterations = 200, mod.sample =  1, na.action = na.omit, ...)
 {
   x <- na.action(x)
   x <- as.matrix(x)
@@ -58,7 +58,7 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
         lsmax <- log2(kmax)
         midmax <- min(c(2*kmea, kmax))
         midmin <- max(c(kmea/2,kmin))
-        rtmp <- c(seq(midmin,0.9*kmea,0.05*kmea), seq(kmea,midmax,0.1*kmea))
+        rtmp <- c(seq(midmin,0.9*kmea,0.05*kmea), seq(kmea,midmax,0.08*kmea))
         if ((lsmax - (Re(log2(midmax))+0.5)) < 0.5) step <- (lsmax - (Re(log2(midmax))+0.5))
         else step <- 0.5
         if (((Re(log2(midmin))-0.5)-lsmin) < 0.5 ) stepm <-  ((Re(log2(midmin))-0.5) - lsmin)
@@ -106,7 +106,11 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
   xi <- eigen(l)$vectors[,1:nc]
   yi <- xi/sqrt(rowSums(xi^2))
   res <- kmeans(yi, centers, iterations)
-  return(new("specc", .Data=res$cluster, size = res$size, centers=res$centers, withinss=res$withinss, kernelf= kernel))
+  cent <- matrix(unlist(lapply(1:nc,ll<- function(l){colMeans(x[which(res$cluster==l),])})),ncol=dim(x)[2], byrow=TRUE)
+
+  withss <- unlist(lapply(1:nc,ll<- function(l){sum((x[which(res$cluster==l),] - cent[l,])^2)}))
+  
+  return(new("specc", .Data=res$cluster, size = res$size, centers=cent, withinss=withss, kernelf= kernel))
 
 })
 

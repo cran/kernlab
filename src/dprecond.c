@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* LAPACK */
-extern int dpotf2_(char *, int *, double *, int *, int *);
+extern int dpotf2_(char *, int *, double *, int *, int *); 
 
 double dcholfact(int n, double *A, double *L)
 {
