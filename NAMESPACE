@@ -1,0 +1,84 @@
+
+export(	
+## kernel functions
+	"rbfdot",
+	"polydot",
+	"tanhdot",
+	"vanilladot",
+	"kernelMatrix",
+	"kernelMult",
+	"kernelPol",
+	
+## High level functions 
+	"kpca",
+	"kcca",
+	"specc",
+	"ksvm",
+	"rvm",
+	"gausspr",
+
+## Utility functions
+	"ipop",
+	"chol.reduce",
+	"couple",
+	"sigest",
+## Accessor functions
+	## VM
+	"type",
+	"alpha",
+	"alphaindex",
+	"coeff",
+	"kernelf",
+	"kpar",
+	"scaling",
+	"xmatrix",
+	"ymatrix",
+	"fit",
+	"lev",
+	"kcall",
+	"error",
+	"cross",
+	"SVindex",
+	"RVindex",
+	
+	## kpca
+	"rotated",
+	"eig",
+	"pcv",
+	
+	## ipop
+	"primal",
+	"dual",
+	"how",
+
+ 	## kcca
+	"kcor",
+	"xcoef",
+        "ycoef",
+	"xvar",
+	"yvar",
+	
+	## specc
+	"cluster",	
+	"size",
+	"centers",
+		
+	## rvm
+	"mlike",
+	"nvar",
+	
+		
+	## inc.chol
+	"pivots",
+	"diag.residues",
+	"maxresiduals")
+
+import(methods)
+importFrom("stats","predict")
+
+exportMethods(predict,show)
+
+exportClasses("ksvm", "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","tanhkernel","polykernel","vanillakernel", "inc.chol")
+
+useDynLib("kernlab")
+	
