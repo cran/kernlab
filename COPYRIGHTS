@@ -3,11 +3,11 @@ COPYRIGHT STATUS
 
 The R code in this package is
 
-  Copyright (C) 2002 Alexandros Karatzoglou, Alex Smola and Achim Zeileis
+  Copyright (C) 2002 Alexandros Karatzoglou 
 
 and the C++ code in src/ is
 
-  Copyright (C) 2002 Alexandros Karatzoglou and Alex Smola
+  Copyright (C) 2002 Alexandros Karatzoglou and Chi-Jen Lin
 
 All code is subject to the GNU General Public License, Version 2. See
 the file COPYING for the exact conditions under which you may

@@ -40,6 +40,7 @@ The data can then be projected on the new basis.
       \item \code{laplacedot} Laplacian kernel function
       \item \code{besseldot} Bessel kernel function
       \item \code{anovadot} ANOVA RBF kernel function
+       \item \code{splinedot} Spline kernel 
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.

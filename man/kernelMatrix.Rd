@@ -13,8 +13,10 @@
 \alias{kernelMatrix,tanhkernel,matrix-method}
 \alias{kernelMatrix,laplacekernel,matrix-method}
 \alias{kernelMatrix,anovakernel,matrix-method}
+\alias{kernelMatrix,splinekernel,matrix-method}
 \alias{kernelMatrix,besselkernel,matrix-method}
 \alias{kernelMult,rbfkernel,matrix-method}
+\alias{kernelMult,splinekernel,matrix-method}
 \alias{kernelMult,polykernel,matrix-method}
 \alias{kernelMult,tanhkernel,matrix-method}
 \alias{kernelMult,laplacekernel,matrix-method}
@@ -22,6 +24,7 @@
 \alias{kernelMult,anovakernel,matrix-method}
 \alias{kernelMult,vanillakernel,matrix-method}
 \alias{kernelPol,rbfkernel,matrix-method}
+\alias{kernelPol,splinekernel,matrix-method}
 \alias{kernelPol,polykernel,matrix-method}
 \alias{kernelPol,tanhkernel,matrix-method}
 \alias{kernelPol,vanillakernel,matrix-method}
@@ -29,6 +32,7 @@
 \alias{kernelPol,besselkernel,matrix-method}
 \alias{kernelPol,laplacekernel,matrix-method}
 \alias{kernelFast,rbfkernel,matrix-method}
+\alias{kernelFast,splinekernel,matrix-method}
 \alias{kernelFast,polykernel,matrix-method}
 \alias{kernelFast,tanhkernel,matrix-method}
 \alias{kernelFast,vanillakernel,matrix-method}
@@ -89,6 +93,7 @@
       \item \code{laplacedot} Laplacian kernel function
       \item \code{besseldot} Bessel kernel function
       \item \code{anovadot} ANOVA RBF kernel function
+      \item \code{splinedot} the Spline kernel 
     }  (see example.)
 
     \code{kernelFast} is mainly used in situations where colums of the

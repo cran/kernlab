@@ -203,7 +203,7 @@ private:
 
 	static double dot(const svm_node *px, const svm_node *py);
         static double anova(const svm_node *px, const svm_node *py, const double sigma, const double degree);
-
+  
 	double kernel_linear(int i, int j) const
 	{
 		return dot(x[i],x[j]);
@@ -238,6 +238,33 @@ private:
         {
         	  return  anova(x[i], x[j], gamma, degree);
 	}
+        double kernel_spline(int i, int j) const
+        {
+	  double result=1.0;
+	  double min;
+	  double t1,t4;
+	  const svm_node *px = x[i], *py= x[j];
+	  // px = x[i];
+	  //  py = x[j];
+
+	while(px->index != -1 && py->index != -1)
+	  {
+	    if(px->index == py->index)
+		  { 	
+		    min=((px->value<py->value)?px->value:py->value);
+		    t1 = (px->value * py->value);
+		    t4 = min*min;
+		    
+		    result*=( 1.0 + t1 + (t1*min) ) -
+		      ( ((px->value+py->value)/2.0) * t4)
+		      + ((t4 * min)/3.0);
+		  }
+		    ++px;
+		    ++py;
+	  } 
+	  return result;
+	}
+  
         double kernel_R(int i, int j) const
         {   
 	          return *(K + m*i +j);
@@ -270,6 +297,9 @@ Kernel::Kernel(int l, svm_node * const * x_, const svm_parameter& param)
 		        break; 
         	case ANOVA:
 		        kernel_function = &Kernel::kernel_anova;
+			break;
+	        case SPLINE:
+		        kernel_function = &Kernel::kernel_spline;
 			break;
 	        case R:
         	       kernel_function = &Kernel::kernel_R;
@@ -3153,7 +3183,8 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 	   kernel_type != R && 
 	   kernel_type != LAPLACE&&
 	   kernel_type != BESSEL&&
-	   kernel_type != ANOVA)
+	   kernel_type != ANOVA&&
+	   kernel_type != SPLINE)
 		return "unknown kernel type";
 
 	// cache_size,eps,C,nu,p,shrinking

@@ -1,6 +1,7 @@
 setGeneric("ksvm", function(x, ...) standardGeneric("ksvm"))
 setMethod("ksvm",signature(x="formula"),
 function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
+    
   call <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
@@ -12,7 +13,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   m[[1]] <- as.name("model.frame")
   m <- eval(m, parent.frame())
   Terms <- attr(m, "terms")
-  attr(Terms, "intercept") <- 0
+   attr(Terms, "intercept") <- 0    ## no intercept
   x <- model.matrix(Terms, m)
   y <- model.extract(m, response)
   if (length(scaled) == 1)
@@ -26,6 +27,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   }
    ret <- ksvm(x, y, scaled = scaled, ...)
   kcall(ret) <- call
+  attr(Terms,"intercept") <- 0 ## no intercept
   kterms(ret) <- Terms
   if (!is.null(attr(m, "na.action")))
     n.action(ret) <- attr(m, "na.action")
@@ -130,9 +132,9 @@ function (x,
   m <- nrows <- nrow(x)
 
   if(is.character(kernel)){
-    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot"))
+    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot"))
   
-  if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot") &&  kpar=="automatic" )
+  if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot" || kernel=="splinedot") &&  kpar=="automatic" )
     {
       cat (" Setting default kernel parameters ","\n")
       kpar <- list()
@@ -232,6 +234,10 @@ function (x,
            ktype <- 7
            sigma <- kpar(kernel)$sigma
            degree <-  kpar(kernel)$degree
+         },
+         "splinekernel" =
+         {
+           ktype <- 8
          },
          {
            ktype <- 4
@@ -526,7 +532,7 @@ if(type(ret) =="spoc-svc")
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
-    x<-x[yd$ix,]
+    x <- matrix(x[yd$ix,],nrow=dim(x)[1])
     count <- 0
 
        if(ktype==4)
@@ -993,7 +999,7 @@ function (object, newdata, type = "response", coupler = "minpair")
       predres <- 1:newnrows
       votematrix <- matrix(0,nclass(object),newnrows)
       for(i in 1:nclass(object))
-        votematrix[i,] <- kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],],coeff(object)[[i]])
+        votematrix[i,] <- kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],,drop=FALSE],coeff(object)[[i]])
       predres <- sapply(predres, function(x) which.max(votematrix[,x]))
     }
 
@@ -1047,9 +1053,14 @@ function (object, newdata, type = "response", coupler = "minpair")
   if(type(object) == "one-svc")
     {
       ret <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object),]),coeff(object)) - b(object)
-      ret[ret>0]<-1
       ##one-class-classification: return TRUE/FALSE (probabilities ?)
-      return(ret == 1)      
+      if(type=="decision")
+      	return(ret)
+	else
+	{
+	ret[ret>0]<-1
+      	return(ret == 1)
+      }      
     }
   else {
     if(type(object)=="eps-svr"||type(object)=="nu-svr"||type(object)=="eps-bsvr")
@@ -1134,7 +1145,7 @@ function(object){
 })
 
 
-setMethod("plot", signature(x = "ksvm", y ="missing"),
+setMethod("plot", signature(x = "ksvm", y = "missing"),
 function(x, data = NULL, grid = 50, slice = list(), ...) {
 
   if (type(x) =="C-svc" || type(x) == "nu-svc") {
@@ -1181,27 +1192,43 @@ function(x, data = NULL, grid = 50, slice = list(), ...) {
     
     mymax <- max(abs(preds))
     mylevels <- pretty(c(0, mymax), 15)
-    ##Z$ mycols <- rev(heat.colors(length(mylevels)-1))
-    ##Z# mycols <- c(rev(mycols), mycols)
     nl <- length(mylevels)-2
-    mycols <- c(hsv(0, (nl:0/nl)^1.3, 1), hsv(2/3, (0:nl/nl)^1.3, 1))
+    
+    if(("package:colorpace" %in% search()) || require(colorspace)) {
+      mycols <- c(hcl(0, 100 * (nl:0/nl)^1.3, 90 - 40 *(nl:0/nl)^1.3),
+                  rev(hcl(260, 100 * (nl:0/nl)^1.3, 90 - 40 *(nl:0/nl)^1.3)))
+    } else {
+      mycols <- c(hsv(0, (nl:0/nl)^1.3, 1), hsv(2/3, (0:nl/nl)^1.3, 1))
+    }
+
     mylevels <- c(-rev(mylevels[-1]), mylevels)
 
     index <- max(which(mylevels < min(preds))):min(which(mylevels > max(preds)))
     mycols <- mycols[index]
     mylevels <- mylevels[index]
     
+    #FIXME# previously the plot code assumed that the y values are either
+    #FIXME# -1 or 1, but this is not generally true. If generated from a
+    #FIXME# factor, they are typically 1 and 2. Maybe ymatrix should be
+    #FIXME# changed?
+    ymat <- ymatrix(x)
+    ymean <- mean(unique(ymat))
     
-    filled.contour(xr, yr, matrix(as.numeric(preds), nr = length(xr), byrow = TRUE), col = mycols, levels = mylevels
-                    ,plot.axes = {
+    filled.contour(xr, yr, matrix(as.numeric(preds), nr = length(xr), byrow = TRUE),
+                   col = mycols, levels = mylevels,
+		   plot.axes = {
                      axis(1)
                      axis(2)
                      if(!is.null(data)){
-                       points(sub[-SVindex(x),2], sub[-SVindex(x),1],col= (ymatrix(x)[-SVindex(x)]+3))
-                       points(sub[SVindex(x),2], sub[SVindex(x),1], pch = "x",col=(ymatrix(x)[SVindex(x)]+3))}
+                       points(sub[-SVindex(x),2], sub[-SVindex(x),1],
+		         pch = ifelse(ymat[-SVindex(x)] < ymean, 2, 1))
+                       points(sub[SVindex(x),2], sub[SVindex(x),1],
+		         pch = ifelse(ymat[SVindex(x)] < ymean, 17, 16))}
                      else{
-                       points(sub[-SVindex(x),],col=(ymatrix(x)[-SVindex(x)]+3))
-                       points(sub[SVindex(x),], pch ="x",col=(ymatrix(x)[SVindex(x)]+3))
+                       points(sub[-SVindex(x),],
+		         pch = ifelse(ymat[-SVindex(x)] < ymean, 2, 1))
+                       points(sub[SVindex(x),],
+		         pch = ifelse(ymat[SVindex(x)] < ymean, 17, 16))
                      }},
                    nlevels = lvl,
                    plot.title = title(main = "SVM classification plot", xlab = xylb[2], ylab = xylb[1]),

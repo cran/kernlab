@@ -7,6 +7,7 @@
 \alias{anovakernel-class}
 \alias{besselkernel-class}
 \alias{laplacekernel-class}
+\alias{splinekernel-class}
 \alias{kernel-class}
 \alias{kpar,kernel-method}
 \title{Class "kernel" "rbfkernel" "polykernel", "tanhkernel", "vanillakernel"}
