@@ -7,7 +7,8 @@
   of the kernel matrix from a data matrix. 
 }
 \usage{
-chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = dim(x)[1], blocksize = 50, verbose = 0)
+chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, 
+            max.iter = dim(x)[1], blocksize = 50, verbose = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

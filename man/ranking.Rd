@@ -7,8 +7,9 @@
  given a query.
 }
 \usage{
-\S4method{ranking}{matrix}(x, y,  kernel ="rbfdot", kpar = list(sigma = 1),  scale = TRUE,
-alpha = 0.99, iterations = 600, edgegraph = FALSE, convergence = FALSE ,...)
+\S4method{ranking}{matrix}(x, y,  kernel ="rbfdot", kpar = list(sigma = 1),  
+        scale = TRUE, alpha = 0.99, iterations = 600, 
+        edgegraph = FALSE, convergence = FALSE ,...)
 }
 
 \arguments{

@@ -19,7 +19,7 @@
 \S4method{gausspr}{vector}(x,...)
 
 \S4method{gausspr}{matrix}(x, y, type="classification", kernel="rbfdot", kpar=list(sigma = 0.1),
-var=1, tol=0.001, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
+          var=1, tol=0.001, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
 
 
 }
@@ -120,9 +120,9 @@ information.
   
   }
   \references{
-    Christopher K.I. Williams, Carl Edward Rasmussen
-    \emph{Gaussian Processes for Regression}
-    Advances in Neural Information Processing Systems, NIPS
+    Christopher K.I. Williams, Carl Edward Rasmussen\cr
+    \emph{Gaussian Processes for Regression}\cr
+    Advances in Neural Information Processing Systems, NIPS\cr
     \url{http://books.nips.cc/papers/files/nips08/0514.pdf}
 
   }

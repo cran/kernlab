@@ -2,8 +2,8 @@
 \alias{spirals}
 \title{Spirals Dataset}
 \description{A toy data set representing
-two spirals with Gaussian noise. The data was created with the \code{mlbench.spirals}
-function in \code{mlbench}.
+two spirals with Gaussian noise. The data was created with 
+the \code{mlbench.spirals} function in \code{mlbench}.
 }
 \usage{data(spirals)}
 \format{

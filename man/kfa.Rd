@@ -14,7 +14,7 @@ The data can then be projected on the new basis.
 \S4method{kfa}{formula}(x, data = NULL, na.action = na.omit, ...)
 
 \S4method{kfa}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1),
-features = 0, subset = 59, normalize = TRUE, na.action = na.omit)
+   features = 0, subset = 59, normalize = TRUE, na.action = na.omit)
 }
 
 \arguments{
@@ -106,7 +106,8 @@ product (kernel function) with the rest of the patterns.
 \seealso{\code{\link{kpca}}, \code{\link{kfa-class}}}
 \examples{
 data(promotergene)
-f <- kfa(~.,data=promotergene)
+f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",kpar=list(sigma=0.01))
+plot(predict(f,promotergene),col=as.numeric(promotergene[,1]))
 }
 \keyword{cluster}
 

@@ -6,6 +6,7 @@
 \alias{kernelPol,kernel-method}
 \alias{kernelMatrix,kernel-method}
 \alias{kernelMult,kernel-method}
+\alias{kernelFast,kernel-method}
 \alias{kernelMatrix,rbfkernel,matrix-method}
 \alias{kernelMatrix,polykernel,matrix-method}
 \alias{kernelMatrix,vanillakernel,matrix-method}
@@ -56,7 +57,7 @@
 
 \S4method{kernelMult}{kernel}(kernel, x, y = NULL, z, blocksize = 256)
 
-\S4methods{kernelFast}{kernel}(kernel, x, y, a)
+\S4method{kernelFast}{kernel}(kernel, x, y, a)
 }
 
 \arguments{

@@ -10,7 +10,8 @@ component analysis.}
 \usage{
 \S4method{kpca}{formula}(x, data = NULL, na.action, ...)
 
-\S4method{kpca}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1), features = 0, th = 1e-4, ...)
+\S4method{kpca}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1), features = 0, 
+    th = 1e-4, ...)
 }
 
 \arguments{
@@ -111,7 +112,7 @@ pcv(kpc)
 plot(rotated(kpc),col=as.integer(iris[-test,5]),xlab="1st Principal Component",ylab="2nd Principal Component")
 
 #embed remaining points 
-emb <- predict(kpc,as.matrix(iris[test,-5]))
+emb <- predict(kpc,iris[test,-5])
 points(emb,col=iris[test,5])
 }
 \keyword{cluster}

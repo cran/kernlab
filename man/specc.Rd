@@ -11,8 +11,8 @@ eigenvectors of kernel matrixes derived from the data.
 \usage{
 \S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar =
-list(sigma = 0.1), iterations = 200, mod.sample = 0.6, na.action = na.omit, ...)
+\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
+       iterations = 200, mod.sample = 0.6, na.action = na.omit, ...)
 }
 
 \arguments{

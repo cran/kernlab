@@ -7,7 +7,8 @@
 }
 \usage{
 
-\S4method{inlearn}{numeric}(d, kernel = "rbfdot", kpar = list(sigma = 0.1), type = "novelty", buffersize = 1000)
+\S4method{inlearn}{numeric}(d, kernel = "rbfdot", kpar = list(sigma = 0.1), type = "novelty", 
+       buffersize = 1000)
 }
 \arguments{
   \item{d}{the dimensionality of the data to be learned}

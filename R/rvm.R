@@ -220,7 +220,7 @@ function (x,
       suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
       for(i in 1:cross)
         {
-          cind <- unsplit(vgr[-i],1:(m-length(vgr[[i]])))
+          cind <- unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           if(type(ret)=="classification")
             {
               cret <- rvm(x[cind,],factor (lev(ret)[y[cind]], levels = lev(ret)),type=type(ret),kernel=kernel,alpha = alpha,var = var, var.fix=var.fix, tol=tol, cross = 0, fit = FALSE)
