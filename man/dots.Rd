@@ -7,6 +7,7 @@
 \alias{laplacedot}
 \alias{besseldot}
 \alias{anovadot}
+\alias{splinedot}
 \alias{kpar}
 \alias{show,kernel-method}
 \title{Kernel Functions}
@@ -20,7 +21,10 @@
   the Laplacian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|)} \cr
   the Bessel kernel \eqn{k(x,x') = (- Bessel_{(\nu+1)}^n \sigma \|x - x'\|^2)} \cr
   the ANOVA RBF kernel \eqn{k(x,x') = \sum_{1\leq i_1 \ldots < i_D \leq
-      N} \prod_{d=1}^D k(x_{id}, {x'}_{id})} where k(x,x) is an Gaussian RBF kernel. 
+      N} \prod_{d=1}^D k(x_{id}, {x'}_{id})} where k(x,x) is an Gaussian
+  RBF kernel. 
+  the Spline kernel \eqn{ \prod_{d=1}^D 1 + x_i x_j + x_i x_j min(x_i,
+    x_j)  - \frac{x_i + x_j}{2} min(x_i,x_j)^2 + \frac{min(x_i,x_j)^3}{3}}
 }
 \usage{
 rbfdot(sigma = 1)
@@ -36,6 +40,8 @@ laplacedot(sigma = 1)
 besseldot(sigma = 1, order = 1, degree = 1)
 
 anovadot(sigma = 1, degree = 1)
+
+splinedot()
 }
 
 \arguments{

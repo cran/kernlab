@@ -19,7 +19,7 @@ struct svm_problem
 };
 
 enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR, C_BSVC, EPSILON_BSVR, SPOC, KBB };	/* svm_type */
-enum { LINEAR, POLY, RBF, SIGMOID, R, LAPLACE, BESSEL, ANOVA };	/* kernel_type */
+enum { LINEAR, POLY, RBF, SIGMOID, R, LAPLACE, BESSEL, ANOVA, SPLINE };	/* kernel_type */
 
 struct svm_parameter
 {

@@ -19,7 +19,7 @@
 \usage{
 \S4method{ksvm}{formula}(x, data = NULL, ..., subset, na.action = na.omit, scaled = TRUE)
 
-\S4method{ksvm}{vector}{x, ...}
+\S4method{ksvm}{vector}(x, ...)
 
 \S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", 
      kpar = list(sigma = 0.1), C = 1, nu = 0.2, epsilon = 0.1, 
@@ -29,8 +29,8 @@
 }
 
 \arguments{
-  \item{x}{a symbolic description of the model to be fit. Note, that an
-          intercept is always included, whether given in the formula or
+  \item{x}{a symbolic description of the model to be fit. Note, that the 
+          intercept is always excluded, whether given in the formula or
           not. When not using a formula x is a matrix or vector
 	  containg the variables in the model}
   \item{data}{an optional data frame containing the variables in the model.
@@ -75,6 +75,7 @@
       \item \code{laplacedot} Laplacian kernel function
       \item \code{besseldot} Bessel kernel function
       \item \code{anovadot} ANOVA RBF kernel function
+      \item \code{splinedot} Spline kernel function
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
@@ -163,7 +164,8 @@
   performed on the data and a sigmoid function is fitted on the
   resulting decision values \eqn{f}.
   The \code{plot} function for binary classification \code{ksvm} objects
-  displays a contour plot of the decision values.
+  displays a contour plot of the decision values with the corresponding
+  support vectors highlighted.
   The predict function can return probabilistic output (probability
   matrix) in the case of
   classification by setting the \code{type} parameter to "probabilities".

@@ -115,7 +115,33 @@ splinedot<- function()
      return(new("splinekernel",.Data=rval,kpar=list()))
   }
 
-setClass("anovakernel",prototype=structure(.Data=function(){},kpar=list()),contains=c("kernel"))
+setClass("splinekernel",prototype=structure(.Data=function(){},kpar=list()),contains=c("kernel"))
+
+
+
+fourierdot <- function(sigma = 1)
+  {
+    rval <- function(x,y=NULL)
+    {
+      if(!is.vector(x)) stop("x must be a vector")
+      if(!is.vector(y)&&!is.null(y)) stop("y must a vector")
+      if (is.vector(x) && is.null(y)){
+        return(1)
+      }
+      if (is.vector(x) && is.vector(y)){
+        if (!length(x)==length(y))
+          stop("number of dimension must be the same on both data points")
+	res <- 	(1 - sigma^2)/2*(1 - 2*sigma*cos(x - y) + sigma^2)
+	fres <- prod(res)
+        return(fres)
+      }
+    }
+     return(new("fourierkernel",.Data=rval,kpar=list()))
+  }
+
+setClass("fourierkernel",prototype=structure(.Data=function(){},kpar=list(sigma = 1)),contains=c("kernel"))
+
+
 
 
 
@@ -229,10 +255,11 @@ kernelMatrix <- function(kernel, x, y=NULL)
   if(is.null(y)){
     for(i in 1:n) {
       for(j in 1:n) {
-        res1[i,j] <- kernel(x[i,],x[j,])
+        res1[i,j]  <- kernel(x[i,],x[j,])
       }
     }
-  }
+  
+ }
   if (is.matrix(y)){
     m<-dim(y)[1]
     res1 <- matrix(0,dim(x)[1],dim(y)[1])
@@ -242,6 +269,7 @@ kernelMatrix <- function(kernel, x, y=NULL)
       }
     }
   }
+
   return(res1)
 }
 
@@ -438,6 +466,54 @@ kernelMatrix.tanhkernel <- function(kernel, x, y = NULL)
 }
 setMethod("kernelMatrix",signature(kernel="tanhkernel",x="matrix"),kernelMatrix.tanhkernel)
 
+
+kernelMatrix.splinekernel <- function(kernel, x, y = NULL)
+{
+  if(is.vector(x))
+    x <- as.matrix(x)
+  if(is.vector(y))
+    y <- as.matrix(y)
+  if(!is.matrix(y)&&!is.null(y)) stop("y must be a matrix or a vector")
+  sigma = kpar(kernel)$sigma
+  degree = kpar(kernel)$degree
+  n <- dim(x)[1]
+  if (is.matrix(x) && is.null(y)){
+    a <- matrix(0,  dim(x)[2], n)
+    res <- matrix(0, n ,n)
+	x <- t(x)
+    for (i in 1:n)
+      {
+	dr <- 	x + x[,i]	
+	dp <-   x * x[,i]
+	dm <-   pmin(x,x[,i])
+	res[,i] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+      }
+        return(res)
+  }
+  if (is.matrix(x) && is.matrix(y)){
+    if (!(dim(x)[2]==dim(y)[2]))
+      stop("matrixes must have the same number of columns")
+    
+    m <- dim(y)[1]
+    b <- matrix(0, dim(x)[2],m)
+    res <- matrix(0, dim(x)[1],m)
+	x <- t(x)
+	y <- t(y)
+    for( i in 1:n)
+      {
+	dr <- 	y + x[,i]	
+	dp <-   y * x[,i]
+	dm <-   pmin(y,x[,i])
+	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+   	}
+	res[lower.tri(res)] <- 
+    return(res)
+  }
+}
+setMethod("kernelMatrix",signature(kernel="splinekernel",x="matrix"),kernelMatrix.splinekernel)
+
+
+
 # Function computing <x,x'> * z (<x,x'> %*% z)
 
 
@@ -462,9 +538,9 @@ kernelMult <- function(kernel, x, y=NULL, z, blocksize = 128)
       
       for(i in 1:n)
         {
-          for(j in 1:n)
+          for(j in 1:(n-i+1))
             {
-              res1[i,j] <- kernel(x[i,],x[j,])
+              res1[i,j] <- res1[j,i] <- kernel(x[i,],x[j,])
       }
     }
   }
@@ -812,6 +888,110 @@ kernelMult.anovakernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 }  
 setMethod("kernelMult",signature(kernel="anovakernel", x="matrix"),kernelMult.anovakernel)
 
+
+
+kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
+{
+  if(!is.matrix(y)&&!is.null(y)) stop("y must be a matrix")
+  if(!is.matrix(z)&&!is.vector(z)) stop("z must be a matrix or a vector")
+  sigma <- kpar(kernel)$sigma
+  degree <- kpar(kernel)$degree
+  n <- dim(x)[1]
+  m <- dim(x)[2]
+  nblocks <- floor(n/blocksize)
+  lowerl <- 1
+  upperl <- 0
+ 
+  if (is.null(y))
+    {
+      if(is.vector(z))
+        {
+          if(!length(z) == n) stop("vector z length must be equal to x rows")
+          z <- matrix(z,n,1)
+        }
+      if(!dim(z)[1]==n)
+        stop("z rows must equal x rows")
+      res <- matrix(rep(0,dim(z)[2]*n), ncol = dim(z)[2])
+      	x <- t(x)
+      if(nblocks > 0)
+        {
+          re <- matrix(0, n, blocksize)
+        for(i in 1:nblocks)
+          {
+            upperl = upperl + blocksize
+	
+	    for (i in lowerl:upperl)
+     	 {	
+	dr <-  x + x[,i]	
+	dp <-  x * x[,i]
+	dm <-  pmin(x,x[,i])
+	re[,i] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+     	 }
+            res[lowerl:upperl,] <- re%*%z[lowerl:upperl]
+            lowerl <- upperl + 1
+          }
+        }
+      if(lowerl <= n){
+        a <- matrix(0,m,n-lowerl+1)
+        re <- matrix(0,n,n-lowerl+1)
+        for(i in lowerl:(n-lowerl+1))
+          {
+          dr <- x + x[,i]	
+       	dp <- x * x[,i]
+	dm <-  pmin(x,x[,i])
+	re[,i] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+          }
+        res[lowerl:n,] <- re%*%z[lowerl:n]
+      }
+    }
+  if(is.matrix(y))
+    {
+      n2 <- dim(y)[1]
+      nblocks <- floor(n2/blocksize)
+      if(is.vector(z))
+        {
+          if(!length(z) == n2) stop("vector z length must be equal to y rows")
+          z <- matrix(z,n2,1)
+        }
+      if(!dim(z)[1]==n2)
+        stop("z length must equal y rows")
+      res <- matrix(rep(0,dim(z)[2]*n), ncol = dim(z)[2])
+	x <- t(x)
+	y <- t(y)
+      if(nblocks > 0)
+        {
+          re <- matrix(0, n, blocksize)
+          for(i in 1:nblocks)
+            {
+              upperl = upperl + blocksize
+              for(j in lowerl:(n-lowerl+1))
+                {
+		dr <- y + x[,j]	
+		dp <- y * x[,j]
+		dm <- pmin(y,x[,j])
+		re[,j] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+           	}
+              res[lowerl:upperl] <- re %*%z[lowerl:upperl,]
+              lowerl <- upperl + 1
+            }
+        }
+      if(lowerl <= n)
+        {
+          b <- matrix(0, dim(x)[2], n2-lowerl+1)
+          re <- matrix(0, n, n2-lowerl+1)
+          for(j in lowerl:upperl)
+            {
+        	dr <- y + x[, j, drop = FALSE]	
+		dp <- y * x[, j, drop = FALSE]
+		dm <-  pmin(y,x[,j])
+		re[,j] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+              }
+       	  res[lowerl:n2] <-  + re%*%z[lowerl:n2]
+        }
+    }
+  return(res)
+}  
+setMethod("kernelMult",signature(kernel="splinekernel", x="matrix"),kernelMult.splinekernel)
 
 
 kernelMult.polykernel <- function(kernel, x, y=NULL, z, blocksize = 256)
@@ -1234,6 +1414,65 @@ kernelPol.anovakernel <- function(kernel, x, y=NULL, z, k=NULL)
     }
 }
 setMethod("kernelPol",signature(kernel="anovakernel", x="matrix"),kernelPol.anovakernel)
+
+
+kernelPol.splinekernel <- function(kernel, x, y=NULL, z, k=NULL)
+{
+  if(!is.matrix(y)&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is.matrix(z)&&!is.vector(z)) stop("z must be a matrix or a vector")
+  if(!is.matrix(k)&&!is.vector(k)&&!is.null(k)) stop("k must be a matrix or a vector")
+  sigma <- kpar(kernel)$sigma
+  degree <- kpar(kernel)$degree
+  n <- dim(x)[1]
+   if(is.vector(z))
+    {
+      if(!length(z)==n) stop("vector z length must be equal to x rows")
+      z<-matrix(z,n,1)
+    }
+  if(!dim(z)[1]==n)
+    stop("z must have the length equal to x colums")
+  if (is.null(y))
+    {
+      if(is.matrix(z)&&!dim(z)[1]==n)
+       stop("z must have size equal to x colums")
+      a <- matrix(0, dim(x)[2], n)
+      res <- matrix(0,n,n)
+      for (i in 1:n)
+        {
+        dr <- 	x + x[,i]	
+	dp <-   x * x[,i]
+	dm <-   pmin(x,x[,i])
+	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+        }
+      return(z*res*z)
+    }
+  if (is.matrix(y))
+    {
+      if(is.null(k)) stop("k not specified!")
+      m <- dim(y)[1]
+      if(!dim(k)[1]==m)
+        stop("k must have equal rows to y")
+      if(is.vector(k))
+        {
+          if(!length(k)==m) stop("vector k length must be equal to x rows")
+          k<-matrix(k,n,1)
+        }
+      if(!dim(x)[2]==dim(y)[2])
+        stop("matrixes must have the same number of columns")
+
+      b <- matrix(0, dim(x)[2],m)
+      res <- matrix(0, dim(x)[1],m)
+      for( i in 1:n)
+        {
+	dr <- 	y + x[,i]	
+	dp <-   y * x[,i]
+	dm <-   pmin(y,x[,i])
+	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+        }
+      return(k*res*z)
+    }
+}
+setMethod("kernelPol",signature(kernel="splinekernel", x="matrix"),kernelPol.splinekernel)
 
 
 kernelPol.polykernel <- function(kernel, x, y=NULL, z, k=NULL)

@@ -149,7 +149,10 @@ function (x,
       error(ret) <- drop(crossprod(fit(ret) - y)/m)
   }
 
-  if(cross!=0)
+  cross(ret) <- -1
+  if(cross == 1)
+    cat("\n","cross should be >1 no cross-validation done!","\n","\n")
+  else if (cross > 1)
     {
       cerror <- 0
       suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
@@ -158,7 +161,7 @@ function (x,
           cind <- unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           if(type(ret)=="classification")
             {
-              cret <- gausspr(x[cind,],factor (lev(ret)[y[cind]], levels = lev(ret)),type=type(ret),kernel=kernel,C=C,var = var, cross = 0, fit = FALSE)
+              cret <- gausspr(x[cind,], y[cind], type=type(ret),kernel=kernel,C=C,var = var, cross = 0, fit = FALSE)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
