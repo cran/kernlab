@@ -1,2 +1,2 @@
 PKG_LIBS = $(BLAS_LIBS) $(LAPACK_LIBS)
-PKG_CFLAGS = -I$(R_HOME)/include
+PKG_CFLAGS = -I$(R_HOME)/include 

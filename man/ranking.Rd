@@ -99,13 +99,18 @@ score at the end of the iterations.
 \seealso{ \code{\link{ranking-class}}, \code{\link{specc}} }
 \examples{
 data(spirals)
-## create data set to be ranked
-ran<-spirals[rowSums(abs(spirals)<0.55)==2,]
 
-## rank points according to "relevance" to point 54 (up left)
-ranked<-ranking(ran,54,kernel="rbfdot",kpar=list(sigma=100),edgegraph=TRUE)
-ranked[54,2] <-  max(ranked[-54,2])
-plot(ran,col=hsv(ranked[,2]/ranked[54,2],1,1))
+## create data from spirals
+ran <- spirals[rowSums(abs(spirals) < 0.55) == 2,]
+
+## rank points according to similarity to the most upper left point  
+ranked <- ranking(ran, 54, kernel = "rbfdot", kpar = list(sigma = 100), edgegraph = TRUE)
+ranked[54, 2] <- max(ranked[-54, 2])
+c<-1:86
+op <- par(mfrow = c(1, 2),pty="s")
+plot(ran)
+plot(ran, cex=c[ranked[,3]]/40)
+
 }
 \keyword{cluster}
 \keyword{classif}
