@@ -4,6 +4,9 @@
 \alias{polykernel-class}
 \alias{vanillakernel-class}
 \alias{tanhkernel-class}
+\alias{anovakernel-class}
+\alias{besselkernel-class}
+\alias{laplacekernel-class}
 \alias{kernel-class}
 \alias{kpar,kernel-method}
 \title{Class "kernel" "rbfkernel" "polykernel", "tanhkernel", "vanillakernel"}

@@ -27,8 +27,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     return(res)
   })
 
-setMethod("specc",signature(x="matrix"),
-          function(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), iterations = 200, na.action = na.omit, ...)
+setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", kpar = "automatic", iterations = 200,mod.sample =  0.6, na.action = na.omit, ...)
 {
   x <- na.action(x)
   x <- as.matrix(x)
@@ -43,14 +42,61 @@ setMethod("specc",signature(x="matrix"),
   else
     nc <- dim(centers)[2]
   
-  ret <- new("specc")
-  if(!is(kernel,"kernel"))
-    {
-      if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
-      kernel <- do.call(kernel, kpar)
-    }
-  if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
+  if(is.character(kpar)) {
+    kpar <- match.arg(kpar,c("automatic"))
+    
+    if(kpar == "automatic")
+      {
+        sam <- sample(1:m, floor(mod.sample*m))
+        ker <- rbfdot(1)
+        ktmp <- kernelMatrix(ker,x[sam,])
+        ktmp <- sqrt(round(-log(ktmp,base=exp(1)),10))
+        kmax <- max(ktmp)
+        kmin <- min(ktmp + diag(rep(Inf,dim(ktmp)[1])))
+        kmea <- mean(ktmp)
+        lsmin <- log2(kmin)
+        lsmax <- log2(kmax)
+        midmax <- min(c(2*kmea, kmax))
+        midmin <- max(c(kmea/2,kmin))
+        rtmp <- c(seq(midmin,0.9*kmea,0.05*kmea), seq(kmea,midmax,0.1*kmea))
+        if ((lsmax - (Re(log2(midmax))+0.5)) < 0.5) step <- (lsmax - (Re(log2(midmax))+0.5))
+        else step <- 0.5
+        if (((Re(log2(midmin))-0.5)-lsmin) < 0.5 ) stepm <-  ((Re(log2(midmin))-0.5) - lsmin)
+        else stepm <- 0.5
+        
+        tmpsig <- c(2^(seq(lsmin,(Re(log2(midmin))-0.5), stepm)), rtmp, 2^(seq(Re(log2(midmax))+0.5, lsmax,step)))
+        diss <- matrix(rep(Inf,length(tmpsig)*nc),ncol=nc)
 
+        for (i in 1:length(tmpsig)){
+          ka <- exp((-(ktmp^2))/(2*(tmpsig[i]^2)))
+          diag(ka) <- 0
+          
+          d <- 1/sqrt(rowSums(ka))
+     
+          if(!any(d==Inf) && !any(is.na(d))&& (max(d)[1]-min(d)[1] < 10^4))
+            {
+              l <- d * ka %*% diag(d)
+              xi <- eigen(l,symmetric=TRUE)$vectors[,1:nc]
+              yi <- xi/sqrt(rowSums(xi^2))
+              res <- kmeans(yi, centers, iterations)
+              diss[i,] <- res$withinss
+            }
+        }
+        
+        ms <- which.min(rowSums(diss))
+        kernel <- rbfdot((tmpsig[ms]^(-2))/2)
+      }
+  }
+  else
+    {
+      if(!is(kernel,"kernel"))
+        {
+          if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
+          kernel <- do.call(kernel, kpar)
+        }
+      if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
+    }
+  
   km <- kernelMatrix(kernel,x)
   if(is(kernel)[1] == "rbfkernel")
     diag(km) <- 0
@@ -60,13 +106,29 @@ setMethod("specc",signature(x="matrix"),
   xi <- eigen(l)$vectors[,1:nc]
   yi <- xi/sqrt(rowSums(xi^2))
   res <- kmeans(yi, centers, iterations)
+  return(new("specc", .Data=res$cluster, size = res$size, centers=res$centers, withinss=res$withinss, kernelf= kernel))
 
-  cluster(ret) <- res$cluster 
-  centers(ret) <- res$centers
-  size(ret) <- res$size
-  kernelf(ret) <- kernel
-## use res$withinss for model selection !!
-  return(ret)
+})
+
+
+
+setMethod("show","specc",
+function(object){
+ 
+  cat("Spectral Clustering object of class \"specc\"","\n")
+  cat("\n","Cluster memberships:","\n","\n")
+   cat(object@.Data,"\n","\n")
+  show(kernelf(object))
+  cat("\n")
+  cat(paste("Centers: ","\n"))
+  show(centers(object))
+  cat("\n")
+  cat(paste("Cluster size: ","\n"))
+  show(size(object))
+  cat("\n")
+  cat(paste("Within-cluster sum of squares: ", "\n"))
+  show(withinss(object))
+  cat("\n")
 })
 
 

@@ -11,10 +11,12 @@ setClass("ksvm", representation(type = "character",
                                 fit = "ANY",
                                 lev = "vector",
                                 nclass = "numeric",
+                                prior = "list",
                                 alpha = "ANY",
                                 coeff = "ANY",
                                 alphaindex = "ANY",
                                 b = "numeric",
+                                prob.model = "list",
                                 SVindex = "vector",
                                 nSV = "numeric",
                                 error = "numeric",
@@ -170,6 +172,20 @@ setReplaceMethod("lev", "ksvm", function(x, value) {
   x
 })
 
+if(!isGeneric("prior")){
+  if (is.function("prior"))
+    fun <- prior
+  else fun <- function(object) standardGeneric("prior")
+  setGeneric("prior", fun)
+}
+setMethod("prior", "ksvm", function(object) object@prior)
+setGeneric("prior<-", function(x, value) standardGeneric("prior<-"))
+setReplaceMethod("prior", "ksvm", function(x, value) {
+  x@prior <- value
+  x
+})
+
+
 if(!isGeneric("nclass")){
   if (is.function("nclass"))
     fun <- nclass
@@ -221,6 +237,20 @@ setReplaceMethod("alphaindex", "ksvm", function(x, value) {
   x@alphaindex <- value
   x
 })
+
+if(!isGeneric("prob.model")){
+  if (is.function("prob.model"))
+    fun <- prob.model
+  else fun <- function(object) standardGeneric("prob.model")
+  setGeneric("prob.model", fun)
+}
+setMethod("prob.model", "ksvm", function(object) object@prob.model)
+setGeneric("prob.model<-", function(x, value) standardGeneric("prob.model<-"))
+setReplaceMethod("prob.model", "ksvm", function(x, value) {
+  x@prob.model <- value
+  x
+})
+
 
 if(!isGeneric("b")){
   if (is.function("b"))
@@ -873,25 +903,17 @@ setReplaceMethod("maxresiduals", "inc.chol", function(x, value) {
 
 
 
-setClass("specc",representation(
- 				    cluster="vector",
-				    centers="matrix",
-                                    size="vector",
-                                    kernelf="function"
-                                    ))
+setClass("specc",representation("vector",
+                                centers="matrix",
+                                size="vector",
+                                kernelf="function",
+                                withinss = "vector"
+                                ),prototype=structure(.Data=vector(),
+                                    centers = matrix(),
+                                    size=matrix(),
+                                    kernelf = ls,
+                                    withinss=vector()))
 
-if(!isGeneric("cluster")){
-if (is.function("cluster"))
-  fun <- cluster
-else fun <- function(object) standardGeneric("cluster")
-setGeneric("cluster", fun)
-}
-setMethod("cluster", "specc", function(object) object@cluster)
-setGeneric("cluster<-", function(x, value) standardGeneric("cluster<-"))
-setReplaceMethod("cluster", "specc", function(x, value) {
-  x@cluster <- value
-  x
-})
 
 if(!isGeneric("centers")){
 if (is.function("centers"))
@@ -919,6 +941,19 @@ setReplaceMethod("size", "specc", function(x, value) {
   x
 })
 
+if(!isGeneric("withinss")){
+if (is.function("withinss"))
+  fun <- withinss
+else fun <- function(object) standardGeneric("withinss")
+setGeneric("withinss", fun)
+}
+setMethod("withinss", "specc", function(object) object@withinss)
+setGeneric("withinss<-", function(x,value) standardGeneric("withinss<-"))
+setReplaceMethod("withinss", "specc", function(x, value) {
+  x@withinss <- value
+  x
+})
+
 setMethod("kernelf","specc", function(object) object@kernelf)
 setReplaceMethod("kernelf","specc", function(x, value){
   x@kernelf <- value
@@ -927,4 +962,35 @@ setReplaceMethod("kernelf","specc", function(x, value){
 
 
 
+setClass("ranking",representation("matrix",
+ 				    convergence="matrix",
+				    edgegraph="matrix"),
+				    prototype=structure(.Data=matrix(),
+                                    convergence=matrix(),
+				    edgegraph=matrix()))
 
+if(!isGeneric("convergence")){
+if (is.function("convergence"))
+  fun <- convergence
+else fun <- function(object) standardGeneric("convergence")
+setGeneric("convergence", fun)
+}
+setMethod("convergence", "ranking", function(object) object@convergence)
+setGeneric("convergence<-", function(x,value) standardGeneric("convergence<-"))
+setReplaceMethod("convergence", "ranking", function(x, value) {
+  x@convergence <- value
+  x
+})
+
+if(!isGeneric("edgegraph")){
+if (is.function("edgegraph"))
+  fun <- edgegraph
+else fun <- function(object) standardGeneric("edgegraph")
+setGeneric("edgegraph", fun)
+}
+setMethod("edgegraph", "ranking", function(object) object@edgegraph)
+setGeneric("edgegraph<-", function(x,value) standardGeneric("edgegraph<-"))
+setReplaceMethod("edgegraph", "ranking", function(x, value) {
+  x@edgegraph <- value
+  x
+})

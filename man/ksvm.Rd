@@ -20,7 +20,7 @@
 \S4method{ksvm}{vector}{x, ...}
 
 \S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", kpar = list(sigma = 0.1),
-C = 1, nu = 0.2, epsilon = 0.1, class.weights = NULL, cachesize = 40, tol = 0.001,
+C = 1, nu = 0.2, epsilon = 0.1, prob.model = FALSE, class.weights = NULL, cachesize = 40, tol = 0.001,
 shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
 }
 
@@ -62,10 +62,13 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{
-      \item \code{rbfdot} (Radial Basis kernel function "Gaussian")
-      \item \code{polydot} (Polynomial kernel function)
-      \item \code{vanilladot} (Linear kernel function)
-      \item \code{tanhdot} (Hyperbolic tangent kernel function)
+      \item \code{rbfdot} Radial Basis kernel function "Gaussian"
+      \item \code{polydot} Polynomial kernel function
+      \item \code{vanilladot} Linear kernel function
+      \item \code{tanhdot} Hyperbolic tangent kernel function
+      \item \code{laplacedot} Laplacian kernel function
+      \item \code{besseldot} Bessel kernel function
+      \item \code{anovadot} ANOVA RBF kernel function
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
@@ -75,10 +78,13 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
     This is a list which contains the parameters to be used with the
     kernel function. For valid parameters for existing kernels are :
     \itemize{
-      \item \code{sigma} (inverse kernel width for the Radial Basis kernel function "rbfdot")
-      \item \code{degree, scale, offset} (for the Polynomial kernel "polydot")
-      \item \code{scale, offset} (for the Hyperbolic tangent kernel
-      function "tanhdot")
+      \item \code{sigma} inverse kernel width for the Radial Basis
+      kernel function "rbfdot" and the Laplacian kernel "laplacedot".
+      \item \code{degree, scale, offset} for the Polynomial kernel "polydot"
+      \item \code{scale, offset} for the Hyperbolic tangent kernel
+      function "tanhdot"
+      \item \code{sigma, order, degree} for the Bessel kernel "besseldot". 
+      \item \code{sigma, degree} for the ANOVA kernel "anovadot".
     }
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well. In the case of a Radial Basis kernel function (Gaussian)
@@ -89,9 +95,13 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
   \item{nu}{parameter needed for \code{nu-classification},
     \code{one-classification}, and \code{nu-regression}. The \code{nu}
     parameter sets the upper bound on the training error and the lower
-    bound on the fraction of data points to become Support Vectors ( default: 0.2).}
+    bound on the fraction of data points to become Support Vectors (default: 0.2).}
   \item{epsilon}{epsilon in the insensitive-loss function used for
     \code{eps-regression} and \code{nu-regression} (default: 0.1)}
+  \item{prob.model}{if set to \code{TRUE} a model for calculating class
+    probabilities is fitted on output data created by performing a
+    3-fold cross-validation on the training data. For details see
+    references. (default: \code{FALSE})}
   \item{class.weights}{a named vector of weights for the different
     classes, used for asymmetric class sizes. Not all factor levels have
     to be supplied (default weight: 1). All components have to be named.}
@@ -167,7 +177,7 @@ shrinking = TRUE, cross = 0, fit = TRUE, ..., subset, na.action = na.omit)
     \item
     H.-T. Lin, C.-J. Lin and R. C. Weng\cr
     \emph{A note on Platt's probabilistic outputs for support vector machines}\cr
-    \url{http://www.csie.ntu.edu.tw/~cjin/papers/plattprob.ps}
+    \url{http://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.ps}
     
   \item
      C.-W. Hsu and C.-J. Lin \cr
@@ -224,7 +234,7 @@ rbf <- rbfdot(sigma=0.1)
 rbf
 
 ## train a support vector machine
-irismodel <- ksvm(Species~.,data=iris,kernel=rbf,C=10)
+irismodel <- ksvm(Species~.,data=iris,kernel=rbf,C=10,prob.model=TRUE)
 
 irismodel
 

@@ -21,7 +21,7 @@ struct svm_problem
 };
 
 enum { C_SVC, KBB, SPOC, EPSILON_SVR };	/* svm_type */
-enum { LINEAR, POLY, RBF, SIGMOID, R };	/* kernel_type */
+enum { LINEAR, POLY, RBF, SIGMOID, R, LAPLACE, BESSEL, ANOVA};	/* kernel_type */
 
 struct svm_parameter
 {
@@ -30,7 +30,7 @@ struct svm_parameter
 	double degree;	/* for poly */
 	double gamma;	/* for poly/rbf/sigmoid */
 	double coef0;	/* for poly/sigmoid */
-
+        double lim; /* for bessel */ 
 	/* these are for training only */
 	double cache_size; /* in MB */
 	double eps;	/* stopping criteria */
@@ -44,6 +44,7 @@ struct svm_parameter
 	double Cbegin, Cstep;	/* for linear kernel */ 
 	SEXP rho;
 	SEXP expr;
+        int d;
 };
 
 struct BQP

@@ -50,6 +50,7 @@ function (x,
           C         = 1,
           nu        = 0.2,
           epsilon   = 0.1,
+          prob.model = FALSE,
           class.weights = NULL,
           cross     = 0,
           fit       = TRUE,
@@ -60,8 +61,13 @@ function (x,
           ,subset 
          ,na.action = na.omit)
 {
-
-## subsetting and na-handling for matrices
+  sparse  <- inherits(x, "matrix.csr")
+  if (sparse) {
+    if (!require(SparseM))
+      stop("Need SparseM package for handling of sparse structures!")
+  }
+  
+  ## subsetting and na-handling for matrices
   ret <- new("ksvm")
   if (!missing(subset)) x <- x[subset,]
   if (is.null(y))
@@ -87,7 +93,15 @@ function (x,
                           "eps-regression",
                           "nu-regression"))
 
-  
+
+  ## scaling, subsetting, and NA handling
+  if (sparse) {
+    scale <- rep(FALSE, ncol(x))
+    if(!is.null(y)) na.fail(y)
+    x <- t(t(x)) ## make shure that col-indices are sorted
+  }
+
+
   unscaledx <- x  
   x.scale <- y.scale <- NULL
  ## scaling
@@ -106,9 +120,10 @@ function (x,
       xtmp <- scale(x[,scaled])
       x[,scaled] <- xtmp
       x.scale <- attributes(xtmp)[c("scaled:center","scaled:scale")]
-      if (is.numeric(y)&&(type(ret)!="C-classification"&&type(ret)!="nu-classification"&&type(ret)!="spoc-classification")) {         y <- scale(y)
-                                                                                                                                      y.scale <- attributes(y)[c("scaled:center","scaled:scale")]
-                                                                                                                                      y <- as.vector(y)
+      if (is.numeric(y)&&(type(ret)!="C-classification"&&type(ret)!="nu-classification"&&type(ret)!="spoc-classification")) {
+        y <- scale(y)
+        y.scale <- attributes(y)[c("scaled:center","scaled:scale")]
+        y <- as.vector(y)
       }
       scaling(ret) <- list(scaled = scaled, x.scale = x.scale, y.scale = y.scale)
     }
@@ -116,10 +131,16 @@ function (x,
   ncols <- ncol(x)
   m <- nrows <- nrow(x)
 
-  if(is.character(kernel))
-    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot"))
+  if(is.character(kernel)){
+    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot"))
   
-  
+  if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot") && any(names(kpar) == "sigma") )
+    {
+      cat("no sigma parameter in this kernel. Did you set a hyperparameter for this kernel ?")
+      cat ("\n", " Setting default kernel parameters")
+      kpar <- NULL
+    }
+  }
   if (!is.list(kpar)&&is.character(kpar)&&( class(kernel)=="rbfkernel" || kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
@@ -201,11 +222,29 @@ function (x,
          {
            ktype <- 0
          },
+	 "laplacekernel" =
+	 {
+	 ktype <- 5
+	 sigma <- kpar(kernel)$sigma
+	 },
+         "besselkernel" =
+         {
+           ktype <- 6
+           sigma <- kpar(kernel)$sigma
+           degree <- kpar(kernel)$order
+           offset <- kpar(kernel)$degree
+         },
+         "anovakernel" =
+         {
+           ktype <- 7
+           sigma <- kpar(kernel)$sigma
+           degree <-  kpar(kernel)$degree
+         },
          ktype <- 4
          )
-  
+  prior(ret) <- list(NULL)
   if(type(ret) == "C-classification"){
-    indexes <- lapply(1:nclass(ret), function(kk) which(y == kk))
+    indexes <- lapply(sort(unique(y)), function(kk) which(y == kk))
     for (i in 1:(nclass(ret)-1)) {
       jj <- i+1
       for(j in jj:nclass(ret)) {
@@ -235,11 +274,24 @@ function (x,
             nweigths <- 2
           }
           }
+       
+        boolabel <- yd >= 0
+        prior1 <- sum(boolabel)
+        md <- length(yd)
+        prior0 <- md - prior1
+        prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
+        
         resv <- .Call("smo_optim",
                       as.double(t(xd)),
                       as.integer(nrow(xd)),
                       as.integer(ncol(xd)),
                       as.double(yd),
+
+                      
+                      as.integer(if (sparse) xd@ia else 0),
+                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(sparse),
+                      
                       as.double(matrix(rep(-1,m))), ##linear term
                       as.integer(ktype),
                       as.integer(0), 
@@ -247,7 +299,7 @@ function (x,
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.integer(degree),
+                      as.double(degree),
                       as.double(offset),
                       as.integer(wl), ##weightlabel
                       as.double(weight),
@@ -256,8 +308,7 @@ function (x,
                       as.double(tol),
                       as.integer(shrinking),
                       .kernelin,
-                      environment(.kernelin))
-        
+                      environment(.kernelin), PACKAGE="kernlab")
         alpha(ret)[p] <- list(resv[-(li+lj+1)])
         ## nonzero alpha*y
         coeff(ret)[p] <- list(alpha(ret)[[p]][alpha(ret)[[p]]>0]*yd[alpha(ret)[[p]]>0])
@@ -276,7 +327,7 @@ function (x,
   } 
 
 if(type(ret) == "nu-classification"){
-   indexes <- lapply(1:nclass(ret), function(kk) which(y == kk))
+  indexes <- lapply(sort(unique(y)), function(kk) which(y == kk))
     for (i in 1:(nclass(ret)-1)) {
       jj <- i+1
       for(j in jj:nclass(ret)) {
@@ -292,11 +343,22 @@ if(type(ret) == "nu-classification"){
           yd <- c(rep(1,li),rep(-1,lj))
         else
           yd <- c(rep(-1,li),rep(1,lj))
+
+        boolabel <- yd >= 0
+        prior1 <- sum(boolabel)
+        md <- length(yd)
+        prior0 <- md - prior1
+        prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0)
+        
         resv <- .Call("smo_optim",
                       as.double(t(xd)),
                       as.integer(nrow(xd)),
                       as.integer(ncol(xd)),
                       as.double(yd),
+                      as.integer(if (sparse) xd@ia else 0),
+                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(sparse),
+                      
                       as.double(matrix(rep(-1,m))), #linear term
                       as.integer(ktype),
                       as.integer(1),
@@ -304,7 +366,7 @@ if(type(ret) == "nu-classification"){
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.integer(degree),
+                      as.double(degree),
                       as.double(offset),
                       as.integer(0), #weightlabl.
                       as.double(0),
@@ -313,7 +375,7 @@ if(type(ret) == "nu-classification"){
                       as.double(tol), 
                       as.integer(shrinking),
                       .kernelin,
-                      environment(.kernelin))
+                      environment(.kernelin), PACKAGE="kernlab")
         
         alpha(ret)[p] <- list(resv[-(li+lj+1)])
         ## alpha*y whithout including zeros (smaller kernel matrixes)
@@ -347,6 +409,9 @@ if(type(ret) =="spoc-classification")
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
                   as.double(rep(yd$x-1,2)),
+                  as.integer(if (sparse) x@ia else 0),
+                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(sparse),
                   as.integer(nclass(ret)),
                   as.integer(count),
                   as.integer(ktype),
@@ -354,7 +419,7 @@ if(type(ret) =="spoc-classification")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.integer(degree),
+                  as.double(degree),
                   as.double(offset),
                   as.double(C), 
                   as.double(2), #Cstep
@@ -367,7 +432,7 @@ if(type(ret) =="spoc-classification")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   .kernelin,
-                  environment(.kernelin))
+                  environment(.kernelin), PACKAGE="kernlab")
 
     alpha(ret) <- t(matrix(resv,nclass(ret)))
     coeff(ret) <- lapply(1:nclass(ret), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
@@ -393,6 +458,9 @@ if(type(ret) =="kbb-classification")
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
                   as.double(yd$x-1),
+                  as.integer(if (sparse) x@ia else 0),
+                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(sparse),
                   as.integer(nclass(ret)),
                   as.integer(count),
                   as.integer(ktype),
@@ -400,7 +468,7 @@ if(type(ret) =="kbb-classification")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.integer(degree),
+                  as.double(degree),
                   as.double(offset),
                   as.double(C),
                   as.double(2), #Cstep
@@ -413,7 +481,7 @@ if(type(ret) =="kbb-classification")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   .kernelin,
-                  environment(.kernelin))
+                  environment(.kernelin), PACKAGE="kernlab")
     start <-rep(0,nclass(ret))
     start[1]<-0
     start2<-rep(0,nclass(ret))
@@ -447,6 +515,9 @@ if(type(ret) =="kbb-classification")
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
                   as.double(matrix(rep(1,m))),
+                  as.integer(if (sparse) x@ia else 0),
+                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(sparse),
                   as.double(matrix(rep(-1,m))),
                   as.integer(ktype),
                   as.integer(2),
@@ -454,7 +525,7 @@ if(type(ret) =="kbb-classification")
                   as.double(nu),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.integer(degree),
+                  as.double(degree),
                   as.double(offset),
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -463,7 +534,7 @@ if(type(ret) =="kbb-classification")
                   as.double(tol),
                   as.integer(shrinking),
                   .kernelin,
-                  environment(.kernelin))
+                  environment(.kernelin), PACKAGE="kernlab")
     alpha(ret) <- resv[-(m+1)]
     coeff(ret) <- alpha(ret)[alpha(ret)!=0]
     alphaindex(ret) <- which(alpha(ret)!=0) ## in this case and in regr. the same with svindex
@@ -479,6 +550,9 @@ if(type(ret) =="kbb-classification")
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
                   as.double(y),
+                  as.integer(if (sparse) x@ia else 0),
+                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(sparse),
                   as.double(matrix(rep(-1,m))),
                   as.integer(ktype),
                   as.integer(3),
@@ -486,7 +560,7 @@ if(type(ret) =="kbb-classification")
                   as.double(nu),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.integer(degree),
+                  as.double(degree),
                   as.double(offset),
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -495,7 +569,7 @@ if(type(ret) =="kbb-classification")
                   as.double(tol), 
                   as.integer(shrinking), 
                   .kernelin,
-                  environment(.kernelin))
+                  environment(.kernelin),PACKAGE="kernlab")
     alpha(ret) <- resv[-(m+1)]
     coeff(ret) <- alpha(ret)[alpha(ret)!=0]
     alphaindex(ret) <- which(alpha(ret)!=0)
@@ -511,6 +585,9 @@ if(type(ret) =="kbb-classification")
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
                   as.double(y),
+                  as.integer(if (sparse) x@ia else 0),
+                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(sparse),
                   as.double(matrix(rep(-1,m))),
                   as.integer(ktype),
                   as.integer(4),
@@ -527,7 +604,7 @@ if(type(ret) =="kbb-classification")
                   as.double(tol), 
                   as.integer(shrinking), 
                   .kernelin,
-                  environment(.kernelin))
+                  environment(.kernelin), PACKAGE="kernlab")
     alpha(ret) <- resv[-(m+1)]
     coeff(ret) <- alpha(ret)[alpha(ret)!=0]
     alphaindex(ret) <- which(alpha(ret)!=0)
@@ -536,8 +613,6 @@ if(type(ret) =="kbb-classification")
     param(ret)$epsilon <- epsilon
     param(ret)$nu <- nu
   }
-
-
   
   kcall(ret) <- match.call()
   kernelf(ret) <- kernel
@@ -547,7 +622,7 @@ if(type(ret) =="kbb-classification")
   SVindex(ret) <- unique(svindex)
   nSV(ret)  <- length(unique(svindex))
   if(nSV(ret)==0)
-    stop("No Support Vectors found.")
+    stop("No Support Vectors found. You may want to change your parameters")
   fit(ret)  <- if (fit)
     predict(ret, unscaledx) else NA
 
@@ -561,7 +636,7 @@ if(type(ret) =="kbb-classification")
   cross(ret) <- -1
   if(cross == 1)
     cat("\n","cross should be >1 no cross-validation done!","\n","\n")
-  else if (cross!=0)
+  else if (cross > 1)
     {
       cerror <- 0
       suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
@@ -569,14 +644,14 @@ if(type(ret) =="kbb-classification")
         {
            cind <- unsplit(vgr[-i],1:(m-length(vgr[[i]])))
           if(type(ret)=="C-classification"||type(ret)=="nu-classification"||type(ret)=="spoc-classification"||type(ret)=="kbb-classification")
-            {
-              cret <- ksvm(x[cind,],factor (lev(ret)[y[cind]], levels = lev(ret)),type=type(ret),kernel=kernel,C=C,nu=nu,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+            { 
+              cret <- ksvm(x[cind,],factor (lev(ret)[y[cind]], levels = lev(ret)),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
           if(type(ret)=="eps-regression"||type(ret)=="nu-regression")
             {
-              cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache)
+              cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
             }
@@ -584,8 +659,56 @@ if(type(ret) =="kbb-classification")
       cross(ret) <- cerror
     }
 
-
+  prob.model(ret) <- list(NULL)
   
+  if(prob.model)
+    {
+      p <- 0
+      for (i in 1:(nclass(ret)-1)) {
+        jj <- i+1
+        for(j in jj:nclass(ret)) {
+          p <- p+1
+          ##prepare data
+          li <- length(indexes[[i]])
+          lj <- length(indexes[[j]])
+          xd <- matrix(0,(li+lj),dim(x)[2])
+          xdi <- 1:(li+lj) <= li
+          xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
+          xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
+          if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
+            {
+              yd <- c(rep(1,li),rep(-1,lj))
+              if(!is.null(class.weights)){
+                weight <- weightlabels[c(i,j)]
+                wl <- c(1,0)
+                nweights <- 2
+              }
+            }
+          else
+            {
+              yd <- c(rep(-1,li),rep(1,lj))
+              if(!is.null(class.weights)){
+                weight <- weightlabels[c(j,i)]
+                wl <- c(0,1)
+                nweigths <- 2
+              }
+            }
+          pres <- NULL
+          m <- li+lj
+          suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+          for(k in 1:3)
+            {
+              cind <- unsplit(vgr[-k],1:(m-length(vgr[[k]])))
+              if(type(ret)=="C-classification"||type(ret)=="nu-classification")
+                { 
+                  cret <- ksvm(xd[cind,], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE,cache = cache, prob.model=FALSE)
+                  pres <- rbind(pres,predict(cret, xd[vgr[[k]],],type="decision"))
+                }
+            }
+          prob.model(ret)[[p]] <- .probPlatt(pres)
+        }
+      }
+    }
   xmatrix(ret) <- x
   ## loss(ret) <- sum((1 - y * fitted(ret))[(1 - y * fitted(ret))>0]/m)
   return(ret)
@@ -638,9 +761,9 @@ function (object, newdata, type = "response", coupler = "minpair")
             scale  = scaling(object)$x.scale$"scaled:scale"
             )
 
-  type <- match.arg(type,c("response","probabilities","votes"))
-  
-  if(type == "response")
+  type <- match.arg(type,c("response","probabilities","votes","decision"))
+ 
+  if(type == "response" || type =="decision")
     {
   if(type(object)=="C-classification"||type(object)=="nu-classification")
     {
@@ -653,11 +776,18 @@ function (object, newdata, type = "response", coupler = "minpair")
           {
             p <- p+1
             ret <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object)[[p]],]),coeff(object)[[p]]) - b(object)[p]
-            votematrix[i,ret>0] <- votematrix[i,ret>0] + 1
-            votematrix[j,ret<0] <- votematrix[j,ret<0] + 1
+            if(type=="decision")
+              votematrix[p,] <- ret
+            else{
+              votematrix[i,ret>0] <- votematrix[i,ret>0] + 1
+              votematrix[j,ret<0] <- votematrix[j,ret<0] + 1
+            }
           }
       }
-      predres <- sapply(predres, function(x) which.max(votematrix[,x]))
+      if(type == "decision")
+        predres <- t(votematrix)
+      else 
+        predres <- sapply(predres, function(x) which.max(votematrix[,x]))
     }
 
   if(type(object) == "spoc-classification")
@@ -693,6 +823,9 @@ function (object, newdata, type = "response", coupler = "minpair")
 
   if(type == "probabilities")
     {
+      if(is.null(prob.model(object)[[1]]))
+        stop("ksvm object contains no probability model. Make sure you set the paramater prob.model in ksvm during training.")
+      
       if(type(object)=="C-classification"||type(object)=="nu-classification")
         {
           binprob <- matrix(0, newnrows, nclass(object)*(nclass(object) - 1)/2)
@@ -702,7 +835,7 @@ function (object, newdata, type = "response", coupler = "minpair")
               for(j in jj:nclass(object))
                 {
                   p <- p+1
-                  binprob[,p] <- .probPlatt(as.vector(kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object)[[p]],]),coeff(object)[[p]]) - b(object)[p]))
+                  binprob[,p] <- .SigmoidPredict(as.vector(kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object)[[p]],]),coeff(object)[[p]]) - b(object)[p]), prob.model(object)[[p]]$A, prob.model(object)[[p]]$B)
                 }
             }
           multiprob <- couple(binprob, coupler = coupler)
@@ -722,7 +855,7 @@ function (object, newdata, type = "response", coupler = "minpair")
       predres <- kernelMult(kernelf(object),newdata,as.matrix(xmatrix(object)[alphaindex(object),]),coeff(object)) - b(object)
     }
   
-  if (is.character(lev(object)))
+  if (is.character(lev(object)) && type!="decision")
     {
       ##classification & probabilities : return probability matrix
       if(type == "probabilities")
@@ -793,18 +926,7 @@ function(deci)
     sigma <- 1e-3
     eps <- 1e-5
 
-    ## Sigmoid predict function
-    .SigmoidPredict <- function(deci, A, B)
-      {
-        fApB <- deci*A +B
-        k<-length(deci)
-        ret <- rep(0,k)
-        bindex <- fApB >= 0
-        ret[bindex] <- exp(-fApB[bindex])/(1 + exp(-fApB[bindex]))
-        ret[!bindex] <- 1/(1 + exp(fApB[!bindex]))
-
-        ret
-      }
+   
     
     ## Construct target support
     hiTarget <- (prior1 + 1)/(prior1 + 2)
@@ -865,7 +987,6 @@ function(deci)
         gd <- g1*dA + g2*dB
 
         ## Line Search
-
         stepsize <- 1
 
         while(stepsize >= minstep)
@@ -901,8 +1022,20 @@ function(deci)
     if(it >= maxiter -1)
       cat("maximum number of iterations reached",g1,g2)
 
-    ret <- .SigmoidPredict(deci, A, B)
+    ret <- list(A=A, B=B)
     return(ret)
   })
 
+ ## Sigmoid predict function
+
+.SigmoidPredict <- function(deci, A, B)
+  {
+fApB <- deci*A +B
+k<-length(deci)
+ret <- rep(0,k)
+bindex <- fApB >= 0
+ret[bindex] <- exp(-fApB[bindex])/(1 + exp(-fApB[bindex]))
+ret[!bindex] <- 1/(1 + exp(fApB[!bindex]))
+return(ret)
+}
 

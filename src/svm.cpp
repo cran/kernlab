@@ -100,7 +100,7 @@ int Kcache::get_data(const int index, Qfloat **data, int len)
 	{
 		// free old space
 		while(size < more)
-		{
+		{ 
 			head_t *old = lru_head.next;
 			lru_delete(old);
 			free(old->data);
@@ -178,15 +178,20 @@ protected:
 private:
 	const svm_node **x;
 	double *x_square;
-
+     
 	// svm_parameter
 	const int kernel_type;
 	const double degree;
 	const double gamma;
         const double coef0;
+        const double lim;
+        const int d;
+      
                 
 
 	static double dot(const svm_node *px, const svm_node *py);
+        static double anova(const svm_node *px, const svm_node *py, const double sigma, const int d, const double degree);
+
 	double kernel_linear(int i, int j) const
 	{
 		return dot(x[i],x[j]);
@@ -199,16 +204,33 @@ private:
         {
          return exp(-gamma*(x_square[i]+x_square[j]-2*dot(x[i],x[j])));
         }
+	double kernel_laplace(int i, int j) const
+	{
+	return exp(-gamma*sqrt(fabs(x_square[i]+x_square[j]-2*dot(x[i],x[j]))));
+	}
+        double kernel_bessel(int i, int j) const
+        { 
+	  double bkt = gamma*sqrt(fabs(x_square[i]+x_square[j]-2*dot(x[i],x[j])));
+	  if (bkt < 0.000001){
+            return 1 ;
+	  }
+          else {
+	    return(pow(((jn((int)degree, bkt)*pow(bkt,(-degree)))/lim),coef0));
+	  }
+	}
 	double kernel_sigmoid(int i, int j) const
 	{
 		return tanh(gamma*dot(x[i],x[j])+coef0);
 	}
-
+        double kernel_anova(int i, int j) const
+        {
+	 return  anova(x[i], x[j], gamma, d, degree);
+	}
 };
 
 kernel::kernel(int l, svm_node * const * x_, const svm_parameter& param)
 :kernel_type(param.kernel_type), degree(param.degree),
- gamma(param.gamma), coef0(param.coef0)
+ gamma(param.gamma), coef0(param.coef0), lim(param.lim), d(param.d)
 {
 	switch(kernel_type)
 	{
@@ -221,28 +243,39 @@ kernel::kernel(int l, svm_node * const * x_, const svm_parameter& param)
 		case RBF:
 			kernel_function = &kernel::kernel_rbf;
 			break;
+		case LAPLACE:
+			kernel_function = &kernel::kernel_laplace;
+			break;
+        	case BESSEL:
+	                kernel_function = &kernel::kernel_bessel;
+			break;
 		case SIGMOID:
 			kernel_function = &kernel::kernel_sigmoid;
 			break;
+		case ANOVA:
+		        kernel_function = &kernel::kernel_anova;
+			break;
+
 	}
 
 	clone(x,x_,l);
 
-	if(kernel_type == RBF)
+	if(kernel_type == RBF || kernel_type == LAPLACE || kernel_type == BESSEL)
 	{
 		x_square = new double[l];
 		for(int i=0;i<l;i++)
 			x_square[i] = dot(x[i],x[i]);
 	}
+
 	else
 		x_square = 0;
 }
 
 kernel::~kernel()
-{
+  {
 	delete[] x;
 	delete[] x_square;
-}
+  }
 
 double kernel::dot(const svm_node *px, const svm_node *py)
 {
@@ -250,13 +283,13 @@ double kernel::dot(const svm_node *px, const svm_node *py)
 	while(px->index != -1 && py->index != -1)
 	{
 		if(px->index == py->index)
-		{
+		  {
 			sum += px->value * py->value;
 			++px;
 			++py;
 		}
 		else
-		{
+		  { 
 			if(px->index > py->index)
 				++py;
 			else
@@ -265,6 +298,45 @@ double kernel::dot(const svm_node *px, const svm_node *py)
 	}
 	return sum;
 }
+
+double kernel::anova(const svm_node *px, const svm_node *py, const double sigma, const int d, const double degree)
+{
+
+	double sum = 0;
+        //int zero = d; 
+	double tv;
+	while(px->index != -1 && py->index != -1)
+	{ 
+		if(px->index == py->index)
+		  { 	
+		    tv = (px->value - py->value) * (px->value - py->value);
+		    // if (fabs(tv) < 0.000001)
+		    //	sum ++;
+		    // else
+			sum += exp( - sigma * tv);
+		    ++px;
+		    ++py;
+		}
+		else
+		{
+			if(px->index > py->index)
+			  { 
+			    sum += exp( - sigma * (py->value * py->value));
+			    ++py;
+			  }
+			else
+			  {
+			    sum += exp( - sigma * (px->value * px->value));
+			    ++px;
+			  }
+		}
+	//	zero--;
+	}
+	return (pow(sum,degree));
+}
+
+
+
 
 double kernel::k_function(const svm_node *x, const svm_node *y,
 			  const svm_parameter& param)
@@ -490,7 +562,7 @@ void Solver::Solve(int l, const kernel& Q, const double *b_, const schar *y_,
 		// show progress and do shrinking
 	 
 		if(--counter == 0)
-		{
+		{ 
 			counter = min(l,1000);
 			if(shrinking) do_shrinking();
 			//	info("."); info_flush();
@@ -741,9 +813,8 @@ int Solver::select_working_set(int &out_i, int &out_j)
 			}
 		}
 	}
-
 	if(Gmax1+Gmax2 < eps)
- 		return 1;
+		return 1;
 
 	out_i = Gmax1_idx;
 	out_j = Gmax2_idx;
@@ -1109,6 +1180,7 @@ public:
 		ktype = param.kernel_type;
 		expr = param.expr;
 		rho = param.rho;
+
 	}
 	
 	Qfloat *get_Q(int i, int len) const
@@ -1117,12 +1189,12 @@ public:
 		int start; 
 	
 		if((start = cache->get_data(i,&data,len) < len)  && ktype != 4)
-		{
-			for(int j=start;j<len;j++)
-			  data[j] = (Qfloat)(y[i]*y[j]*(this->*kernel_function)(i,j));
-	 	}
+		  { 
+		    for(int j=start;j<len;j++)
+		      data[j] = (Qfloat)(y[i]*y[j]*(this->*kernel_function)(i,j));
+		  }
 		else if(ktype == 4)
-		 {
+		  {
 		   SEXP R_fcall, dummy, ans;
 		   PROTECT(R_fcall = lang2(expr, R_NilValue));
 		   PROTECT(ans= allocSExp(REALSXP));
@@ -1166,17 +1238,33 @@ public:
 	:kernel(prob.l, prob.x, param)
 	{
 		cache = new Kcache(prob.l,(int)(param.cache_size*(1<<20)));
+		ktype = param.kernel_type;
+		expr = param.expr;
+		rho = param.rho;
 	}
 	
 	Qfloat *get_Q(int i, int len) const
 	{
 		Qfloat *data;
 		int start;
-		if((start = cache->get_data(i,&data,len)) < len)
+		if((start = cache->get_data(i,&data,len)) < len && ktype !=4)
 		{
 			for(int j=start;j<len;j++)
 				data[j] = (Qfloat)(this->*kernel_function)(i,j);
 		}
+			else if(ktype == 4)
+		  {
+		   SEXP R_fcall, dummy, ans;
+		   PROTECT(R_fcall = lang2(expr, R_NilValue));
+		   PROTECT(ans= allocSExp(REALSXP));
+		   PROTECT(dummy = allocVector(INTSXP, 1));
+		   INTEGER(dummy)[0] = i+1;
+		   SETCADR(R_fcall,dummy);
+		   ans = eval(R_fcall,rho);
+		   for(int j=start;j<len;j++)
+		     data[j] = (Qfloat)(REAL(ans)[j]);
+		   UNPROTECT(3);
+		  }
 		return data;
 	}
 
@@ -1192,6 +1280,9 @@ public:
 	}
 private:
 	Kcache *cache;
+        SEXP expr;
+        SEXP rho;
+        int ktype;
 };
 
 class SVR_Q: public kernel
@@ -1204,6 +1295,9 @@ public:
 		cache = new Kcache(l,(int)(param.cache_size*(1<<20)));
 		sign = new schar[2*l];
 		index = new int[2*l];
+		ktype = param.kernel_type;
+		expr = param.expr;
+		rho = param.rho;
 		for(int k=0;k<l;k++)
 		{
 			sign[k] = 1;
@@ -1231,7 +1325,20 @@ public:
 			for(int j=0;j<l;j++)
 				data[j] = (Qfloat)(this->*kernel_function)(real_i,j);
 		}
-
+		else if(ktype == 4)
+		  {
+		    SEXP R_fcall, dummy, ans;
+		    PROTECT(R_fcall = lang2(expr, R_NilValue));
+		    PROTECT(ans= allocSExp(REALSXP));
+		    PROTECT(dummy = allocVector(INTSXP, 1));
+		    INTEGER(dummy)[0] = real_i+1;
+		    SETCADR(R_fcall,dummy);
+		    ans = eval(R_fcall,rho);
+		    for(int j=0;j<l;j++)
+		      data[j] = (Qfloat)(REAL(ans)[j]);
+		    UNPROTECT(3);
+		  }
+	
 		// reorder and copy
 		Qfloat *buf = buffer[next_buffer];
 		next_buffer = 1 - next_buffer;
@@ -1256,6 +1363,9 @@ private:
 	int *index;
 	mutable int next_buffer;
 	Qfloat* buffer[2];
+       SEXP expr;
+        SEXP rho;
+        int ktype;
 };
 
 //
@@ -1566,7 +1676,10 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 	   kernel_type != POLY &&
 	   kernel_type != RBF &&
 	   kernel_type != SIGMOID &&
-	   kernel_type != R)
+	   kernel_type != R && 
+	   kernel_type != LAPLACE&&
+	   kernel_type != BESSEL&&
+	   kernel_type != ANOVA)
 		return "unknown kernel type";
 
 	// cache_size,eps,C,nu,p,shrinking
@@ -1688,6 +1801,35 @@ extern "C" {
     return sparse;
   }
   
+
+struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
+{
+    struct svm_node** sparse;
+    int i, ii, count = 0, nnz = 0;
+
+    sparse = (struct svm_node **) malloc (r * sizeof(struct svm_node*));
+    for (i = 0; i < r; i++) {
+        /* allocate memory for column elements */
+        nnz = rowindex[i+1] - rowindex[i];
+        sparse[i] = (struct svm_node *) malloc ((nnz + 1) * sizeof(struct svm_node));
+
+        /* set column elements */
+        for (ii = 0; ii < nnz; ii++) {
+            sparse[i][ii].index = colindex[count];
+            sparse[i][ii].value = x[count];
+            count++;
+        }
+
+        /* set termination element */
+        sparse[i][ii].index = -1;
+    }
+
+    return sparse;
+
+}
+
+
+
   void solve_smo(const svm_problem *prob, const svm_parameter* param,
 		 double *alpha, Solver::SolutionInfo* si, double C, double *linear_term)
   {
@@ -1852,6 +1994,9 @@ extern "C" {
 		 SEXP r, 
 		 SEXP c, 
 		 SEXP y, 
+		 SEXP rowindex,
+		 SEXP colindex,
+		 SEXP sparse,
 		 SEXP linear_term, 
 		 SEXP kernel_type, 
 		 SEXP svm_type, 
@@ -1899,13 +2044,18 @@ extern "C" {
     }
     param.p           = *REAL(eps);
     param.shrinking   = *INTEGER(shrinking);
-
+    param.lim = 1/(tgamma(param.degree+1)*pow(2,param.degree));    
     /* set problem */
     prob.l = *INTEGER(r);
+    param.d = *INTEGER(c);
     // prob.y =  (double *) malloc (sizeof(double) * prob.l);
     prob.y = REAL(y);
 
-    prob.x = sparsify(REAL(x), *INTEGER(r), *INTEGER(c)); 
+    if (*INTEGER(sparse) > 0)
+      prob.x = transsparse(REAL(x), *INTEGER(r), INTEGER(rowindex), INTEGER(colindex));
+    else
+      prob.x = sparsify(REAL(x), *INTEGER(r), *INTEGER(c)); 
+
     alpha2      = (double *) malloc (sizeof(double) * prob.l);
     s = svm_check_parameter(&prob, &param);
     if (s) {
@@ -1926,55 +2076,5 @@ extern "C" {
     free(alpha2); 
     UNPROTECT(1);  
     return alpha;
-  }
-
-  void smo_setup(double *x,int *r, int *c, double *y, double *linear_term, int *kernel_type, 
-		 int *svm_type, double *cost, double *nu, double *gamma,double *eps,int degree,
-		 double *coef0, int *weightlabels, double *weights, int *nweights, 
-		 double *cache, double *epsilon, int *shrinking, double *alpha, double *beta, char  **error) 
-  {
-    struct svm_parameter param;
-    struct svm_problem  prob;
-    int i;  const char* s;
-    struct Solver::SolutionInfo si;
-    /* set parameters */
-    param.svm_type    = *svm_type;
-    param.kernel_type = *kernel_type;
-    param.degree      = degree;
-    param.gamma       = *gamma;
-    param.coef0       = *coef0;
-    param.cache_size  = *cache;
-    param.eps         = *eps;
-    param.C           = *cost;
-    param.nu          = *nu;
-    param.nr_weight   = *nweights;
-    if (param.nr_weight > 0) {
-      param.weight      = (double *) malloc (sizeof(double) * param.nr_weight);
-      memcpy (param.weight, weights, param.nr_weight * sizeof(double));
-      param.weight_label = (int *) malloc (sizeof(int) * param.nr_weight);
-      memcpy (param.weight_label, weightlabels, param.nr_weight * sizeof(int));
-    }
-    param.p           = *epsilon;
-    param.shrinking   = *shrinking;
-    /* set problem */
-    prob.l = *r;
-    prob.y = y;
-    prob.x = sparsify(x, *r, *c);
-     s = svm_check_parameter(&prob, &param);
-    if (s) {
-	strcpy(*error, s);
-    } else {
-	/* call smo  */
-    solve_smo(&prob, &param, alpha, &si,*cost, linear_term);
-    }
-
-    *beta = si.rho;
-    /* clean up memory */
-    if (param.nr_weight > 0) {
-      free(param.weight);
-      free(param.weight_label);
-    }
-    for (i = 0; i < *r; i++) free (prob.x[i]);
-    free (prob.x);
   }
 }

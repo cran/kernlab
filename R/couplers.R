@@ -8,9 +8,9 @@ couple <- function(probin, coupler = "minpair")
   
   coupler <- match.arg(coupler, c("minpair", "pkpd", "vote", "ht"))
 
-##  if(coupler == "ht")
-##    multiprob <- sapply(1:m, function(x) do.call(coupler, list(probin[x ,], clscnt))) 
-##  else
+  if(coupler == "ht")
+    multiprob <- sapply(1:m, function(x) do.call(coupler, list(probin[x ,], clscnt))) 
+  else
     multiprob <- sapply(1:m, function(x) do.call(coupler, list(probin[x ,])))    
 
   return(t(multiprob))

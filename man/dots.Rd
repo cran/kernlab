@@ -4,6 +4,9 @@
 \alias{polydot}
 \alias{tanhdot}
 \alias{vanilladot}
+\alias{laplacedot}
+\alias{besseldot}
+\alias{anovadot}
 \alias{kpar}
 \alias{show,kernel-method}
 \title{Kernel Functions}
@@ -12,7 +15,12 @@
   The Gaussian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|^2)} \cr
   the Polynomial kernel \eqn{k(x,x') = (scale <x, x'> + offset)^degree}.\cr
   the Linear kernel \eqn{k(x,x') = <x, x'>}\cr
-  and the  Hyperbolic tangent kernel \eqn{k(x, x') = \tanh(scale <x, x'> + offset)}
+  the  Hyperbolic tangent kernel \eqn{k(x, x') = \tanh(scale <x, x'> +
+    offset)}
+  the Laplacian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|)} \cr
+  the Bessel kernel \eqn{k(x,x') = (- Bessel_{(\nu+1)}^n sigma \|x - x'\|^2)} \cr
+  the ANOVA RBF kernel \eqn{k(x,x') = \sum_{1\leq i_1 \ldots < i_D \leq
+      N} \prod_{d=1}^D k(x_{id}, {x'}_{id})} where k(x,x) is a RBF kernel. 
 }
 \usage{
 rbfdot(sigma = 1)
@@ -22,14 +30,25 @@ polydot(degree = 1, scale = 1, offset = 1)
 tanhdot(scale = 1, offset = 1)
 
 vanilladot()
+
+laplacedot(sigma = 1)
+
+besseldot(sigma = 1, order = 1, degree = 1)
+
+anovadot(sigma = 1, degree = 1)
 }
 
 \arguments{
-  \item{sigma}{The inverse kernel width used by the Gaussian kernel}
-  \item{degree}{The degree of the polynomial kernel. This has to be an integer.}
-  \item{scale}{The scaling parameter is a convenient way of normalizing
+  \item{sigma}{The inverse kernel width used by the Gaussian the
+    Laplacian, the Bessel and the ANOVA kernel }
+  \item{degree}{The degree of the polynomial, bessel or ANOVA
+    kernel function. This has to be an integer.}
+  \item{scale}{The scaling parameter of the polynomial and tangent
+    kernel is a convenient way of normalizing
     patterns without the need to modify the data itself}
-  \item{offset}{The offset used in a polynomial or hyperbolic tangent kernel}
+  \item{offset}{The offset used in a polynomial or hyperbolic tangent
+    kernel}
+  \item{order}{The order of the Bessel function to be used as a kernel}
 }
 \details{
   The kernel generating function are used to initialize a kernel
