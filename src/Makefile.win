@@ -5,7 +5,7 @@ CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/src/include
 CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
 CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
 
-DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR 
+DLLLIBS=-L$(RHOME)/src/gnuwin32 $(FLIBS) -lR 
 
 PKG_CFLAGS = -I$(RHOME)/include
 SOURCES_C = solvebqp.c \
@@ -22,7 +22,7 @@ SUBL = tron f2cl
 SUBLIBS = $(SUBL)
 
 $(SHLIB): $(OBJECTS) $(OBJECTS_CPP) $(SUBLIBS) 
-	 g++ --shared -s -o kernlab.dll -o $@ $(OBJECTS) $(OBJECTS_CPP) $(SUBLIBS) $(LIBM) $(ALL_LIBS) 
+	 g++ --shared -s -o kernlab.dll $(OBJECTS) $(OBJECTS_CPP) $(SUBLIBS) $(LIBM) $(ALL_LIBS) $(DLLLIBS)
 
 all: $(SHLIB)
 
