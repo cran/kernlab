@@ -1,13 +1,13 @@
 #include <stdlib.h>
-
+#include <R_ext/BLAS.h>
 extern void *xmalloc(size_t);
 extern double mymin(double, double);
 extern double mymax(double, double);
 /* LEVEL 1 BLAS */
-extern double dnrm2_(int *, double *, int *);
+/*extern double dnrm2_(int *, double *, int *);*/
 /* LEVEL 2 BLAS */
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
-extern void dtrsv_(char *, char *, char *, int *, double *, int *, double *, int *);
+/*extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);*/
+/*extern void dtrsv_(char *, char *, char *, int *, double *, int *, double *, int *);*/
 /* MINPACK 2 */
 extern void dprsrch(int, double *, double *, double *, double *, double *, double *);
 extern double dprecond(int, double *, double *);
@@ -123,7 +123,7 @@ c                       not allow further progress.
 	double *gfree = (double *) xmalloc(sizeof(double)*n);
 
 	/* Compute A*(x[1] - x[0]) and store in w. */
-	dsymv_("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
       
 	/* Compute the Cauchy point. */
 	for (j=0;j<n;j++)
@@ -165,12 +165,12 @@ c                       not allow further progress.
 			wa[i] = g[indfree[i]];
 			gfree[i] = w[indfree[i]] + wa[i];
 		}
-		gfnorm = dnrm2_(&nfree, wa, &inc);
+		gfnorm = F77_CALL(dnrm2)(&nfree, wa, &inc);
 
 		alpha = dprecond(nfree, B, L);
 		dtrpcg(nfree, B, gfree, delta, L, rtol*gfnorm, stol, w, &itertr, &infotr);
 		iters += itertr;
-		dtrsv_("L", "T", "N", &nfree, L, &nfree, w, &inc);
+		F77_CALL(dtrsv)("L", "T", "N", &nfree, L, &nfree, w, &inc);
 
 		/* Use a projected search to obtain the next iterate.
 		The projected search algorithm stores s[k] in w. */
@@ -191,13 +191,13 @@ c                       not allow further progress.
 		}
 
 		/* Compute A*(x[k+1] - x[0]) and store in w. */
-		dsymv_("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
+		F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
          
 		/* Compute the gradient grad q(x[k+1]) = g + A*(x[k+1] - x[0])
 		of q at x[k+1] for the free variables. */
 		for (j=0;j<nfree;j++)
 			gfree[j] = w[indfree[j]] + g[indfree[j]];
-		gfnormf = dnrm2_(&nfree, gfree, &inc);
+		gfnormf = F77_CALL(dnrm2)(&nfree, gfree, &inc);
 
 		/* Convergence and termination test.
 		We terminate if the preconditioned conjugate gradient method

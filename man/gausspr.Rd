@@ -8,8 +8,8 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Gaussian processes for regression and classification}
 \description{
-  \code{gausspr} is an implementation of Gaussian processes.
-  Gaussian processes can be used for classification and regression.
+  \code{gausspr} is an implementation of Gaussian processes
+  for classification and regression.
   
  }
 \usage{
@@ -103,10 +103,11 @@ var=1, tol=0.001, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
  A Gaussian process is specified by a mean and a covariance function.
   The mean is a function of x (which is often the zero function), and
   the covariance
-is a function C(x,x) which expresses the expected covariance between the
-value of the function y at the points x and x.
-The actual function y(x) in any data modelling problem is assumed to be
+is a function \eqn{C(x,x')} which expresses the expected covariance between the
+value of the function y at the points x and x'.
+The actual function \eqn{y(x)} in any data modelling problem is assumed to be
 a single sample from this Gaussian distribution.
+Model parameter estimation in classification is done by a gradient descent algorithm.
 
 }
 \value{

@@ -26,7 +26,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     #    if(!is.null(sc <- res$scores))
     #        res$scores <- napredict(na.act, sc)
     #}
-    res
+    return(res)
   })
 
 
@@ -65,7 +65,7 @@ setMethod("kpca",signature(x="matrix"),
   rotated(ret) <- kc %*% pcv(ret)
   kernelf(ret) <- kernel
   xmatrix(ret) <- x
-  ret
+  return(ret)
 })
 
 #project a new matrix into the feature space 
@@ -83,7 +83,7 @@ function(object , x)
     yi <- matrix((1/m), m, m)
     xi <- matrix((1/m), n, m)
     ret <- knc - knc %*% yi - xi %*% ka + xi %*% ka %*% yi
-    ret %*% pcv(object)
+    return(ret %*% pcv(object))
   })
 
 

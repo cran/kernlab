@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
-
+#include <R_ext/BLAS.h>
 extern double mymin(double, double);
 extern double mymax(double, double);
 extern void *xmalloc(size_t);
 /* LEVEL 1 BLAS */
-extern double ddot_(int *, double *, int *, double *, int *);
-extern int daxpy_(int *, double *, double *, int *, double *, int *);
+/*extern double ddot_(int *, double *, int *, double *, int *);*/
+/*extern int daxpy_(int *, double *, double *, int *, double *, int *);*/
 /* LEVEL 2 BLAS */
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
+/*extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);*/
 /* MINPACK 2 */
 extern void dbreakpt(int, double *, double *, double *, double *, int *, double *, double *);
 extern void dgpstep(int, double *, double *, double *, double, double *, double *);
@@ -101,9 +101,9 @@ c     **********
 		decrease condition. */
 		nsteps++;
 		dgpstep(n, x, xl, xu, alpha, w, wa1);
-		dsymv_("U", &n, &one, A, &n, wa1, &inc, &zero, wa2, &inc);
-		gts = ddot_(&n, g, &inc, wa1, &inc);
-		q = 0.5*ddot_(&n, wa1, &inc, wa2, &inc) + gts;
+		F77_CALL(dsymv)("U", &n, &one, A, &n, wa1, &inc, &zero, wa2, &inc);
+		gts = F77_CALL(ddot)(&n, g, &inc, wa1, &inc);
+		q = 0.5*F77_CALL(ddot)(&n, wa1, &inc, wa2, &inc) + gts;
 		if (q <= mu0*gts)
 			search = 0;
 		else
@@ -122,7 +122,7 @@ c     **********
 
 	/* Compute the final iterate and step. */
 	dgpstep(n, x, xl, xu, alpha, w, wa1);
-	daxpy_(&n, &alpha, w, &inc, x, &inc);
+	F77_CALL(daxpy)(&n, &alpha, w, &inc, x, &inc);
 	for (i=0;i<n;i++)
 		x[i] = mymax(xl[i], mymin(x[i], xu[i]));
 	memcpy(w, wa1, sizeof(double)*n);

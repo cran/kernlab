@@ -1,11 +1,12 @@
 #include <stdlib.h>
+#include <R_ext/RS.h>
 
 extern void *xmalloc(size_t);
 /* LEVEL 1 BLAS */
-extern double ddot_(int *, double *, int *, double *, int *);
-extern double dnrm2_(int *, double *, int *);
+/* extern double ddot_(int *, double *, int *, double *, int *);
+ extern double dnrm2_(int *, double *, int *); */
 /* LEVEL 2 BLAS */
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
+/* extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *); */
 /* MINPACK 2 */
 extern void dbreakpt(int, double *, double *, double *, double *, int *, double *, double *);
 extern void dgpstep(int, double *, double *, double *, double, double *, double *);
@@ -96,13 +97,13 @@ c     **********
 	/* Evaluate the initial alpha and decide if the algorithm
 	must interpolate or extrapolate. */
 	dgpstep(n, x, xl, xu, -(*alpha), g, s);
-	if (dnrm2_(&n, s, &inc) > delta)
+	if (F77_CALL(dnrm2)(&n, s, &inc) > delta)
 		interp = 1;
 	else
 	{
-		dsymv_("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
-		gts = ddot_(&n, g, &inc, s, &inc);
-		q = 0.5*ddot_(&n, s, &inc, wa, &inc) + gts;
+		F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
+		gts = F77_CALL(ddot)(&n, g, &inc, s, &inc);
+		q = 0.5*F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
 		interp = q >= mu0*gts ? 1 : 0;
 	}
 	
@@ -120,11 +121,11 @@ c     **********
 			nsteps++;
 			(*alpha) *= interpf;
 			dgpstep(n, x, xl, xu, -(*alpha), g, s);
-			if (dnrm2_(&n, s, &inc) <= delta)
+			if (F77_CALL(dnrm2)(&n, s, &inc) <= delta)
 			{
-				dsymv_("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
-				gts = ddot_(&n, g, &inc, s, &inc);
-				q = 0.5*ddot_(&n, s, &inc, wa, &inc) + gts;
+				F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
+				gts = F77_CALL(ddot)(&n, g, &inc, s, &inc);
+				q = 0.5*F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
 				search = q > mu0*gts ? 1 : 0;
 			} 			
 		}	
@@ -144,11 +145,11 @@ c     **********
 			alphas = *alpha;
 			(*alpha) *= extrapf;
 			dgpstep(n, x, xl, xu, -(*alpha), g, s);
-			if (dnrm2_(&n, s, &inc) <= delta)
+			if (F77_CALL(dnrm2)(&n, s, &inc) <= delta)
 			{
-				dsymv_("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
-				gts = ddot_(&n, g, &inc, s, &inc);
-				q = 0.5*ddot_(&n, s, &inc, wa, &inc) + gts;
+				F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, wa, &inc);
+				gts = F77_CALL(ddot)(&n, g, &inc, s, &inc);
+				q = 0.5*F77_CALL(ddot)(&n, s, &inc, wa, &inc) + gts;
 				search = q < mu0*gts ? 1 : 0;
 			}
 			else

@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <R_ext/BLAS.h>
 
 extern void *xmalloc(size_t);
 /* LEVEL 1 BLAS */
-extern int daxpy_(int *, double *, double *, int *, double *, int *);
-extern double ddot_(int *, double *, int *, double *, int *);
-extern double dnrm2_(int *, double *, int *);
-extern int dscal_(int *, double *, double *, int *);
+/* extern int daxpy_(int *, double *, double *, int *, double *, int *); */
+/* extern double ddot_(int *, double *, int *, double *, int *); */
+/* extern double dnrm2_(int *, double *, int *); */
+/* extern int dscal_(int *, double *, double *, int *); */
 /* LEVEL 2 BLAS */
-extern int dtrsv_(char *, char *, char *, int *, double *, int *, double *,  int *);
-extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *);
+/* extern int dtrsv_(char *, char *, char *, int *, double *, int *, double *,  int *); */
+/* extern int dsymv_(char *, int *, double *, double *, int *, double *, int *, double *, double *, int *); */
 /* MINPACK 2 */
 extern void dtrqsol(int, double *, double *, double , double *);
 
@@ -136,13 +137,13 @@ c     **********
 		w[i] = 0;
 		r[i] = t[i] = -g[i];
 	}
-	dtrsv_("L", "N", "N", &n, L, &n, r, &inc);
+	F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, r, &inc);
 
 	/* Initialize the direction p. */
 	memcpy(p, r, sizeof(double)*n);
 	
 	/* Initialize rho and the norms of r and t. */
-	rho = ddot_(&n, r, &inc, r, &inc);
+	rho = F77_CALL(ddot)(&n, r, &inc, r, &inc);
 	rnorm0 = sqrt(rho);
 
 	/* Exit if g = 0. */
@@ -158,17 +159,17 @@ c     **********
 		
 		/* Compute z by solving L'*z = p. */
 		memcpy(z, p, sizeof(double)*n);
-		dtrsv_("L", "T", "N", &n, L, &n, z, &inc);
+		F77_CALL(dtrsv)("L", "T", "N", &n, L, &n, z, &inc);
 
 		/* Compute q by solving L*q = A*z and save L*q for
 		use in updating the residual t.	*/
-		dsymv_("U", &n, &one, A, &n, z, &inc, &zero, q, &inc);
+		F77_CALL(dsymv)("U", &n, &one, A, &n, z, &inc, &zero, q, &inc);
 		memcpy(z, q, sizeof(double)*n);
-		dtrsv_("L", "N", "N", &n, L, &n, q, &inc);
+		F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, q, &inc);
 		
 		/* Compute alpha and determine sigma such that the trust region
 		constraint || w + sigma*p || = delta is satisfied. */
-		ptq = ddot_(&n, p, &inc, q, &inc);
+		ptq = F77_CALL(ddot)(&n, p, &inc, q, &inc);
 		if (ptq > 0)
 			alpha = rho/ptq;
 		else
@@ -179,7 +180,7 @@ c     **********
 		iterates exit the trust region.	*/
 		if (ptq <= 0 || alpha >= sigma)
 		{
-			daxpy_(&n, &sigma, p, &inc, w, &inc);
+			F77_CALL(daxpy)(&n, &sigma, p, &inc, w, &inc);
 			if (ptq <= 0)
 				*info = 3;
 			else
@@ -190,14 +191,14 @@ c     **********
 		/* Update w and the residuals r and t.
 		Note that t = L*r. */
 		malpha = -alpha;
-		daxpy_(&n, &alpha, p, &inc, w, &inc);
-		daxpy_(&n, &malpha, q, &inc, r, &inc);
-		daxpy_(&n, &malpha, z, &inc, t,&inc);
+		F77_CALL(daxpy)(&n, &alpha, p, &inc, w, &inc);
+		F77_CALL(daxpy)(&n, &malpha, q, &inc, r, &inc);
+		F77_CALL(daxpy)(&n, &malpha, z, &inc, t,&inc);
 	
 		/* Exit if the residual convergence test is satisfied. */
-		rtr = ddot_(&n, r, &inc, r, &inc);
+		rtr = F77_CALL(ddot)(&n, r, &inc, r, &inc);
 		rnorm = sqrt(rtr);
-		tnorm = sqrt(ddot_(&n, t, &inc, t, &inc));
+		tnorm = sqrt(F77_CALL(ddot)(&n, t, &inc, t, &inc));
 		if (tnorm <= tol)
 		{
 			*info = 1;
@@ -211,8 +212,8 @@ c     **********
 
 		/* Compute p = r + beta*p and update rho. */
 		beta = rtr/rho;
-		dscal_(&n, &beta, p, &inc);
-		daxpy_(&n, &one, r, &inc, p, &inc);
+		F77_CALL(dscal)(&n, &beta, p, &inc);
+		F77_CALL(daxpy)(&n, &one, r, &inc, p, &inc);
 		rho = rtr;
 	}
 

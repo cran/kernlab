@@ -1,4 +1,10 @@
-#Support Vector Machine object 
+## S4 object definitions and assigment/accessor functions for the slots.
+## should be done using virtual classes but current S4/Namespace conflict prevents it
+##
+## created  10.09.03 alexandros
+## updated  15.09.04 
+
+##Support Vector Machine object 
 setClass("ksvm", representation(type = "character",
                                 param = "list",
                                 kernelf = "function",
@@ -6,6 +12,7 @@ setClass("ksvm", representation(type = "character",
                                 kcall = "ANY",
                                 scaling = "ANY",
                                 kterms = "ANY",
+##                                margin = "vector",
                                 xmatrix = "matrix",
                                 ymatrix = "ANY",
                                 fit = "ANY",
@@ -23,8 +30,8 @@ setClass("ksvm", representation(type = "character",
                                 cross = "numeric",
                                 n.action= "ANY"))
 
-# Create accessors for all class slots
-# can this be done in a neater way ?
+## Create accessors for all class slots
+## can this be done in a neater way ?
 
 if(!isGeneric("type")){
   if (is.function("type"))
@@ -36,6 +43,19 @@ setMethod("type", "ksvm", function(object) object@type)
 setGeneric("type<-", function(x, value) standardGeneric("type<-"))
 setReplaceMethod("type", "ksvm", function(x, value) {
   x@type <- value
+  x
+})
+
+if(!isGeneric("margin")){
+  if (is.function("margin"))
+    fun <- margin
+  else fun <- function(object) standardGeneric("margin")
+  setGeneric("margin", fun)
+}
+setMethod("margin", "ksvm", function(object) object@margin)
+setGeneric("margin<-", function(x, value) standardGeneric("margin<-"))
+setReplaceMethod("margin", "ksvm", function(x, value) {
+  x@margin <- value
   x
 })
 
@@ -992,5 +1012,181 @@ setMethod("edgegraph", "ranking", function(object) object@edgegraph)
 setGeneric("edgegraph<-", function(x,value) standardGeneric("edgegraph<-"))
 setReplaceMethod("edgegraph", "ranking", function(x, value) {
   x@edgegraph <- value
+  x
+})
+
+## online learning algorithms class
+
+setClass("onlearn", representation(
+                                kernelf = "function",
+                                buffer = "numeric",
+                                kpar = "list",
+                                xmatrix = "matrix",
+                                fit = "numeric",
+                                onstart = "numeric",
+                                onstop = "numeric",
+                                alpha = "ANY",
+                                rho = "numeric",
+                                b = "numeric",
+                                pattern ="factor",
+                                type="character"
+                               ))
+
+
+setMethod("fit","onlearn", function(object) object@fit)
+setReplaceMethod("fit","onlearn", function(x, value){
+  x@fit <- value
+  x
+})
+
+if(!isGeneric("onstart")){
+  if (is.function("onstart"))
+    fun <- onstart
+  else fun <- function(object) standardGeneric("onstart")
+  setGeneric("onstart", fun)
+}
+setMethod("onstart", "onlearn", function(object) object@onstart)
+setGeneric("onstart<-", function(x, value) standardGeneric("onstart<-"))
+setReplaceMethod("onstart", "onlearn", function(x, value) {
+  x@onstart <- value
+  x
+})
+
+if(!isGeneric("onstop")){
+  if (is.function("onstop"))
+    fun <- onstop
+  else fun <- function(object) standardGeneric("onstop")
+  setGeneric("onstop", fun)
+}
+setMethod("onstop", "onlearn", function(object) object@onstop)
+setGeneric("onstop<-", function(x, value) standardGeneric("onstop<-"))
+setReplaceMethod("onstop", "onlearn", function(x, value) {
+  x@onstop <- value
+  x
+})
+
+if(!isGeneric("buffer")){
+  if (is.function("buffer"))
+    fun <- buffer
+  else fun <- function(object) standardGeneric("buffer")
+  setGeneric("buffer", fun)
+}
+setMethod("buffer", "onlearn", function(object) object@buffer)
+setGeneric("buffer<-", function(x, value) standardGeneric("buffer<-"))
+setReplaceMethod("buffer", "onlearn", function(x, value) {
+  x@buffer <- value
+  x
+})
+
+setMethod("kernelf","onlearn", function(object) object@kernelf)
+setReplaceMethod("kernelf","onlearn", function(x, value){
+  x@kernelf <- value
+  x
+})
+
+setMethod("kpar","onlearn", function(object) object@kpar)
+setReplaceMethod("kpar","onlearn", function(x, value){
+  x@kpar <- value
+  x
+})
+
+setMethod("xmatrix","onlearn", function(object) object@xmatrix)
+setReplaceMethod("xmatrix","onlearn", function(x, value){
+  x@xmatrix <- value
+  x
+})
+
+
+setMethod("alpha","onlearn", function(object) object@alpha)
+setReplaceMethod("alpha","onlearn", function(x, value){
+  x@alpha <- value
+  x
+})
+
+setMethod("b","onlearn", function(object) object@b)
+setReplaceMethod("b","onlearn", function(x, value){
+  x@b <- value
+  x
+})
+
+setMethod("type","onlearn", function(object) object@type)
+setReplaceMethod("type","onlearn", function(x, value){
+  x@type <- value
+  x
+})
+
+if(!isGeneric("rho")){
+  if (is.function("rho"))
+    fun <- rho
+  else fun <- function(object) standardGeneric("rho")
+  setGeneric("rho", fun)
+}
+setMethod("rho", "onlearn", function(object) object@rho)
+setGeneric("rho<-", function(x, value) standardGeneric("rho<-"))
+setReplaceMethod("rho", "onlearn", function(x, value) {
+  x@rho <- value
+  x
+})
+
+if(!isGeneric("pattern")){
+  if (is.function("pattern"))
+    fun <- pattern
+  else fun <- function(object) standardGeneric("pattern")
+  setGeneric("pattern", fun)
+}
+setMethod("pattern", "onlearn", function(object) object@pattern)
+setGeneric("pattern<-", function(x, value) standardGeneric("pattern<-"))
+setReplaceMethod("pattern", "onlearn", function(x, value) {
+  x@pattern <- value
+  x
+})
+
+
+
+
+
+setClass("kfa",representation(alpha = "matrix",
+                              alphaindex = "vector",
+                              kernelf = "function",
+                              xmatrix = "matrix",
+                              kcall = "ANY",
+                              kterms = "ANY" )) 
+
+
+setMethod("kernelf","kfa", function(object) object@kernelf)
+setReplaceMethod("kernelf","kfa", function(x, value){
+  x@kernelf <- value
+  x
+})
+
+setMethod("alphaindex","kfa", function(object) object@alphaindex)
+setReplaceMethod("alphaindex","kfa", function(x, value){
+  x@alphaindex <- value
+  x
+})
+
+setMethod("alpha","kfa", function(object) object@alpha)
+setReplaceMethod("alpha","kfa", function(x, value){
+  x@alpha <- value
+  x
+})
+
+setMethod("xmatrix","kfa", function(object) object@xmatrix)
+setReplaceMethod("xmatrix","kfa", function(x, value){
+  x@xmatrix <- value
+  x
+})
+
+
+setMethod("kcall","kfa", function(object) object@kcall)
+setReplaceMethod("kcall","kfa", function(x, value){
+  x@kcall <- value
+  x
+})
+
+
+setMethod("kterms","kfa", function(object) object@kterms)
+setReplaceMethod("kterms","kfa", function(x, value){
+  x@kterms <- value
   x
 })

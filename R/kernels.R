@@ -182,7 +182,24 @@ vanilladot <- function( )
   return(new("vanillakernel",.Data=rval,kpar=list()))
 }
 
-#create accesor function as in "S4 Classses in 15 pages more or less", well..
+
+
+
+setMethod("show",signature(object="kernel"),
+          function(object)
+          {
+            switch(class(object),
+                   "rbfkernel" = cat(paste("Gaussian Radial Basis kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"\n")),
+		   "laplacekernel" = cat(paste("Laplace kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"\n")),
+                   "besselkernel" = cat(paste("Bessel kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"order = ",kpar(object)$order, "degree = ", kpar(object)$degree,"\n")),
+                    "anovakernel" = cat(paste("Anova RBF kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma, "degree = ", kpar(object)$degree,"\n")),
+                   "tanhkernel" = cat(paste("Hyperbolic Tangent kernel function.", "\n","Hyperparameters :","scale = ", kpar(object)$scale," offset = ", kpar(object)$offset,"\n")),
+                   "polykernel" = cat(paste("Polynomial kernel function.", "\n","Hyperparameters :","degree = ",kpar(object)$degree," scale = ", kpar(object)$scale," offset = ", kpar(object)$offset,"\n")),
+                   "vanillakernel" = cat(paste("Linear (vanilla) kernel function.", "\n"))
+                     )
+                 })
+
+## create accesor function as in "S4 Classses in 15 pages more or less", well..
 
 if (!isGeneric("kpar")){
   if (is.function("kpar"))
@@ -1350,16 +1367,115 @@ kernelPol.vanillakernel <- function(kernel, x, y=NULL, z, k=NULL)
 }
 setMethod("kernelPol",signature(kernel="vanillakernel", x="matrix"),kernelPol.vanillakernel)
 
-setMethod("show","kernel",
-          function(object)
-          {
-            switch(class(object),
-                   "rbfkernel" = cat(paste("Gaussian Radial Basis kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"\n")),
-		   "laplacekernel" = cat(paste("Laplace kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"\n")),
-                   "besselkernel" = cat(paste("Bessel kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma,"order = ",kpar(object)$order, "degree = ", kpar(object)$degree,"\n")),
-                    "anovakernel" = cat(paste("Anova RBF kernel function.", "\n","Hyperparameter :" ,"sigma = ", kpar(object)$sigma, "degree = ", kpar(object)$degree,"\n")),
-                   "tanhkernel" = cat(paste("Hyperbolic Tangent kernel function.", "\n","Hyperparameters :","scale = ", kpar(object)$scale," offset = ", kpar(object)$offset,"\n")),
-                   "polykernel" = cat(paste("Polynomial kernel function.", "\n","Hyperparameters :","degree = ",kpar(object)$degree," scale = ", kpar(object)$scale," offset = ", kpar(object)$offset,"\n")),
-                   "vanillakernel" = cat(paste("Linear (vanilla) kernel function.", "\n"))
-                     )
-                 })
+
+
+
+
+
+setGeneric("kernelFast",function(kernel, x, y, a) standardGeneric("kernelFast"))
+
+
+
+kernelFast.rbfkernel <- function(kernel, x, y, a)
+{
+  if(is.vector(x))
+    x <- as.matrix(x)
+  if(is.vector(y))
+    y <- as.matrix(y)
+  if(!is.matrix(y)) stop("y must be a matrix or a vector")
+  sigma = kpar(kernel)$sigma
+  n <- dim(x)[1]
+  dota <- a/2
+   if (is.matrix(x) && is.matrix(y)){
+    if (!(dim(x)[2]==dim(y)[2]))
+      stop("matrixes must have the same number of columns")
+    m <- dim(y)[1]
+    dotb <- rowSums(y*y)/2
+    res <- x%*%t(y)
+    for( i in 1:m)
+      res[,i]<- exp(2*sigma*(res[,i] - dota - rep(dotb[i],n)))
+    return(res)
+  }
+}
+setMethod("kernelFast",signature(kernel="rbfkernel",x="matrix"),kernelFast.rbfkernel)
+
+kernelFast.laplacekernel <- function(kernel, x, y, a)
+{
+  if(is.vector(x))
+    x <- as.matrix(x)
+  if(is.vector(y))
+    y <- as.matrix(y)
+  if(!is.matrix(y)) stop("y must be a matrix or a vector")
+  sigma = kpar(kernel)$sigma
+  n <- dim(x)[1]
+  dota <- a/2
+   if (is.matrix(x) && is.matrix(y)){
+    if (!(dim(x)[2]==dim(y)[2]))
+      stop("matrixes must have the same number of columns")
+    m <- dim(y)[1]
+    dotb <- rowSums(y*y)/2
+    res <- x%*%t(y)
+    for( i in 1:m)
+      res[,i]<- exp(-sigma*sqrt(round(-2*(res[,i] - dota - rep(dotb[i],n)),9)))
+    return(res)
+  }
+}
+setMethod("kernelFast",signature(kernel="laplacekernel",x="matrix"),kernelFast.laplacekernel)
+
+kernelFast.besselkernel <- function(kernel, x, y, a)
+{
+  if(is.vector(x))
+    x <- as.matrix(x)
+  if(is.vector(y))
+    y <- as.matrix(y)
+  if(!is.matrix(y)) stop("y must be a matrix or a vector")
+  sigma = kpar(kernel)$sigma
+  nu = kpar(kernel)$order
+  ni = kpar(kernel)$degree
+  n <- dim(x)[1]
+  lim <- 1/(gamma(nu+1)*2^(nu))
+  dota <- a/2
+  if (is.matrix(x) && is.matrix(y)){
+    if (!(dim(x)[2]==dim(y)[2]))
+      stop("matrixes must have the same number of columns")
+    m <- dim(y)[1]
+    dotb <- rowSums(y*y)/2
+    res <- x%*%t(y)
+    for( i in 1:m){
+      xx <- sigma*sqrt(round(-2*(res[,i] - dota - rep(dotb[i],n)),9))
+      res[,i] <- besselJ(xx,nu)*(xx^(-nu))
+      res[which(xx<10e-5),i] <- lim
+    }     
+    return((res/lim)^ni)
+  }
+}
+setMethod("kernelFast",signature(kernel="besselkernel",x="matrix"),kernelFast.besselkernel)
+
+
+kernelFast.anovakernel <- function(kernel, x, y, a)
+{
+  return(kernelMatrix(kernel,x,y))
+}
+setMethod("kernelFast",signature(kernel="anovakernel",x="matrix"),kernelFast.anovakernel)
+
+
+kernelFast.polykernel <- function(kernel, x, y, a)
+{
+  return(kernelMatrix(kernel,x,y))
+}
+setMethod("kernelFast",signature(kernel="polykernel",x="matrix"),kernelFast.polykernel)
+
+kernelFast.vanilla <- function(kernel, x, y, a)
+{
+  return(kernelMatrix(kernel,x,y))
+}
+setMethod("kernelFast",signature(kernel="vanillakernel",x="matrix"),kernelFast.vanilla)
+
+kernelFast.tanhkernel <- function(kernel, x, y, a)
+{
+  return(kernelMatrix(kernel,x,y))
+}
+setMethod("kernelFast",signature(kernel="tanhkernel",x="matrix"),kernelFast.tanhkernel)
+
+
+

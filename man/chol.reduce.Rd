@@ -7,13 +7,13 @@
   of the kernel matrix from a data matrix. 
 }
 \usage{
-chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = dim(x)[1], verbose = 0)
+chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = dim(x)[1], blocksize = 50, verbose = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{The data matrix indexed by row}
   \item{kernel}{the kernel function used in training and predicting.
-    This parameter can be set to any function, of class kernel, which computes a dot product between two
+    This parameter can be set to any function, of class \code{kernel}, which computes a dot product between two
     vector arguments. kernlab provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
@@ -48,8 +48,9 @@ chol.reduce(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001, max.iter = di
   
   \item{tol}{algorithm stops when remaining pivots bring less accuracy
     then \code{tol} (default: 0.001)}
-  \item{max.iter}{maximum number of iterations }
-  \item{verbose}{print info on algorithm convergence }
+  \item{max.iter}{maximum number of iterations and colums in \eqn{Z}}
+  \item{blocksize}{add this many columns to matrix per iteration}
+  \item{verbose}{print info on algorithm convergence}
 }
 \details{An incomplete cholesky decomposition calculates
   \eqn{Z} where \eqn{K= ZZ'} \eqn{K} being the kernel matrix.

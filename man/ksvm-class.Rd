@@ -19,6 +19,7 @@
 \alias{kcall}
 \alias{prior}
 \alias{show}
+\alias{b}
 \alias{SVindex,ksvm-method}
 \alias{alpha,ksvm-method}
 \alias{alphaindex,ksvm-method}
@@ -35,7 +36,7 @@
 \alias{type,ksvm-method}
 \alias{xmatrix,ksvm-method}
 \alias{ymatrix,ksvm-method}
-
+\alias{b,ksvm-method}
 
 
 \title{Class "ksvm" }
@@ -141,27 +142,23 @@
   \code{\link{gausspr-class}}
 }
 \examples{
-## simple example using the spam data set
-data(spam)
-
-## create test and training set
-spamtrain <- spam[1:(2 * dim(spam)[1]/3), ]
-spamtest <- spam[((2 * dim(spam)[1]/3) + 1):length(spam), ]
+## simple example using the promotergene data set
+data(promotergene)
 
 ## train a support vector machine
-filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3)
-filter
+gene <- ksvm(Class~.,data=promotergene,kernel="rbfdot",kpar=list(sigma=0.015),C=50,cross=4)
+gene
 
 # the kernel  function
-kernelf(filter)
+kernelf(gene)
 # the alpha values
-alpha(filter)
+alpha(gene)
 # the coefficients
-coeff(filter)
+coeff(gene)
 # the fitted values
-fit(filter)
+fit(gene)
 # the cross validation error
-cross(filter)
+cross(gene)
 
 
 }

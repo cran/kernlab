@@ -1,8 +1,9 @@
 #include <math.h>
+#include <R_ext/BLAS.h>
 
 extern double mymax(double, double);
 /* LEVEL 1 BLAS */
-extern double ddot_(int *, double *, int *, double *, int *);
+/*extern double ddot_(int *, double *, int *, double *, int *);*/
 
 void dtrqsol(int n, double *x, double *p, double delta, double *sigma)
 {
@@ -46,9 +47,9 @@ c     **********
 */
 	int inc = 1;
 	double dsq = delta*delta, ptp, ptx, rad, xtx;
-	ptx = ddot_(&n, p, &inc, x, &inc);
-	ptp = ddot_(&n, p, &inc, p, &inc);
-	xtx = ddot_(&n, x, &inc, x, &inc);
+	ptx = F77_CALL(ddot)(&n, p, &inc, x, &inc);
+	ptp = F77_CALL(ddot)(&n, p, &inc, p, &inc);
+	xtx = F77_CALL(ddot)(&n, x, &inc, x, &inc);
 
 	/* Guard against abnormal cases. */
 	rad = ptx*ptx + ptp*(dsq - xtx);

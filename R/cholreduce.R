@@ -1,7 +1,7 @@
 setClass("inc.chol",representation("matrix",pivots="vector",diag.residues="vector",maxresiduals="vector"),prototype=structure(.Data=matrix(),pivots=vector(),diag.residues=vector(), maxresiduals=vector()))
 
 
-chol.reduce <- function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, max.iter = dim(x)[1], verbose = 0)
+chol.reduce <- function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, max.iter = dim(x)[1], blocksize = 50, verbose = 0)
 {
 ## Usage: 
 ## 
@@ -30,7 +30,8 @@ chol.reduce <- function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, max
 ## R Version : Alexandros Karatzoglou
 
 ## For aggressive memory allocation
-  BLOCKSIZE <- 50
+
+BLOCKSIZE <- blocksize
 
 if(!is.matrix(x))
 	stop("x must be a matrix")
@@ -63,7 +64,7 @@ if(!is(kernel,"kernel"))
   residue <- max(diag.residues)
   index <- which.max(diag.residues == residue)
 
-  dot.squarex <- t(rowSums(x^2))
+  dota <- rowSums(x^2)
 
   while( residue > tol && counter < max.iter )
     {
@@ -92,9 +93,14 @@ if(!is(kernel,"kernel"))
           maxresiduals.tmp <- matrix(0,dim(maxresiduals)[1]+BLOCKSIZE)
           maxresiduals.tmp[1:(dim(maxresiduals)[1]+BLOCKSIZE) <= dim(maxresiduals)[1]] <- maxresiduals
           maxresiduals <- maxresiduals.tmp
+
+          if(counter == 0)
+            t <- rep(0,BLOCKSIZE)
+          else
+            t <- rep(0,length(t)+BLOCKSIZE)
         } 
     
-      veck <- kernelMatrix(kernel, x, x[index, ,drop=FALSE])
+      veck <- kernelFast(kernel, x, x[index, ,drop=FALSE],dota)
   
       if (counter == 0)
         {
@@ -109,10 +115,13 @@ if(!is(kernel,"kernel"))
       else
         {
           padded.veck[1:counter] <- veck[pivots[1:counter]]
-          
+
           ## First compute t
-          t <- t(crossprod(padded.veck,backsolve(T,diag(rep(1,dim(T)[1])))))
-          
+          ##          t <- t(crossprod(padded.veck,backsolve(T,diag(1,nrow=dim(T)[1]))))
+          ## cat("T: ",dim(T), " p:",length(padded.veck),",\n")
+
+          t[1:counter] <- backsolve(T, k=counter, padded.veck, transpose = TRUE)
+
           ## Now compute tau
           tau <- as.vector(sqrt(veck[index] - crossprod(t)))
 
@@ -145,7 +154,7 @@ if(!is(kernel,"kernel"))
       counter <- counter + 1
       
       ## Report progress to the user
-      if(counter%%50 == 0 && (verbose == TRUE))
+      if(counter%%blocksize == 0 && (verbose == TRUE))
         cat("counter = ",counter," ", "residue = ", residue, "\n")
     } 
 
@@ -153,7 +162,7 @@ if(!is(kernel,"kernel"))
   Tk <- Tk[, 1:counter] 
   
   pivots <- pivots[1:counter]
-  
+
   maxresiduals <- maxresiduals[1:counter]
 
   return(new("inc.chol",.Data=Tk,pivots=pivots,diag.residues = diag.residues, maxresiduals = maxresiduals))

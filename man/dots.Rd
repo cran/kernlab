@@ -12,15 +12,15 @@
 \title{Kernel Functions}
 \description{
   The kernel generating functions provided in kernlab. \cr
-  The Gaussian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|^2)} \cr
-  the Polynomial kernel \eqn{k(x,x') = (scale <x, x'> + offset)^degree}.\cr
+  The Gaussian RBF kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|^2)} \cr
+  the Polynomial kernel \eqn{k(x,x') = (scale <x, x'> + offset)^{degree}}.\cr
   the Linear kernel \eqn{k(x,x') = <x, x'>}\cr
-  the  Hyperbolic tangent kernel \eqn{k(x, x') = \tanh(scale <x, x'> +
+  the  Hyperbolic tangent kernel \eqn{k(x, x') = \tanh(scale <x, x'> +  
     offset)}
   the Laplacian kernel \eqn{k(x,x') = \exp(-\sigma \|x - x'\|)} \cr
-  the Bessel kernel \eqn{k(x,x') = (- Bessel_{(\nu+1)}^n sigma \|x - x'\|^2)} \cr
+  the Bessel kernel \eqn{k(x,x') = (- Bessel_{(\nu+1)}^n \sigma \|x - x'\|^2)} \cr
   the ANOVA RBF kernel \eqn{k(x,x') = \sum_{1\leq i_1 \ldots < i_D \leq
-      N} \prod_{d=1}^D k(x_{id}, {x'}_{id})} where k(x,x) is a RBF kernel. 
+      N} \prod_{d=1}^D k(x_{id}, {x'}_{id})} where k(x,x) is an Gaussian RBF kernel. 
 }
 \usage{
 rbfdot(sigma = 1)
@@ -42,7 +42,7 @@ anovadot(sigma = 1, degree = 1)
   \item{sigma}{The inverse kernel width used by the Gaussian the
     Laplacian, the Bessel and the ANOVA kernel }
   \item{degree}{The degree of the polynomial, bessel or ANOVA
-    kernel function. This has to be an integer.}
+    kernel function. This has to be an positive integer.}
   \item{scale}{The scaling parameter of the polynomial and tangent
     kernel is a convenient way of normalizing
     patterns without the need to modify the data itself}
@@ -54,14 +54,15 @@ anovadot(sigma = 1, degree = 1)
   The kernel generating function are used to initialize a kernel
   function
   which calculates the dot (inner) product between two feature vectors in a
-  Hilbert Space. These functions can be based as a \code{kernel} argument on almost all
+  Hilbert Space. These functions can be passed as a \code{kernel} argument on almost all
   functions in kernlab (eg. \code{ksvm}, \code{kpca}  etc).
-  Although using one of the above mentioned existing kernel functions as a
+  
+  Although using one of the existing kernel functions as a
   \code{kernel} argument in various functions in kernlab has the
-  advantage that use of optimize kernel utilities methods are used
-  any other function implementing a dot product of class kernel can also be used as a kernel
-  argument. This allows the user to use test an develop special kernels
-  for a given data set and algorithm.
+  advantage that optimized code is used to calculate various kernel expressions,
+  any other function implementing a dot product of class \code{kernel} can also be used as a kernel
+  argument. This allows the user to use, test and develop special kernels
+  for a given data set or algorithm.
   }
 \value{
  Return an S4 object of class \code{kernel} which extents the
@@ -69,7 +70,7 @@ anovadot(sigma = 1, degree = 1)
  kernel calculating the inner (dot) product between two vectors.
  \item{kpar}{a list containing the kernel parameters (hyperparameters)
    used.}
- the kernel parameters can be accessed by the \code{kpar} function.
+ The kernel parameters can be accessed by the \code{kpar} function.
  }
 
 \author{Alexandros Karatzoglou\cr

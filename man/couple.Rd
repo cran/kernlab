@@ -26,10 +26,11 @@ couple(probin, coupler = "minpair")
   etc.). Pairwise coupling (one against one) constructs a rule for
   discriminating between every pair of classes and then selecting the
   class
-  with the most winning two-class decisions. As many classification
-  methods return class probability estimates techniques for combining
-  these results are needed.
-    
+  with the most winning two-class decisions. 
+   By using Platt's probabilities output for SVM one can get a class
+   probability for each of the \eqn{k(k-1)/2} models created in the pairwise 
+   classification. The couple method implements various techniques to combine
+   these probabilities.    
 }
 \value{
   A matrix with the resulting probability estimates. 

@@ -33,7 +33,7 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
     \item{\code{type}:}{Object of class \code{"character"} contains
       type of problem }
     \item{\code{kterms}:}{Object of class \code{"ANY"} contains the
-      terms representation of the symbolic model used (when using a formula)}}
+      terms representation of the symbolic model used (when using a formula)}
     \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the data matrix used }
     \item{\code{ymatrix}:}{Object of class \code{"ANY"} containing the
