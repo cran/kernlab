@@ -1197,3 +1197,76 @@ setReplaceMethod("kterms","kfa", function(x, value){
   x@kterms <- value
   x
 })
+
+
+#kernel hebbian algorithm object
+setClass("kha", representation(pcv = "matrix",
+                                eig = "vector",
+                                kernelf = "function",
+                                kpar = "list",
+                               eskm ="vector",
+                                xmatrix = "matrix",
+                                kcall = "ANY",
+                                kterms = "ANY",
+                                n.action = "ANY"))
+#accessor functions 
+
+setMethod("pcv", "kha", function(object) object@pcv)
+setReplaceMethod("pcv", "kha", function(x, value) {
+  x@pcv <- value
+  x
+})
+
+
+setMethod("eig", "kha", function(object) object@eig)
+setReplaceMethod("eig", "kha", function(x, value) {
+  x@eig <- value
+  x
+})
+
+
+
+
+if(!isGeneric("eskm")){
+  if (is.function("eskm"))
+    fun <- eskm
+  else fun <- function(object) standardGeneric("eskm")
+  setGeneric("eskm", fun)
+}
+setMethod("eskm", "kha", function(object) object@eskm)
+setGeneric("eskm<-", function(x, value) standardGeneric("eskm<-"))
+setReplaceMethod("eskm", "kha", function(x, value) {
+  x@eskm <- value
+  x
+})
+
+
+setMethod("kernelf","kha", function(object) object@kernelf)
+setReplaceMethod("kernelf","kha", function(x, value){
+  x@kernelf <- value
+  x
+})
+
+setMethod("xmatrix","kha", function(object) object@xmatrix)
+setReplaceMethod("xmatrix","kha", function(x, value){
+  x@xmatrix <- value
+  x
+})
+
+setMethod("kcall","kha", function(object) object@kcall)
+setReplaceMethod("kcall","kha", function(x, value){
+  x@kcall <- value
+  x
+})
+
+setMethod("kterms","kha", function(object) object@kterms)
+setReplaceMethod("kterms","kha", function(x, value){
+  x@kterms <- value
+  x
+})
+
+setMethod("n.action","kha", function(object) object@n.action)
+setReplaceMethod("n.action","kha", function(x, value){
+  x@n.action <- value
+  x
+})

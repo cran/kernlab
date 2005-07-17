@@ -11,11 +11,11 @@ citEntry(entry="Article",
 	 volume       = "11",
 	 number       = "9",
 	 pages        = "1--20",
-         url          = "http://jstatsoft.org/v11/i09/",
+         url          = "http://www.jstatsoft.org/v11/i09/",
          
          textVersion = 
          paste("Alexandros Karatzoglou, Alex Smola, Kurt Hornik, Achim Zeileis (2004).", 
                "kernlab - An S4 Package for Kernel Methods in R.",
                "Journal of Statistical Software 11(9), 1-20.",
-	       "URL http://jstatsoft.org/v11/i09/")
+	       "URL http://www.jstatsoft.org/v11/i09/")
 )

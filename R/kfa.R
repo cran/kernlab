@@ -1,3 +1,4 @@
+
 ## This code takes the set x of vectors from the input space
 ## and does projection pursuit to find a good basis for x.
 ##
@@ -75,7 +76,7 @@ function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, no
       K.cols <- K[-idx, , drop = FALSE] 
 
       if(i > 1)
-        projections <- K.cols *  (alphazero[-idx]%*%t(rep(1,m))) + t(t(alpha[-idx,1:(i-1),drop=FALSE])) %*% K[idx, ,drop = FALSE]
+        projections <- K.cols *  (alphazero[-idx]%*%t(rep(1,m))) + crossprod(t(alpha[-idx,1:(i-1),drop=FALSE]),K[idx, ,drop = FALSE])
       else
         projections <- K.cols *  (alphazero%*%t(rep(1,m))) 
       

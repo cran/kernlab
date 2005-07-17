@@ -1,17 +1,16 @@
-\name{specc}
-\alias{specc}
-\alias{specc,matrix-method}
-\alias{specc,formula-method}
-\alias{show,specc-method}
+\name{kkmeans}
+\alias{kkmeans}
+\alias{kkmeans,matrix-method}
+\alias{kkmeans,formula-method}
 \title{Spectral Clustering}
 \description{
 A spectral clustering  algorithm. This algorithm clusters points using
 eigenvectors of kernel matrixes derived from the data.  
 }
 \usage{
-\S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
+\S4method{kkmeans}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
+\S4method{kkmeans}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
        iterations = 200, mod.sample = 0.6, na.action = na.omit, ...)
 }
 
@@ -20,7 +19,7 @@ eigenvectors of kernel matrixes derived from the data.
     description of the model to be fit.}
   \item{data}{an optional data frame containing the variables in the model.
     By default the variables are taken from the environment which
-    `specc' is called from.}
+    `kkmeans' is called from.}
   \item{centers}{Either the number of clusters or a set of initial cluster
     centers. If the first, a random set of rows in the eigenvectors
     matrix are chosen as the initial centers.}
@@ -84,7 +83,7 @@ eigenvectors of kernel matrixes derived from the data.
  to cluster the resulting eigenvector matrixes. 
 }
 \value{
- An S4 object of class \code{specc} wich extends the class \code{vector}
+ An S4 object of class \code{kkmeans} wich extends the class \code{vector}
  containing integers indicating the cluster to which
  each point is allocated. The following slots contain useful information
  
@@ -109,7 +108,7 @@ eigenvectors of kernel matrixes derived from the data.
 ## Cluster the spirals data set.
 data(spirals)
 
-sc <- specc(spirals, centers=2)
+sc <- kkmeans(spirals, centers=2)
 
 sc
 centers(sc)

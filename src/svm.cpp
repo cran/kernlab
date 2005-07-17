@@ -3276,7 +3276,7 @@ extern "C" {
 
 #include <R.h>
 #include <Rinternals.h>
-
+#include <Rmath.h>
 
   struct svm_node ** sparsify (double *x, int r, int c)
   {
@@ -3657,7 +3657,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
     }
     param.p           = *REAL(eps);
     param.shrinking   = *INTEGER(shrinking);
-    param.lim = 1/(tgamma(param.degree+1)*pow(2,param.degree));    
+    param.lim = 1/(gammafn(param.degree+1)*pow(2,param.degree));    
     
     /* set problem */
     prob.l = *INTEGER(r);

@@ -23,11 +23,12 @@ function(x, data = NULL, na.action = na.omit, ...)
     kcall(res) <- cl
     if(!is.null(na.act)) 
         n.action(res) <- na.action
+    
    
     return(res)
   })
 
-setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", kpar = "automatic", iterations = 200, mod.sample =  1, na.action = na.omit, ...)
+setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", kpar = "local", iterations = 200, mod.sample =  1, na.action = na.omit, ...)
 {
   x <- na.action(x)
   x <- as.matrix(x)
@@ -41,16 +42,26 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
   }
   else
     nc <- dim(centers)[2]
+
   
   if(is.character(kpar)) {
-    kpar <- match.arg(kpar,c("automatic"))
-    
+   kpar <- match.arg(kpar,c("automatic","local"))
+   
+
+
     if(kpar == "automatic")
       {
         sam <- sample(1:m, floor(mod.sample*m))
-        ker <- rbfdot(1)
-        ktmp <- kernelMatrix(ker,x[sam,])
-        ktmp <- sqrt(round(-log(ktmp,base=exp(1)),10))
+        sx <- x[sam,]
+        dota <- rowSums(sx*sx)/2
+        ktmp <- crossprod(t(sx))
+        for (i in 1:length(sam))
+          ktmp[i,]<- 2*(-ktmp[i,] + dota + rep(dota[i],m))
+
+        ## fix numerical prob.
+        ktmp[ktmp<0] <- 0
+        ktmp <- sqrt(ktmp)
+
         kmax <- max(ktmp)
         kmin <- min(ktmp + diag(rep(Inf,dim(ktmp)[1])))
         kmea <- mean(ktmp)
@@ -82,11 +93,34 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
               diss[i,] <- res$withinss
             }
         }
-        
+
         ms <- which.min(rowSums(diss))
         kernel <- rbfdot((tmpsig[ms]^(-2))/2)
+        ## Compute Affinity Matrix
+        km <- kernelMatrix(kernel, x)
       }
-  }
+ }
+  if (kpar=="local")
+    {
+      s <- rep(0,m)
+      dota <- rowSums(x*x)/2
+      dis <- crossprod(t(x))
+      for (i in 1:m)
+        dis[i,]<- 2*(-dis[i,] + dota + rep(dota[i],m))
+
+
+
+      ## fix numerical prob.
+      dis[dis<0] <- 0
+      
+      for (i in 1:m)
+        s[i] <- median(sort(sqrt(dis[i,]))[1:5])
+
+
+      ## Compute Affinity Matrix
+      km <- exp(-dis / s%*%t(s))
+      kernel <- rbfdot(1)
+    }
   else
     {
       if(!is(kernel,"kernel"))
@@ -95,9 +129,13 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
           kernel <- do.call(kernel, kpar)
         }
       if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
+
+      ## Compute Affinity Matrix
+      km <- kernelMatrix(kernel, x)
     }
-  
-  km <- kernelMatrix(kernel,x)
+
+    
+
   if(is(kernel)[1] == "rbfkernel")
     diag(km) <- 0
   
