@@ -83,10 +83,10 @@ gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",kpar=list(sigma = s),C=50,cr
 gene
 
 ## predict gene type on the test set
-mailtype <- predict(gene,genetest[,-1])
+promoter <- predict(gene,genetest[,-1])
 
 ## Check results
-table(mailtype,genetest[,1])
+table(promoter,genetest[,1])
 }
 \keyword{classif}
 \keyword{regression}

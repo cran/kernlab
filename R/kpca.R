@@ -26,9 +26,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     kterms(res) <- Terms
     if(!is.null(na.act)) 
         n.action(res) <- na.act
-    #    if(!is.null(sc <- res$scores))
-    #        res$scores <- napredict(na.act, sc)
-    #}
+  
     return(res)
   })
 
@@ -60,9 +58,8 @@ setMethod("kpca",signature(x="matrix"),
   else 
     if(res$values[features] < th)
       warning(paste("eigenvalues of the kernel matrix are below threshold!"))
-  
-  pcv(ret) <- res$vectors[,1:features]
-  
+ 
+  pcv(ret) <- t(t(res$vectors[,1:features])/sqrt(res$values[1:features]))
   eig(ret) <- res$values[1:features]
   names(eig(ret)) <- paste("Comp.", 1:features, sep = "")
   rotated(ret) <- kc %*% pcv(ret)
@@ -98,9 +95,5 @@ function(object , x)
   })
 
 
-#setGeneric("show")
-#setMethod("show", signature(object = "kpca"),
-#function(object){
-#
-#})
+
   

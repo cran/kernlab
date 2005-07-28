@@ -17,7 +17,9 @@ export(
 ## High level functions 
 	"kpca",
 	"kcca",
+	"kha",
 	"specc",
+	"kkmeans",
 	"ksvm",
 	"rvm",
 	"gausspr",
@@ -103,7 +105,7 @@ importFrom("graphics","plot")
 
 exportMethods(predict,show,plot)
 
-exportClasses("ksvm",  "rvm", "ipop", "gausspr", "kpca", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "splinekernel", "specc", "ranking","inc.chol","onlearn", "kfa")
+exportClasses("ksvm",  "rvm", "ipop", "gausspr", "kpca", "kha", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "splinekernel", "specc", "ranking","inc.chol","onlearn", "kfa")
 
 useDynLib("kernlab")
 	

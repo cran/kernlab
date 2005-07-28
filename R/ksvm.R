@@ -1161,7 +1161,7 @@ function(x, data = NULL, grid = 50, slice = list(), ...) {
       sub <-  as.matrix(data)
     else
       sub <- xmatrix(x)
-      
+    
     sub <- sub[,!colnames(xmatrix(x))%in%names(slice)]
     xr <- seq(min(sub[,2]), max(sub[,2]), length = grid)
     yr <- seq(min(sub[,1]), max(sub[,1]), length = grid)
@@ -1213,7 +1213,7 @@ function(x, data = NULL, grid = 50, slice = list(), ...) {
     #FIXME# changed?
     ymat <- ymatrix(x)
     ymean <- mean(unique(ymat))
-    
+
     filled.contour(xr, yr, matrix(as.numeric(preds), nr = length(xr), byrow = TRUE),
                    col = mycols, levels = mylevels,
 		   plot.axes = {
