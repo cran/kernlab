@@ -30,7 +30,7 @@ function(x, data = NULL, na.action = na.omit, ...)
 setMethod("kkmeans",signature(x="matrix"),function(x, centers, kernel
                                 = "rbfdot", kpar = list(sigma=0.1),
                                 alg ="kkmeans", p = 1,
-                               max.iter = 200, mod.sample =  1, na.action = na.omit, ...)
+                                na.action = na.omit, ...)
 {
   x <- na.action(x)
   x <- as.matrix(x)

@@ -2,16 +2,14 @@
 \alias{kkmeans}
 \alias{kkmeans,matrix-method}
 \alias{kkmeans,formula-method}
-\title{Spectral Clustering}
+\title{Kernel k-means}
 \description{
-A spectral clustering  algorithm. This algorithm clusters points using
-eigenvectors of kernel matrixes derived from the data.  
+  A weigthed kernel version of the famous k-means algorithm.
 }
 \usage{
 \S4method{kkmeans}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{kkmeans}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
-       iterations = 200, mod.sample = 0.6, na.action = na.omit, ...)
+\S4method{kkmeans}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1),alg="kkmeans", p=1, na.action = na.omit, ...)
 }
 
 \arguments{
@@ -49,9 +47,7 @@ eigenvectors of kernel matrixes derived from the data.
   {a character string or the list of hyper-parameters (kernel parameters).
     The default character string \code{"automatic"} uses a heuristic the determine a
     suitable value for the width parameter of the RBF kernel.
-    The second option \code{"local"} (local scaling) uses a more advanced heuristic
-     and sets a width parameter for every point in the data set. This is
-    particularly useful when the data incorporates multiple scales.
+
     A list can also be used containing the parameters to be used with the
     kernel function. For valid parameters for existing kernels are :
     \itemize{
@@ -66,10 +62,10 @@ eigenvectors of kernel matrixes derived from the data.
     
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.}
-	
- \item{mod.sample} {Proportion of data to use when estimating sigma default 0.6}	
-
-  \item{iterations}{The maximum number of iterations allowed. }
+  \item{alg}{the algorithm to use. Options currently include
+    \code{kkmeans} and \code{kerninghan}. }
+  
+  \item{p}{a parameter used to keep the affinity matrix positive semidefinite}
 
   \item{na.action}{ The action to perform on NA}
 
@@ -77,13 +73,16 @@ eigenvectors of kernel matrixes derived from the data.
     
 }
 \details{
- In Spectral Clustering one uses the top \code{k} (number of clusters) eigenvectors of a matrix derived
- from the distance between points. Very good results are obtained by
- using a standard clustering technique
- to cluster the resulting eigenvector matrixes. 
+  The algorithm is implemented using the triangle inequality to avoid
+  unnecessary and computational expensive distance calculations.
+  This leads to significant speedup particularly on large data sets with
+  a high number of clusters.
+  With a particular choice of weights this algorithm becomes
+  equivalent to Kernighan-Lin, and the norm-cut graph partitioning
+  algorithms.
 }
 \value{
- An S4 object of class \code{kkmeans} wich extends the class \code{vector}
+ An S4 object of class \code{specc} wich extends the class \code{vector}
  containing integers indicating the cluster to which
  each point is allocated. The following slots contain useful information
  
@@ -93,29 +92,28 @@ eigenvectors of kernel matrixes derived from the data.
   \item{kernelf}{The kernel function used}
 }
 \references{
-  Andrew Y. Ng, Michael I. Jordan, Yair Weiss\cr
-  \emph{On Spectral Clustering: Analysis and an Algorithm}\cr
-  Neural Information Processing Symposium 2001\cr
-  \url{http://www.nips.cc/NIPS2001/papers/psgz/AA35.ps.gz}
-
+  Inderjit Dhillon, Yuqiang Guan, Brian Kulis\cr
+  A Unified view of Kernel k-means, Spectral Clustering and Graph
+  Partitioning\cr
+  UTCS Technical Report\cr
+  \url{http://www.cs.utexas.edu/users/kulis/pubs/spectral_techreport.pdf}
+  
 }
 \author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}
 }
 
-
-\seealso{ \code{\link{kpca}}, \code{\link{kcca}} }
+\seealso{\code{\link{specc}}, \code{\link{kpca}}, \code{\link{kcca}} }
 \examples{
-## Cluster the spirals data set.
-data(spirals)
+## Cluster the iris data set.
+data(iris)
 
-sc <- kkmeans(spirals, centers=2)
+sc <- kkmeans(as.matrix(iris[,-5]), centers=3)
 
 sc
 centers(sc)
 size(sc)
 withinss(sc)
 
-plot(spirals, col=sc)
 
 }
 \keyword{cluster}
