@@ -48,7 +48,7 @@ setMethod("onlearn", signature(obj = "onlearn"),
                   fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)) - rho(obj))
               }
             if(type(obj)=="classification")
-              {
+              { 
                 if(is.null(pattern(obj)) && is.factor(y))
                   pattern(obj) <- yt
                 if(!is.null(pattern(obj)))

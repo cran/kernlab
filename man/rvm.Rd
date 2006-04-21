@@ -6,6 +6,7 @@
 \alias{rvm,matrix-method}
 \alias{show,rvm-method}
 \alias{predict,rvm-method}
+\alias{coef,rvm-method}
 \title{Relevance Vector Machine }
 
 \description{
@@ -110,7 +111,7 @@ na.action = na.omit,...)
 
   \item{\dots}{ additional parameters}
 }
-\details{ The Relevance Vector Machine typically leads to sparser models
+\details{The Relevance Vector Machine typically leads to sparser models
   then the SVM. It also performs better in many cases (specially in
   regression). 
   }
@@ -125,7 +126,7 @@ na.action = na.omit,...)
     matrix}
   \item{nRV}{Number of relevance vectors}
   \item{RVindex}{The indexes of the relevance vectors}
-  \item{error}{Training error (if fit == TRUE)}
+  \item{error}{Training error (if \code{fit = TRUE})}
   
   ...
 }

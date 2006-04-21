@@ -22,13 +22,13 @@ alpha values.
       alpha values }
     \item{\code{alphaindex}:}{Object of class \code{"vector"} containing
     the indexes of the selected feature}
-    \item{\code{kernelf}:}{Object of class \code{"function"} containing
+    \item{\code{kernelf}:}{Object of class \code{"kfunction"} containing
       the kernel function used}
     \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the selected features}
-    \item{\code{kcall}:}{Object of class \code{"ANY"} containig the
+    \item{\code{kcall}:}{Object of class \code{"call"} containig the
       \code{kfa} function call}
-    \item{\code{kterms}:}{Object of class \code{"ANY"} containing the
+    \item{\code{terms}:}{Object of class \code{"ANY"} containing the
       formula terms}
   }
 }

@@ -8,16 +8,22 @@
 \alias{besselkernel-class}
 \alias{laplacekernel-class}
 \alias{splinekernel-class}
+\alias{stringkernel-class}
+
 \alias{kernel-class}
 \alias{kpar,kernel-method}
 \title{Class "kernel" "rbfkernel" "polykernel", "tanhkernel", "vanillakernel"}
-\description{  The build in \code{kernel} classes in \code{kernelab}}
+\description{  The build in \code{kernel} classes in \code{kernlab}}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("rbfkernel", ...)},
+Objects can be created by calls of the form \code{new("rbfkernel")},
 \code{new{"polykernel"}}, \code{new{"tanhkernel"}},
-\code{new{"vanillakernel"}}
+\code{new{"vanillakernel"}}, \code{new{"anovakernel"}},
+\code{new{"besselkernel"}}, \code{new{"laplacekernel"}},
+\code{new{"splinekernel"}}, \code{new{"stringkernel"}}
+
 or by calling the \code{rbfdot}, \code{polydot}, \code{tanhdot},
-\code{vanilladot} functions.
+\code{vanilladot}, \code{anovadot}, \code{besseldot}, \code{laplacedot},
+\code{splinedot}, \code{stringdot} functions etc..
 }
 \section{Slots}{
   \describe{
@@ -34,11 +40,15 @@ Class \code{"function"}, by class \code{"kernel"}.
 \section{Methods}{
   \describe{
     \item{kernelMatrix}{\code{signature(kernel = "rbfkernel", x =
-	"matrix")}: computes the kernel matrix }
+	"matrix")}: computes the kernel matrix}
     \item{kernelMult}{\code{signature(kernel = "rbfkernel", x =
 	"matrix")}: computes the quadratic kernel expression}
     \item{kernelPol}{\code{signature(kernel = "rbfkernel", x =
-	"matrix")}: computes the kernel expansion }
+	"matrix")}: computes the kernel expansion}
+    \item{kernelFast}{\code{signature(kernel = "rbfkernel", x =
+	"matrix"),,a}: computes parts or the full kernel matrix, mainly
+      used in kernel algorithms where columns of the kernel matrix are
+      computed per invocation }
   }
 }
 

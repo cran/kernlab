@@ -1,7 +1,10 @@
+## Gaussian Processes implementation. Laplace approximation for classification.
+## author : alexandros karatzoglou
+
 setGeneric("gausspr", function(x, ...) standardGeneric("gausspr"))
 setMethod("gausspr",signature(x="formula"),
-function (x, data=NULL, ..., subset, na.action = na.omit){
-  call <- match.call()
+function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
+  cl <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
     m$data <- as.data.frame(data)
@@ -14,9 +17,20 @@ function (x, data=NULL, ..., subset, na.action = na.omit){
   attr(Terms, "intercept") <- 0
   x <- model.matrix(Terms, m)
   y <- model.extract(m, response)
-  ret <- gausspr(x, y, ...)
-  kcall(ret) <- call
-  kterms(ret) <- Terms
+
+  if (length(scaled) == 1)
+    scaled <- rep(scaled, ncol(x))
+  if (any(scaled)) {
+    remove <- unique(c(which(labels(Terms) %in% names(attr(x, "contrasts"))),
+                       which(!scaled)
+                       )
+                     )
+    scaled <- !attr(x, "assign") %in% remove
+  }
+  
+  ret <- gausspr(x, y, scaled = scaled, ...)
+  kcall(ret) <- cl
+  terms(ret) <- Terms
   if (!is.null(attr(m, "na.action")))
     n.action(ret) <- attr(m, "na.action")
   return (ret)
@@ -33,11 +47,12 @@ function(x,...)
 setMethod("gausspr",signature(x="matrix"),
 function (x,
           y         = NULL,
+          scaled    = TRUE, 
           type      = NULL,
           kernel    = "rbfdot",
-          kpar      = list(sigma = 0.1),
+          kpar      = "automatic",
           var       = 1,
-          tol       = 0.001,  
+          tol       = 0.0005,  
           cross     = 0,
           fit       = TRUE,
           ...
@@ -45,6 +60,8 @@ function (x,
          ,na.action = na.omit)
 {
 
+## should become an option
+  reduced <- FALSE
 ## subsetting and na-handling for matrices
   ret <- new("gausspr")
   if (!missing(subset)) x <- x[subset,]
@@ -57,11 +74,39 @@ function (x,
   }
   ncols <- ncol(x)
   m <- nrows <- nrow(x)
-  
+
  if (is.null (type)) type(ret) <-
    if (is.factor(y)) "classification"
     else "regression"
   else type(ret) <- type
+  
+  unscaledx <- x  
+  x.scale <- y.scale <- NULL
+ ## scaling
+  if (length(scaled) == 1)
+    scaled <- rep(scaled, ncol(x))
+  if (any(scaled)) {
+    co <- !apply(x[,scaled, drop = FALSE], 2, var)
+    if (any(co)) {
+      scaled <- rep(FALSE, ncol(x))
+      warning(paste("Variable(s)",
+                    paste("`",colnames(x[,scaled, drop = FALSE])[co],
+                          "'", sep="", collapse=" and "),
+                    "constant. Cannot scale data.")
+              )
+    } else {
+      xtmp <- scale(x[,scaled])
+      x[,scaled] <- xtmp
+      x.scale <- attributes(xtmp)[c("scaled:center","scaled:scale")]
+      if (is.numeric(y)&&(type(ret)!="classification")) {
+        y <- scale(y)
+        y.scale <- attributes(y)[c("scaled:center","scaled:scale")]
+        y <- as.vector(y)
+      }
+      scaling(ret) <- list(scaled = scaled, x.scale = x.scale, y.scale = y.scale)
+    }
+  }
+
   
   if (var < 10^-3)
     stop("Noise variance parameter var has to be greater than 10^-3")
@@ -82,7 +127,27 @@ function (x,
   
   if(!is.null(type))
     type(ret) <- match.arg(type,c("classification", "regression"))
+
+if(is.character(kernel)){
+    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot"))
+
+    if(is.character(kpar))
+       if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot" || kernel== "anovadot"|| kernel=="splinedot") &&  kpar=="automatic" )
+       {
+         cat (" Setting default kernel parameters ","\n")
+         kpar <- list()
+       }
+     }
   
+  if (!is.function(kernel))
+  if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
+    kp <- match.arg(kpar,"automatic")
+    if(kp=="automatic")
+      kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
+   cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
+   
+  }
+
   if(!is(kernel,"kernel"))
     {
       if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
@@ -110,20 +175,58 @@ function (x,
             yd <- c(rep(1,li),rep(-1,lj))
           else
             yd <- c(rep(-1,li),rep(1,lj))
-          K <- kernelMatrix(kernel,xd)
-          gradnorm <- 1 
-          alphag <- rep(0,li+lj)
-          while (gradnorm > tol)
+          if(reduced == FALSE){
+            K <- kernelMatrix(kernel,xd)
+            gradnorm <- 1 
+            alphag <- solut <- rep(0,li+lj)
+            while (gradnorm > tol)
+              {
+                f <- crossprod(K,alphag)
+                grad <- -yd/(1 + exp(yd*f))
+                hess <- exp(yd*f)
+                hess <- hess / ((1 + hess)^2)
+
+                ## We use solveiter instead of solve to speed up things
+                ## A <- t(t(K)*as.vector(hess))
+                ## diag(A) <- diag(A) + 1
+                ## alphag <- alphag - solve(A,(grad + alphag))
+
+                solut <- solveiter(K, hess, (grad + alphag), solut)
+                alphag <- alphag - solut
+                gradnorm <- sqrt(sum((grad + alphag)^2))
+              }
+          }
+          else if (reduced ==TRUE)
             {
-              f <- crossprod(K,alphag)
-              grad <- -yd/(1 + exp(yd*f))
-              hess <- exp(yd*f)
-              hess <- hess / ((1 + hess)^2)
-              alphag <- alphag - solve(crossprod(K,diag(as.vector(hess))) + diag(rep(var,li+lj)))%*%(grad + alphag)
-              gradnorm <- sqrt(sum((grad + alphag)^2))
+             
+              yind <- t(matrix(unique(yd),2,length(yd)))
+              ymat <- matrix(0, length(yd), 2)
+              ymat[yind==yd] <- 1
+              ##Z <- csi(xd, ymat, kernel = kernel, rank = dim(yd)[1])
+              ##Z <- Z[sort(pivots(Z),index.return = TRUE)$ix, ,drop=FALSE]
+              Z <- inchol(xd, kernel = kernel)
+              gradnorm <- 1 
+              alphag <- rep(0,li+lj)
+              m1 <- dim(Z)[1]
+              n1 <- dim(Z)[2]
+              Ksub <- diag(rep(1,n1))
+           
+           while (gradnorm > tol)
+              {
+                f <- drop(Z%*%crossprod(Z,alphag))
+                f[which(f>20)] <- 20
+                grad <- -yd/(1 + exp(yd*f))
+                hess <- exp(yd*f)
+                hess <- as.vector(hess / ((1 + hess)^2))
+                
+                alphag <- alphag - (- Z %*%solve(Ksub + (t(Z)*hess)%*%Z) %*% (t(Z)*hess))%*%(grad + alphag) + (grad + alphag) 
+                
+                gradnorm <- sqrt(sum((grad + alphag)^2))
+              }
+              
             }
-          alpha(ret)[[p]] <- alphag
-          alphaindex(ret)[[p]] <- c(indexes[[i]],indexes[[j]])
+              alpha(ret)[[p]] <- alphag
+              alphaindex(ret)[[p]] <- c(indexes[[i]],indexes[[j]])
         }
       }
     }
@@ -136,17 +239,18 @@ function (x,
       alpha(ret) <- solve(K + diag(rep(var, length = m))) %*% y
     }
 
+  kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   xmatrix(ret) <- x
 
-  fit(ret)  <- if (fit)
-    predict(ret, x) else NA
+  fitted(ret)  <- if (fit)
+    predict(ret, unscaledx) else NA
 
   if (fit){
     if(type(ret)=="classification")
-      error(ret) <- 1 - .classAgreement(table(y,as.integer(fit(ret))))
+      error(ret) <- 1 - .classAgreement(table(y,as.integer(fitted(ret))))
     if(type(ret)=="regression")
-      error(ret) <- drop(crossprod(fit(ret) - y)/m)
+      error(ret) <- drop(crossprod(fitted(ret) - y)/m)
   }
 
   cross(ret) <- -1
@@ -161,13 +265,13 @@ function (x,
           cind <- unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           if(type(ret)=="classification")
             {
-              cret <- gausspr(x[cind,], y[cind], type=type(ret),kernel=kernel,C=C,var = var, cross = 0, fit = FALSE)
+              cret <- gausspr(x[cind,], y[cind], scaled = FALSE, type=type(ret),kernel=kernel,C=C,var = var, cross = 0, fit = FALSE)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
           if(type(ret)=="regression")
             {
-              cret <- gausspr(x[cind,],y[cind],type=type(ret),kernel=kernel,var = var,tol=tol, cross = 0, fit = FALSE)
+              cret <- gausspr(x[cind,],y[cind],type=type(ret),scaled = FALSE, kernel=kernel,var = var,tol=tol, cross = 0, fit = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
             }
@@ -184,15 +288,23 @@ function (x,
 setMethod("predict", signature(object = "gausspr"),
 function (object, newdata, type = "response", coupler = "minpair",...)
 {
-  if (missing(newdata))
-    return(fit(object))
+  sc <- 0
+  type <- match.arg(type,c("response","probabilities","votes"))
+  if (missing(newdata) && type!="response")
+    return(fitted(object))
+  else if(missing(newdata))
+    {
+      newdata <- xmatrix(object)
+      sc <- 1
+    }
+  
   ncols <- ncol(xmatrix(object))
   nrows <- nrow(xmatrix(object))
   oldco <- ncols
 
-  if (!is.null(kterms(object)))
+  if (!is.null(terms(object)))
   {  
-  newdata <- model.matrix(delete.response(kterms(object)), as.data.frame(newdata), na.action = na.action)
+  newdata <- model.matrix(delete.response(terms(object)), as.data.frame(newdata), na.action = na.action)
    }
   else
     newdata  <- if (is.vector (newdata)) t(t(newdata)) else as.matrix(newdata)
@@ -204,7 +316,13 @@ function (object, newdata, type = "response", coupler = "minpair",...)
     
   if (oldco != newco) stop ("test vector does not match model !")
 
-  type <- match.arg(type,c("response","probabilities","votes"))
+   if (is.list(scaling(object)) && sc != 1)
+    newdata[,scaling(object)$scaled] <-
+      scale(newdata[,scaling(object)$scaled, drop = FALSE],
+            center = scaling(object)$x.scale$"scaled:center",
+            scale  = scaling(object)$x.scale$"scaled:scale"
+            )
+  
   p <- 0
   if(type == "response")
     {
@@ -286,10 +404,88 @@ function(object){
   cat(paste("Problem type:", type(object),"\n"))
   cat("\n")
   show(kernelf(object))
-  cat(paste("\nNumber of training instances learned :", length(alpha(object)),"\n"))
-  if(!is.null(fit(object)))
+  cat(paste("\nNumber of training instances learned :", dim(xmatrix(object))[1],"\n"))
+  if(!is.null(fitted(object)))
     cat(paste("Train error :", round(error(object),9),"\n"))
   ##train error & loss
-  if(!is.null(cross(object)))
+  if(cross(object)!=-1)
     cat("Cross validation error :",round(cross(object),9),"\n")
 })
+
+
+solveiter <- function(B,noiseproc,b,x,itmax = 50,tol = 10e-4 ,verbose = FALSE) {
+
+## ----------------------------
+## Preconditioned Biconjugate Gradient method
+## solves linear system Ax <- b for general A
+## ------------------------------------------
+## x : initial guess
+## itmax : max # iterations
+## iterates while mean(abs(Ax-b)) > tol
+## outputs iterative error if verbose  = TRUE
+##
+## Simplified form of Numerical Recipes: linbcg
+## 
+## The preconditioned matrix is set to inv(diag(A))
+## A defined through A <- I + N*B
+
+diagA <- matrix(1,dim(B)[1],1) + colSums(B)+ diag(B)*(noiseproc-1)
+## diags of A
+
+cont <- 0
+iter <- 0
+r <- .Amul2(x,B,noiseproc)
+r <- b - r
+rr <- r
+znrm <- 1
+
+bnrm <- sqrt(sum((b)^2))
+z <- r/diagA
+
+err <- sqrt(sum((.Amul2(x,B,noiseproc) - b)^2))/bnrm
+
+while (iter <= itmax){
+  iter <- iter + 1
+  zm1nrm <- znrm
+  zz <- rr/diagA
+  bknum<- drop(crossprod(z,rr))
+  if (iter == 1)
+    {
+      p <- z
+      pp <- zz
+    }
+  else
+    {
+      bk <- bknum/bkden
+      p <- bk*p + z
+      pp <- bk*pp + zz
+    } 
+  
+  bkden <- bknum
+  z <- .Amul2(p,B,noiseproc)
+  akden <- drop(crossprod(z,pp))
+  ak <- bknum/akden
+  zz <- .Amul2T(pp,B,noiseproc)
+  
+  x <- x + ak*p
+  r <- r - ak*z
+  rr <- rr - ak*zz
+  z <- r/diagA
+  znrm <- 1
+  
+  err <- mean(abs(r))
+  
+  if (err<tol)
+    break
+}    
+return(x)
+}
+
+.Amul2 <- function(d, B, noiseproc){
+ee <- B%*%d
+return(d + noiseproc*ee)
+}
+.Amul2T <- function(d, B, noiseproc){
+ee <- noiseproc*d
+return(d + B%*%ee)
+}

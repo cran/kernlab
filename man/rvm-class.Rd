@@ -8,7 +8,6 @@
 \alias{alpha,rvm-method}
 \alias{cross,rvm-method}
 \alias{error,rvm-method}
-\alias{fit,rvm-method}
 \alias{kcall,rvm-method}
 \alias{kernelf,rvm-method}
 \alias{kpar,rvm-method}
@@ -30,28 +29,28 @@ or by calling the \code{rvm} function.
 
     \item{\code{tol}:}{Object of class \code{"numeric"} contains
       tolerance of termination critiria used.}
-    \item{\code{kernelf}:}{Object of class \code{"function"} contains
+    \item{\code{kernelf}:}{Object of class \code{"kfunction"} contains
       the kernel function used }
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
       hyperparameter used}
-    \item{\code{kcall}:}{Object of class \code{"ANY"} contains the
+    \item{\code{kcall}:}{Object of class \code{"call"} contains the
       function call}
     \item{\code{type}:}{Object of class \code{"character"} contains type
     of problem}
-    \item{\code{kterms}:}{Object of class \code{"ANY"}  containing the
+    \item{\code{terms}:}{Object of class \code{"ANY"}  containing the
       terms representation of the symbolic model used (when using a
       formula interface)}
     \item{\code{xmatrix}:}{Object of class \code{"matrix"} contains the data
       matrix used during computation}
-    \item{\code{ymatrix}:}{Object of class \code{"ANY"} contains the
+    \item{\code{ymatrix}:}{Object of class \code{"output"} contains the
       response matrix}
-    \item{\code{fit}:}{Object of class \code{"ANY"} with the fitted
+    \item{\code{fitted}:}{Object of class \code{"output"} with the fitted
       values, (predict on trianing set).}
     \item{\code{lev}:}{Object of class \code{"vector"} contains the
       levels of the response (in classification)}
     \item{\code{nclass}:}{Object of class \code{"numeric"} contains the
       number of classes (in classification)}
-    \item{\code{alpha}:}{Object of class \code{"ANY"} containing the the
+    \item{\code{alpha}:}{Object of class \code{"listI"} containing the the
     resulting alpha vector}
     \item{\code{nvar}:}{Object of class \code{"numeric"} containing the
       calculated variance (in case of regression)}
@@ -61,7 +60,7 @@ or by calling the \code{rvm} function.
       the indexes of the resulting relevance vectors }
     \item{\code{nRV}:}{Object of class \code{"numeric"} containing the
       number of relevance vectors}
-    \item{\code{cross}:}{Object of class \code{"ANY"} containing the
+    \item{\code{cross}:}{Object of class \code{"numeric"} containing the
       relusting cross validation error }
     \item{\code{error}:}{Object of class \code{"numeric"} containing the
     training error}
@@ -80,7 +79,7 @@ or by calling the \code{rvm} function.
     cross validation error}
     \item{error}{\code{signature(object = "rvm")}: returns the training
       error  }
-    \item{fit}{\code{signature(object = "rvm")}: returns the fitted values }
+    \item{fitted}{\code{signature(object = "vm")}: returns the fitted values }
     \item{kcall}{\code{signature(object = "rvm")}: returns the function call }
     \item{kernelf}{\code{signature(object = "rvm")}: returns the used
       kernel function }
@@ -102,8 +101,6 @@ or by calling the \code{rvm} function.
 \author{Alexandros Karatzoglou\cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
 
-
-
 \seealso{
   \code{\link{rvm}}, 
    \code{\link{ksvm-class}}
@@ -121,7 +118,7 @@ foo
 
 alpha(foo)
 RVindex(foo)
-fit(foo)
+fitted(foo)
 kernelf(foo)
 nvar(foo)
 

@@ -3346,8 +3346,8 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
 
     if(param->nr_weight > 0)
       {
-	double Cp = param->C*param->weight[0];
-	double Cn = param->C*param->weight[1];
+	Cp = param->C*param->weight[0];
+	Cn = param->C*param->weight[1];
       }
    
 

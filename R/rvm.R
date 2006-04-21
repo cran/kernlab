@@ -1,7 +1,10 @@
+## relevance vector machine
+## author : alexandros
+
 setGeneric("rvm", function(x, ...) standardGeneric("rvm"))
 setMethod("rvm",signature(x="formula"),
 function (x, data=NULL, ..., subset, na.action = na.omit){
-  call <- match.call()
+  cl <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
     m$data <- as.data.frame(data)
@@ -15,8 +18,8 @@ function (x, data=NULL, ..., subset, na.action = na.omit){
   x <- model.matrix(Terms, m)
   y <- model.extract(m, response)
    ret <- rvm(x, y, ...)
-  kcall(ret) <- call
-  kterms(ret) <- Terms
+  kcall(ret) <- cl
+  terms(ret) <- Terms
   if (!is.null(attr(m, "na.action")))
     n.action(ret) <- attr(m, "na.action")
   return (ret)
@@ -185,7 +188,7 @@ function (x,
       nvar(ret) <- var
       error(ret) <- sqrt(err/m)
       if(fit)
-      fit(ret) <- Kr %*% wvec [nzindex]
+      fitted(ret) <- Kr %*% wvec [nzindex]
       
     }
 
@@ -193,7 +196,7 @@ function (x,
     {
       stop("classification with the relevance vector machine not implemented yet")
     }
-
+  kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   alpha(ret) <- wvec[nzindex]
    tol(ret) <- tol
@@ -203,17 +206,17 @@ function (x,
   nRV(ret) <- length(RVindex(ret))
 
   
-  fit(ret)  <- if (fit)
+  fitted(ret)  <- if (fit)
     predict(ret, x) else NA
   
   if (fit){
     if(type(ret)=="classification")
-      error(ret) <- 1 - .classAgreement(table(y,as.integer(fit(ret))))
+      error(ret) <- 1 - .classAgreement(table(y,as.integer(fitted(ret))))
     if(type(ret)=="regression")
-      error(ret) <- drop(crossprod(fit(ret) - y)/m)
+      error(ret) <- drop(crossprod(fitted(ret) - y)/m)
   }
   
-  cross(ret) <- NULL
+  cross(ret) <- -1
   if(cross!=0)
     {
       cerror <- 0
@@ -246,14 +249,14 @@ setMethod("predict", signature(object = "rvm"),
 function (object, newdata, ...)
 {
   if (missing(newdata))
-    return(fit(object))
+    return(fitted(object))
   ncols <- ncol(xmatrix(object))
   nrows <- nrow(xmatrix(object))
   oldco <- ncols
 
-  if (!is.null(kterms(object)))
+  if (!is.null(terms(object)))
   {  
-  newdata <- model.matrix(delete.response(kterms(object)), as.data.frame(newdata), na.action = na.action)
+  newdata <- model.matrix(delete.response(terms(object)), as.data.frame(newdata), na.action = na.action)
    }
   else
     newdata  <- if (is.vector (newdata)) t(t(newdata)) else as.matrix(newdata)
@@ -283,7 +286,7 @@ function(object){
   cat(paste("\nNumber of Relevance Vectors :", nRV(object),"\n"))
   cat("Variance : ",round(nvar(object),9))
   cat("\n")
-    if(!is.null(fit(object)))
+    if(!is.null(fitted(object)))
   cat(paste("Training error :", round(error(object),9),"\n"))
   if(!is.null(cross(object)))
     cat("Cross validation error :",round(cross(object),9),"\n")

@@ -3,7 +3,7 @@
 \alias{kcca,matrix-method}
 \title{Kernel Canonical Correlation Analysis}
 \description{
-Computes the canonical correlation analysis in a feature space.
+Computes the canonical correlation analysis in feature space.
 }
 \usage{
 \S4method{kcca}{matrix}(x, y, kernel="rbfdot", kpar=list(sigma=0.1), ...)
@@ -13,7 +13,8 @@ Computes the canonical correlation analysis in a feature space.
   \item{x}{a matrix containing data index by row}
   \item{y}{a matrix containing data index by row}
   \item{kernel}{the kernel function used in training and predicting.
-    This parameter can be set to any function, of class kernel, which computes a dot product between two
+    This parameter can be set to any function, of class kernel,
+    which computes a inner product in feature space between two
     vector arguments. kernlab provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
@@ -33,7 +34,7 @@ Computes the canonical correlation analysis in a feature space.
 
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -50,7 +51,13 @@ Computes the canonical correlation analysis in a feature space.
   \item{\dots}{adittional parameters for the \code{kpca} function}
 }
 \details{
-The kernel version of canonical correlation analysis. 
+  The kernel version of canonical correlation analysis.
+  Kernel Canonical Correlation Analysis (KCCA) is a non-linear extension
+  of CCA. Given two random variables, KCCA aims at extracting the
+  information which is shared by the two random variables. More
+  precisely given \eqn{x} and \eqn{y} the purpose of KCCA is to provide
+  nonlinear mappings \eqn{f(x)} and \eqn{g(y)} such that their
+  correlation is maximized.
 }
 \value{
   An S4 object containg the following slots:
@@ -69,7 +76,7 @@ The kernel version of canonical correlation analysis.
 \author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
 
-\seealso{\code{\link{cancor}}  \code{\link{kpca}}}
+\seealso{\code{\link{cancor}}, \code{\link{kpca}}, \code{\link{kfa}}, \code{\link{kha}}}
 \examples{
 
 }

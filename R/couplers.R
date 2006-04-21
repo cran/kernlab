@@ -1,5 +1,6 @@
+## wrapper function for couplers
+## author : alexandros karatzoglou
 
-##wrapper function for couplers
 couple <- function(probin, coupler = "minpair")
 {
   if(is.vector(probin))

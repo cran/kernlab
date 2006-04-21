@@ -1,37 +1,34 @@
-setClass("inc.chol",representation("matrix",pivots="vector",diag.residues="vector",maxresiduals="vector"),prototype=structure(.Data=matrix(),pivots=vector(),diag.residues=vector(), maxresiduals=vector()))
 
-
-chol.reduce <- function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, max.iter = dim(x)[1], blocksize = 50, verbose = 0)
+setGeneric("inchol", function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, maxiter = dim(x)[1], blocksize = 50, verbose = 0) standardGeneric("inchol"))
+setMethod("inchol",signature(x="matrix"),
+function(x, kernel="rbfdot",kpar=list(sigma=0.1), tol= 0.001, maxiter = dim(x)[1], blocksize = 50, verbose = 0)
 {
-## Usage: 
-## 
-## [ Tk, pivots, diag.residues, maxresiduals ] ... 
-## <- chol.reduce( data, kernel, tol, max.iter, verbose )
-## 
-## Description:
-## 
-## Find the incomplete Cholesky decomposition of the kernel matrix
-## 
-## Parameters:
-## 
-## data      : 
-## kernel    : kernlab object
-## tol       : algo stops when remaining pivots < tol 
-## max.iter  : maximum number of colums in Tk
-##
-## Return:
-## 
-## Tk     : K \approx Tk * Tk'
-## pivots : Indices on which we pivoted
-## diag.residues : Residuals left on the diagonal
-## maxresiduals  : Residuals we picked for pivoting
-## 
-## Authors : S.V.N. Vishwanathan / Alex Smola
-## R Version : Alexandros Karatzoglou
 
-## For aggressive memory allocation
+  ## 
+  ## Description:
+  ## 
+  ## Find the incomplete Cholesky decomposition of the kernel matrix
+  ## 
+  ## Parameters:
+  ## 
+  ## data      : 
+  ## kernel    : kernlab object
+  ## tol       : algo stops when remaining pivots < tol 
+  ## max.iter  : maximum number of colums in Tk
+  ##
+  ## Return:
+  ## 
+  ## Tk     : K \approx Tk * Tk'
+  ## pivots : Indices on which we pivoted
+  ## diag.residues : Residuals left on the diagonal
+  ## maxresiduals  : Residuals we picked for pivoting
+  ## 
+  ## Authors : S.V.N. Vishwanathan / Alex Smola
+  ## R Version : Alexandros Karatzoglou
+  
 
-BLOCKSIZE <- blocksize
+  ## For aggressive memory allocation
+  BLOCKSIZE <- blocksize
 
 if(!is.matrix(x))
 	stop("x must be a matrix")
@@ -66,7 +63,7 @@ if(!is(kernel,"kernel"))
 
   dota <- rowSums(x^2)
 
-  while( residue > tol && counter < max.iter )
+  while( residue > tol && counter < maxiter )
     {
       ## Aggressively allocate memory
       if(counter %% BLOCKSIZE  == 0)
@@ -142,6 +139,7 @@ if(!is(kernel,"kernel"))
       
       ## Update pivots
       pivots[counter + 1]  <- index
+
       
       ## Monitor residuals
       maxresiduals[counter + 1] <- residue 
@@ -158,6 +156,7 @@ if(!is(kernel,"kernel"))
         cat("counter = ",counter," ", "residue = ", residue, "\n")
     } 
 
+
   ## Throw away extra columns which we might have added
   Tk <- Tk[, 1:counter] 
   
@@ -165,6 +164,6 @@ if(!is(kernel,"kernel"))
 
   maxresiduals <- maxresiduals[1:counter]
 
-  return(new("inc.chol",.Data=Tk,pivots=pivots,diag.residues = diag.residues, maxresiduals = maxresiduals))
+  return(new("inchol",.Data=Tk,pivots=pivots,diagresidues = diag.residues, maxresiduals = maxresiduals))
   
-}
+})

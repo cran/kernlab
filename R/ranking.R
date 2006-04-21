@@ -1,3 +1,6 @@
+## manifold ranking
+## author: alexandros
+
 setGeneric("ranking",function(x, ...) standardGeneric("ranking"))
 setMethod("ranking",signature(x="matrix"),
           function (x,
@@ -9,9 +12,7 @@ setMethod("ranking",signature(x="matrix"),
                    iterations = 600,
                     edgegraph = FALSE,
                     convergence = FALSE,
-                    ...
-                    ,subset 
-                    ,na.action = na.omit)
+                    ...)
           {
             m <- dim(x)[1]
             d <- dim(x)[2]
@@ -102,6 +103,125 @@ setMethod("ranking",signature(x="matrix"),
             return(new("ranking", .Data=res, convergence = convergence, edgegraph = edgegraph))
           })
 
+
+## kernelMatrix interface
+setMethod("ranking",signature(x="kernelMatrix"),
+          function (x,
+                    y,
+                    alpha     = 0.99,
+                   iterations = 600,
+                    convergence = FALSE,
+                    ...)
+          {
+            m <- dim(x)[1]
+
+            if(length(y) != m)
+              {
+                ym <- matrix(0,m,1)
+                ym[y] <- 1
+                y <- ym
+              }
+            if (is.null(y))
+              y <- matrix(1, m, 1) 
+            labelled <- y != 0
+            if (!any(labelled)) stop("no labels sublied")
+                        
+            diag(x) <- 0
+            ##K <- sparse(K)
+            cs <- colSums(x)
+            ##cs[cs <= 10e-6] <- 1
+            
+            D <- 1/sqrt(cs)
+            x <- D * x %*% diag(D)
+            
+            if(sum(labelled)==1)
+              y <- x[, labelled,drop = FALSE]
+            else
+              y <- as.matrix(colSums(x[, labelled]))
+            x <- alpha * x[, !labelled]
+            ym <- matrix(0,m,iterations)
+            ym[,1] <- y 
+            for (iteration  in  2:iterations)
+              ym[, iteration] <- ym[, 1] + x %*% ym[!labelled, iteration-1]
+
+            ym[labelled,] <- NA
+            r <- ym
+            r[!labelled,] <- compute.ranks(-r[!labelled, ])
+            if(convergence)
+              convergence <- (r - rep(r[,dim(r)[2]],iterations))/(m-sum(labelled))
+            else
+              convergence <- matrix()
+            res <- cbind(t(t(1:m)), ym[,iterations], r[,iterations])
+            return(new("ranking", .Data=res, convergence = convergence))
+          })
+
+
+## list interface
+setMethod("ranking",signature(x="list"),
+          function (x,
+                    y,
+                    kernel    = "stringdot",
+                    kpar      = list(length = 4, lambda = 0.5),
+                    alpha     = 0.99,
+                    iterations = 600, convergence = FALSE, ...)
+          {
+            m <- length(x)
+
+            if(length(y) != m)
+              {
+                ym <- matrix(0,m,1)
+                ym[y] <- 1
+                y <- ym
+              }
+
+            if (is.null(y))
+              y <- matrix(1, m, 1) 
+            labelled <- y != 0
+            if (!any(labelled)) stop("no labels sublied")
+                        
+            if(is.character(kernel))
+              kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","besseldot","laplacedot"))
+            
+            if(!is(kernel,"kernel"))
+              {
+                if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
+                kernel <- do.call(kernel, kpar)
+              }
+    
+            if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
+                        
+            edgegraph <- matrix()
+            K <- kernelMatrix(kernel,x)   
+
+            diag(K) <- 0
+            ##K <- sparse(K)
+            cs <- colSums(K)
+            ##cs[cs <= 10e-6] <- 1
+            
+            D <- 1/sqrt(cs)
+            K <- D * K %*% diag(D)
+            
+            if(sum(labelled)==1)
+              y <- K[, labelled,drop = FALSE]
+            else
+              y <- as.matrix(colSums(K[, labelled]))
+            K <- alpha * K[, !labelled]
+            ym <- matrix(0,m,iterations)
+            ym[,1] <- y 
+            for (iteration  in  2:iterations)
+              ym[, iteration] <- ym[, 1] + K %*% ym[!labelled, iteration-1]
+
+            ym[labelled,] <- NA
+            r <- ym
+            r[!labelled,] <- compute.ranks(-r[!labelled, ])
+            if(convergence)
+              convergence <- (r - rep(r[,dim(r)[2]],iterations))/(m-sum(labelled))
+            else
+              convergence <- matrix()
+            res <- cbind(t(t(1:m)), ym[,iterations], r[,iterations])
+            return(new("ranking", .Data=res, convergence = convergence, edgegraph = NULL))
+          })
+
 minimum.spanning.tree <- function(sed)
   { 
     max.sed.in.tree <- 0
@@ -164,7 +284,7 @@ compute.ranks <- function(am) {
 
 setMethod("show","ranking",
           function(object)
-          {  cat("Spectral Clustering object of class \"specc\"","\n")
+          {  cat("Ranking object of class \"ranking\"","\n")
              cat("\n")
              show(object@.Data)
              cat("\n")

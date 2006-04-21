@@ -1,6 +1,9 @@
 \name{ranking}
 \alias{ranking}
 \alias{ranking,matrix-method}
+\alias{ranking,list-method}
+\alias{ranking,kernelMatrix-method}
+
 \title{Ranking}
 \description{
  A universal ranking algorithm which assigns importance/ranking to data points
@@ -10,10 +13,18 @@
 \S4method{ranking}{matrix}(x, y,  kernel ="rbfdot", kpar = list(sigma = 1),  
         scale = TRUE, alpha = 0.99, iterations = 600, 
         edgegraph = FALSE, convergence = FALSE ,...)
+
+\S4method{ranking}{kernelMatrix}(x, y, alpha = 0.99, iterations = 600,
+                convergence = FALSE,...)
+
+\S4method{ranking}{list}(x, y, kernel = "stringdot", kpar =
+                 list(length = 4, lambda = 0.5), alpha = 0.99, iterations = 600, convergence = FALSE, ...)
+
 }
 
 \arguments{
-  \item{x}{a matrix containing the data to be ranked}
+  \item{x}{a matrix containing the data to be ranked, or the kernel
+    matrix of data to be ranked or a list of character vectors}
   \item{y}{The index of the query point in the data matrix or a vector
     of length equal to the rows of the data matrix having a one at the
     index of the query points index and zero at all the other points.}

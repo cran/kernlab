@@ -2,22 +2,33 @@
 \alias{specc}
 \alias{specc,matrix-method}
 \alias{specc,formula-method}
+\alias{specc,list-method}
+\alias{specc,kernelMatrix-method}
 \alias{show,specc-method}
 \title{Spectral Clustering}
 \description{
-A spectral clustering  algorithm. This algorithm clusters points using
-eigenvectors of kernel matrixes derived from the data.  
+A spectral clustering  algorithm. Clustering performed by
+embedding the data into the subspace of the eigenvectors of a kernel matrix.
 }
 \usage{
 \S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
 
 \S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
-       iterations = 200, mod.sample = 0.6, na.action = na.omit, ...)
+       nystrom.red = FALSE, nystrom.sample = dim(x)[1]/6, iterations = 200,
+       mod.sample = 0.75, na.action = na.omit, ...)
+
+\S4method{specc}{kernelMatrix}(x, centers, nystrom.red = FALSE, iterations = 200, ...)
+
+\S4method{specc}{list}(x, centers, kernel = "stringdot", kpar = list(length=4, lambda=0.5),
+                       nystrom.red = FALSE, nystrom.sample = length(x)/6, iterations = 200,
+                       mod.sample =  0.75, na.action = na.omit, ...)
 }
 
 \arguments{
-  \item{x}{the matrix of data to be clustered or a symbolic
-    description of the model to be fit.}
+ \item{x}{the matrix of data to be clustered, or a symbolic
+    description of the model to be fit, or a kernel Matrix of class
+    \code{kernelMatrix}, or a list of character vectors.}
+
   \item{data}{an optional data frame containing the variables in the model.
     By default the variables are taken from the environment which
     `specc' is called from.}
@@ -45,16 +56,14 @@ eigenvectors of kernel matrixes derived from the data.
     class kernel by passing the function name as an argument.
   }
 
-  \item{kpar}
-
-  {a character string or the list of hyper-parameters (kernel parameters).
+  \item{kpar}{a character string or the list of hyper-parameters (kernel parameters).
     The default character string \code{"automatic"} uses a heuristic the determine a
     suitable value for the width parameter of the RBF kernel.
     The second option \code{"local"} (local scaling) uses a more advanced heuristic
      and sets a width parameter for every point in the data set. This is
     particularly useful when the data incorporates multiple scales.
     A list can also be used containing the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -67,22 +76,35 @@ eigenvectors of kernel matrixes derived from the data.
     
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.}
-	
- \item{mod.sample} {Proportion of data to use when estimating sigma default 0.6}	
+
+  \item{nystrom.red}{use nystrom method to calculate eigenvectors. When
+    \code{TRUE} a sample of the dataset is used to calculate the
+    eigenvalues, thus only a \eqn{n x m} matrix where n the sample size
+    is stored in memory (default: \code{FALSE}}
+
+  \item{nystrom.sample}{Number of data points to use for estimating the
+    eigenvalues when using the nystrom method. (default : dim(x)[1]/6)}
+
+  \item{mod.sample}{Proportion of data to use when estimating sigma (default: 0.75)}	
 
   \item{iterations}{The maximum number of iterations allowed. }
 
-  \item{na.action}{ The action to perform on NA}
+  \item{na.action}{The action to perform on NA}
 
   \item{\dots}{additional parameters}
     
 }
 \details{
- In Spectral Clustering one uses the top \code{k} (number of clusters) eigenvectors of a matrix derived
- from the distance between points. Very good results are obtained by
- using a standard clustering technique
- to cluster the resulting eigenvector matrixes. 
-}
+  Spectral clustering  works by embedding the data points of the
+  partitioning problem into the
+  subspace of the \eqn{k} largest eigenvectors of a normalized affinity/kernel matrix.
+Using a simple clustering method like kmeans on the embedded points usually
+leads to good performance. It can be shown that  spectral clustering methods boil down to a
+a graph partitioning problem.\cr
+The data can be passed to the \code{specc} function in a \code{matrix} or a
+\code{data.frame}, in addition \code{specc} also supports input in the form of a
+kernel matrix of class \code{kernelMatrix} or as a list of character
+vectors where a string kernel has to be used.}
 \value{
  An S4 object of class \code{specc} wich extends the class \code{vector}
  containing integers indicating the cluster to which
@@ -100,11 +122,11 @@ eigenvectors of kernel matrixes derived from the data.
   \url{http://www.nips.cc/NIPS2001/papers/psgz/AA35.ps.gz}
 
 }
-\author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}
+\author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}
 }
 
 
-\seealso{ \code{\link{kpca}}, \code{\link{kcca}} }
+\seealso{\code{\link{kkmeans}}, \code{\link{kpca}}, \code{\link{kcca}} }
 \examples{
 ## Cluster the spirals data set.
 data(spirals)

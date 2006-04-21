@@ -1,7 +1,7 @@
 citHeader("To cite kernlab in publications use:")
 
 citEntry(entry="Article",
-         title = "kernlab -- An S4 Package for Kernel Methods in R",
+         title = "kernlab -- An {S4} Package for Kernel Methods in {R}",
          author = personList(as.person("Alexandros Karatzoglou"),
 	                     as.person("Alex Smola"),
 			     as.person("Kurt Hornik"),
