@@ -3,6 +3,7 @@
 \alias{kfa,formula-method}
 \alias{kfa,matrix-method}
 \alias{show,kfa-method}
+\alias{coef,kfa-method}
 \title{Kernel Feature Analysis}
 \description{
 The Kernel Feature Analysis algorithm is an algorithm for extracting
@@ -27,9 +28,10 @@ The data can then be projected on the new basis.
           the model
           (when using a formula).}
 
-        \item{kernel}{the kernel function used in training and predicting.
-    This parameter can be set to any function, of class kernel, which computes a dot product between two
-    vector arguments. kernlab provides the most popular kernel functions
+  \item{kernel}{the kernel function used in training and predicting.
+    This parameter can be set to any function, of class kernel, which
+    computes an inner product in feature space between two
+    vector arguments. \code{kernlab} provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{
@@ -48,7 +50,7 @@ The data can then be projected on the new basis.
 
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -57,7 +59,7 @@ The data can then be projected on the new basis.
       function "tanhdot"
       \item \code{sigma, order, degree} for the Bessel kernel "besseldot".
       \item \code{sigma, degree} for the ANOVA kernel "anovadot".
-    }
+      }
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.}
 

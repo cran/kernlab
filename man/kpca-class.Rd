@@ -1,8 +1,6 @@
 \name{kpca-class}
 \docType{class}
 \alias{kpca-class}
-\alias{eig}
-\alias{pcv}
 \alias{rotated}
 \alias{eig,kpca-method}
 \alias{kcall,kpca-method}
@@ -13,7 +11,7 @@
 
 \title{Class "kpca"}
 \description{ The Kernel Principal Components Analysis class}
-\section{Objects objects of class "kpca"}{
+\section{Objects of class "kpca"}{
 Objects can be created by calls of the form \code{new("kpca", ...)}.
     or by calling the \code{kpca} function.
 }

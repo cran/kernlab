@@ -15,6 +15,7 @@
 \alias{kernelMatrix,anovakernel,matrix-method}
 \alias{kernelMatrix,splinekernel,matrix-method}
 \alias{kernelMatrix,besselkernel,matrix-method}
+\alias{kernelMatrix,stringkernel-method}
 \alias{kernelMult,rbfkernel,matrix-method}
 \alias{kernelMult,splinekernel,matrix-method}
 \alias{kernelMult,polykernel,matrix-method}
@@ -23,6 +24,8 @@
 \alias{kernelMult,besselkernel,matrix-method}
 \alias{kernelMult,anovakernel,matrix-method}
 \alias{kernelMult,vanillakernel,matrix-method}
+\alias{kernelMult,character,kernelMatrix-method}
+\alias{kernelMult,stringkernel-method}
 \alias{kernelPol,rbfkernel,matrix-method}
 \alias{kernelPol,splinekernel,matrix-method}
 \alias{kernelPol,polykernel,matrix-method}
@@ -31,6 +34,7 @@
 \alias{kernelPol,anovakernel,matrix-method}
 \alias{kernelPol,besselkernel,matrix-method}
 \alias{kernelPol,laplacekernel,matrix-method}
+\alias{kernelPol,stringkernel-method}
 \alias{kernelFast,rbfkernel,matrix-method}
 \alias{kernelFast,splinekernel,matrix-method}
 \alias{kernelFast,polykernel,matrix-method}
@@ -39,8 +43,8 @@
 \alias{kernelFast,anovakernel,matrix-method}
 \alias{kernelFast,besselkernel,matrix-method}
 \alias{kernelFast,laplacekernel,matrix-method}
-
-
+\alias{kernelFast,stringkernel-method}
+\alias{kernelFast,splinekernel-method}
 
 \title{Kernel Matrix functions}
 \description{
@@ -49,10 +53,11 @@
   \code{kernelPol} computes the quadratic kernel expression  \eqn{H = z_i z_j
     k(x_i,x_j)}, \eqn{H = z_i k_j k(x_i,y_j)}.\cr
     \code{kernelMult} calculates the kernel expansion \eqn{f(x_i) =
-      \sum_{i=1}^m z k(x_i,x_j)}\cr
-    \code{kernelFast} computes the kernel matrix this function identical
+      \sum_{i=1}^m z_i  k(x_i,x_j)}\cr
+    \code{kernelFast} computes the kernel matrix, identical
     to \code{kernelMatrix}, except that it also requires the squared
-    norm of the first argument as additional input.
+    norm of the first argument as additional input, usefull in iterative
+    kernel matrix calculations.
  }
 \usage{
 \S4method{kernelMatrix}{kernel}(kernel, x, y = NULL)
@@ -67,10 +72,14 @@
 \arguments{
   \item{kernel}{the kernel function to be used to calculate the kernel
     matrix.
-  This has to be a function of class \code{kernel}, i.e. either one of the build in 
-  kernel functions or a fnction taking two vector arguments and returning a scalar.}
-  \item{x}{a data matrix to be used to calculate the kernel matrix}
-  \item{y}{second data matrix to calculate the kernel matrix}
+  This has to be a function of class \code{kernel}, i.e. which can be
+  generated either one of the build in 
+  kernel generating functions (e.g. \code{rbfdot} etc.) or a user defined
+  function of class \code{kernel} taking two vector arguments and returning a scalar.}
+  \item{x}{a data matrix to be used to calculate the kernel matrix, or a
+  list of vector when a \code{stringkernel} is used}
+  \item{y}{second data matrix to calculate the kernel matrix, or a
+  list of vector when a \code{stringkernel} is used}
   \item{z}{a suitable vector or matrix}
   \item{k}{a suitable vector or matrix}
   \item{a}{the squared norm of \code{x} e.g. \code{rowSums(x^2)}}
@@ -81,8 +90,8 @@
 \details{
   Common functions used during kernel based computations.\cr
   The \code{kernel} parameter can be set to any function, of class
-  kernel, which computes a dot product between two
-  vector arguments. kernlab provides the most popular kernel functions
+  kernel, which computes the inner product in feature space between two
+  vector arguments. \code{kernlab} provides the most popular kernel functions
   which can be initialized by using the following
   functions:
     \itemize{

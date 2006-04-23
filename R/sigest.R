@@ -1,3 +1,6 @@
+## sigma estimation for RBF kernels
+## author: alexandros
+
 setGeneric("sigest", function(x, ...) standardGeneric("sigest"))
 setMethod("sigest",signature(x="formula"),
 function (x, data=NULL, frac = 0.6, na.action = na.omit, scaled = TRUE){
@@ -32,38 +35,36 @@ function (x,
           frac = 0.25,
           scaled    = TRUE,
           na.action = na.omit)
-{
-    x <- na.action(x)
+          {
+            x <- na.action(x)
+            
+            if (length(scaled) == 1)
+              scaled <- rep(scaled, ncol(x))
+            if (any(scaled)) {
+              co <- !apply(x[,scaled, drop = FALSE], 2, var)
+              if (any(co)) {
+                scaled <- rep(FALSE, ncol(x))
+                warning(paste("Variable(s)",
+                              paste("`",colnames(x[,scaled, drop = FALSE])[co],
+                                    "'", sep="", collapse=" and "),
+                              "constant. Cannot scale data.")
+                        )
+              } else {
+                xtmp <- scale(x[,scaled])
+                x[,scaled] <- xtmp
+              }
+            }
     
-     if (length(scaled) == 1)
-      scaled <- rep(scaled, ncol(x))
-    if (any(scaled)) {
-      co <- !apply(x[,scaled, drop = FALSE], 2, var)
-      if (any(co)) {
-        scaled <- rep(FALSE, ncol(x))
-        warning(paste("Variable(s)",
-                      paste("`",colnames(x[,scaled, drop = FALSE])[co],
-                            "'", sep="", collapse=" and "),
-                      "constant. Cannot scale data.")
-                )
-      } else {
-      xtmp <- scale(x[,scaled])
-      x[,scaled] <- xtmp
-        }
-    }
-    
-    m <- dim(x)[1]
-    n <- floor(frac*m)
-
-    index <- sample(1:m, n, replace = TRUE)
-    index2 <- sample(1:m, n, replace = TRUE)
-    temp <- x[index,, drop=FALSE] - x[index2,,drop=FALSE]
-    dist <- rowSums(temp^2)
-    ds <- sort(dist[dist!=0])
-    sl <- ds[ceiling(0.1*length(ds))]
-    su <- ds[ceiling(0.9*length(ds))]
-    srange <- c(1/su,1/sl)
-    names(srange) <- NULL
-    return(srange)
-  
-})
+            m <- dim(x)[1]
+            n <- floor(frac*m)
+            index <- sample(1:m, n, replace = TRUE)
+            index2 <- sample(1:m, n, replace = TRUE)
+            temp <- x[index,, drop=FALSE] - x[index2,,drop=FALSE]
+            dist <- rowSums(temp^2)
+            ds <- sort(dist[dist!=0])
+            sl <- ds[ceiling(0.1*length(ds))]
+            su <- ds[ceiling(0.9*length(ds))]
+            srange <- c(1/su,1/sl)
+            names(srange) <- NULL
+            return(srange)
+          })

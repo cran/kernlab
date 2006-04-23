@@ -25,8 +25,10 @@ component analysis.}
 	  (when using a formula).}
 	
 	\item{kernel}{the kernel function used in training and predicting.
-    This parameter can be set to any function, of class kernel, which computes a dot product between two
-    vector arguments. kernlab provides the most popular kernel functions
+    This parameter can be set to any function, of class kernel, which
+    computes the inner product in feature space between two
+    vector arguments (see \code{\link{kernels}}).
+    \code{kernlab} provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{
@@ -39,13 +41,14 @@ component analysis.}
       \item \code{anovadot} ANOVA RBF kernel function
       \item \code{splinedot} Spline kernel 
     }
+    
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
   }
 
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -92,7 +95,7 @@ component analysis.}
 
 all the slots of the object can be accessed by accessor functions.
 }
-\notes{The predict function can be used to embed new data on the new space}
+\note{The predict function can be used to embed new data on the new space}
 \references{Kwang In Kim, M.O. Franz and B. Schölkopf\cr
   \emph{Kernel Hebbian Algorithm for Iterative Kernel Principal Component Analysis}\cr
   Max-Planck-Institut für biologische Kybernetik, Tübingen (109)\cr

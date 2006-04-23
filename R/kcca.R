@@ -1,3 +1,6 @@
+## Simple kernel canonical corelation analysis
+## author: alexandros karatzoglou
+
 setGeneric("kcca",function(x, y, kernel="rbfdot", kpar=list(sigma = 0.1), ...) standardGeneric("kcca"))
 setMethod("kcca", signature(x = "matrix"),
           function(x,y,kernel="rbfdot",kpar=list(sigma=0.1), ...)

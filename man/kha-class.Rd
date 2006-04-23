@@ -22,7 +22,7 @@ Objects can be created by calls of the form \code{new("kha", ...)}.
       coresponding normalization values}
     \item{\code{eskm}:}{Object of class \code{"vector"} containing the
       kernel sum}
-    \item{\code{kernelf}:}{Object of class \code{"function"} containing
+    \item{\code{kernelf}:}{Object of class \code{"kfunction"} containing
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} containing the
       kernel parameters used }
@@ -55,16 +55,17 @@ Objects can be created by calls of the form \code{new("kha", ...)}.
 
 \author{Alexandros Karatzoglou\cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
-\seealso{
+\seealso{ \code{\link{kha}},
   \code{\link{ksvm-class}}, 
    \code{\link{kcca-class}} 
 }
+
 \examples{
 # another example using the iris
 data(iris)
 test <- sample(1:50,20)
 
-kpc <- kha(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2)
+kpc <- kha(~.,data=iris[-test,-5], kernel="rbfdot", kpar=list(sigma=0.2),features=2)
 
 #print the principal component vectors
 pcv(kpc)

@@ -30,12 +30,10 @@ function(x, data = NULL, na.action = na.omit, ...)
     cl[[1]] <- as.name("kfa")
     kcall(res) <- cl
     attr(Terms,"intercept") <- 0
-    kterms(res) <- Terms
+    terms(res) <- Terms
     if(!is.null(na.act))
         n.action(res) <- na.act
-    #    if(!is.null(sc <- res$scores))
-    #        res$scores <- napredict(na.act, sc)
-    #}
+  
    return(res)
   })
 
@@ -119,6 +117,7 @@ function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, no
   alphaindex(obj) <- randomindex[idx]
   xmatrix(obj) <- x[alphaindex(obj),]
   kernelf(obj) <- kernel
+  kcall(obj) <- match.call()
   return(obj)
 })
 
@@ -128,10 +127,10 @@ function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, no
 setMethod("predict",signature(object="kfa"),
 function(object , x)
   {
-    if (!is.null(kterms(object)))
+    if (!is.null(terms(object)))
       {
         if(!is.matrix(x))
-          x <- model.matrix(delete.response(kterms(object)), as.data.frame(x), na.action = n.action(object))
+          x <- model.matrix(delete.response(terms(object)), as.data.frame(x), na.action = n.action(object))
       }
     else
       x  <- if (is.vector(x)) t(t(x)) else as.matrix(x)

@@ -23,7 +23,7 @@ function(x, data = NULL, na.action = na.omit, ...)
     cl[[1]] <- as.name("kha")
     kcall(res) <- cl
     attr(Terms,"intercept") <- 0
-    kterms(res) <- Terms
+    terms(res) <- Terms
     if(!is.null(na.act)) 
         n.action(res) <- na.act
     return(res)
@@ -119,6 +119,7 @@ setMethod("kha",signature(x="matrix"),
   eig(ret) <- Fnorm
   names(eig(ret)) <- paste("Comp.", 1:features, sep = "")
   eskm(ret) <- eskm
+  kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   xmatrix(ret) <- x
   return(ret)
@@ -129,10 +130,10 @@ setMethod("kha",signature(x="matrix"),
 setMethod("predict",signature(object="kha"),
 function(object , x)
   {
-    if (!is.null(kterms(object)))
+    if (!is.null(terms(object)))
       {
         if(!is.matrix(x))
-          x <- model.matrix(delete.response(kterms(object)), as.data.frame(x), na.action = n.action(object))
+          x <- model.matrix(delete.response(terms(object)), as.data.frame(x), na.action = n.action(object))
       }
     else
       x  <- if (is.vector(x)) t(t(x)) else as.matrix(x)

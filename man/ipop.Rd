@@ -17,7 +17,9 @@ ipop(c, H, A, b, l, u, r, sigf = 7, maxiter = 40, margin = 0.05, bound = 10,
 
 \arguments{
   \item{c}{Vector or one column matrix appearing in the quadratic function}
-  \item{H}{Matrix appearing in the quadratic function}
+  \item{H}{square matrix appearing in the quadratic function, or the
+    decomposed form \eqn{Z} of the \eqn{H} matrix where \eqn{Z} is a
+    \eqn{n x m} matrix with \eqn{n > m} and \eqn{ZZ' = H}.}
   \item{A}{Matrix defining the constrains under which we minimize the
     quadratic function}
   \item{b}{Vector or one column matrix defining the constrains}
@@ -31,7 +33,11 @@ ipop(c, H, A, b, l, u, r, sigf = 7, maxiter = 40, margin = 0.05, bound = 10,
   \item{verb}{Display convergence information during runtime}
 }
 \details{
-ipop uses an interior point method to solve the quadratic programming problem.
+  ipop uses an interior point method to solve the quadratic programming
+  problem. \cr
+  The \eqn{H} matrix can also be provided in the decomposed form \eqn{Z}
+  where \eqn{ZZ' = H} in that case the Sherman Morrison Woodbury formula
+  is used internally.
 }
 \value{
   An S4 object with the following slots
@@ -48,10 +54,10 @@ ipop uses an interior point method to solve the quadratic programming problem.
   \url{http://www.sor.princeton.edu/~rvdb/ps/loqo3.ps.gz}
 }
 \author{Alexandros Karatzoglou (based on Matlab code by Alex Smola) \cr
-alexandros.karatzoglou@ci.tuwien.ac.at}
+\email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
 
-\seealso{\code{solve.QP}}
+\seealso{\code{solve.QP}, \code{\link{inchol}}, \code{\link{csi}}}
 \examples{
 ## solve the Support Vector Machine optimization problem
 data(spam)

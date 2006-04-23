@@ -1,37 +1,33 @@
 ## S4 object definitions and assigment/accessor functions for the slots.
-## should be done using virtual classes but current S4/Namespace conflict prevents it
 ##
-## created  10.09.03 alexandros
-## updated  15.09.04 
+## created  10.09.03 alexandros karatzoglou
+## updated  23.08.05 
 
-##Support Vector Machine object 
-setClass("ksvm", representation(type = "character",
-                                param = "list",
-                                kernelf = "function",
-                                kpar = "list",
-                                kcall = "ANY",
-                                scaling = "ANY",
-                                kterms = "ANY",
-##                                margin = "vector",
-                                xmatrix = "matrix",
-                                ymatrix = "ANY",
-                                fit = "ANY",
-                                lev = "vector",
-                                nclass = "numeric",
-                                prior = "list",
-                                alpha = "ANY",
-                                coeff = "ANY",
-                                alphaindex = "ANY",
-                                b = "numeric",
-                                prob.model = "list",
-                                SVindex = "vector",
-                                nSV = "numeric",
-                                error = "numeric",
-                                cross = "numeric",
-                                n.action= "ANY"))
 
-## Create accessors for all class slots
-## can this be done in a neater way ?
+setClassUnion("listI", c("list","numeric","vector","integer"))
+setClassUnion("output", c("matrix","factor","vector","logical","numeric","list","integer"))
+setClassUnion("input", c("matrix","list"))
+setClassUnion("kfunction", c("function","character"))
+setClassUnion("mpinput", c("matrix","data.frame","missing"))
+setClassUnion("lpinput", c("list","missing"))
+
+
+setClass("vm", representation(alpha = "listI", ## since setClassUnion is not  working
+                              type = "character",
+                              kernelf = "kfunction",
+                              kpar = "list",
+                              xmatrix = "input",
+                              ymatrix = "output",
+                              fitted = "output",  
+                              lev = "vector",
+                              nclass = "numeric",
+                              error = "numeric",
+                              cross = "numeric",
+                              n.action= "ANY",
+                              terms = "ANY",
+                              kcall = "call"), contains= "VIRTUAL")
+                                        #Generic Vector Machine object 
+
 
 if(!isGeneric("type")){
   if (is.function("type"))
@@ -39,25 +35,184 @@ if(!isGeneric("type")){
   else fun <- function(object) standardGeneric("type")
   setGeneric("type", fun)
 }
-setMethod("type", "ksvm", function(object) object@type)
+setMethod("type", "vm", function(object) object@type)
 setGeneric("type<-", function(x, value) standardGeneric("type<-"))
-setReplaceMethod("type", "ksvm", function(x, value) {
+setReplaceMethod("type", "vm", function(x, value) {
   x@type <- value
   x
 })
 
-if(!isGeneric("margin")){
-  if (is.function("margin"))
-    fun <- margin
-  else fun <- function(object) standardGeneric("margin")
-  setGeneric("margin", fun)
+
+if(!isGeneric("kernelf")){
+  if (is.function("kernelf"))
+    fun <- kernelf
+  else fun <- function(object) standardGeneric("kernelf")
+  setGeneric("kernelf", fun)
 }
-setMethod("margin", "ksvm", function(object) object@margin)
-setGeneric("margin<-", function(x, value) standardGeneric("margin<-"))
-setReplaceMethod("margin", "ksvm", function(x, value) {
-  x@margin <- value
+setMethod("kernelf", "vm", function(object) object@kernelf)
+setGeneric("kernelf<-", function(x, value) standardGeneric("kernelf<-"))
+setReplaceMethod("kernelf", "vm", function(x, value) {
+  x@kernelf <- value
   x
 })
+
+if(!isGeneric("kpar")){
+  if (is.function("kpar"))
+    fun <- kpar
+  else fun <- function(object) standardGeneric("kpar")
+  setGeneric("kpar", fun)
+}
+setMethod("kpar", "vm", function(object) object@kpar)
+setGeneric("kpar<-", function(x, value) standardGeneric("kpar<-"))
+setReplaceMethod("kpar", "vm", function(x, value) {
+  x@kpar <- value
+  x
+})
+
+if(!isGeneric("kcall")){
+  if (is.function("kcall"))
+    fun <- kcall
+  else fun <- function(object) standardGeneric("kcall")
+  setGeneric("kcall", fun)
+}
+setMethod("kcall", "vm", function(object) object@kcall)
+setGeneric("kcall<-", function(x, value) standardGeneric("kcall<-"))
+setReplaceMethod("kcall", "vm", function(x, value) {
+  x@kcall <- value
+  x
+})
+
+setMethod("terms", "vm", function(x, ...) x@terms)
+setGeneric("terms<-", function(x, value) standardGeneric("terms<-"))
+setReplaceMethod("terms", "vm", function(x, value) {
+  x@terms <- value
+  x
+})
+
+if(!isGeneric("xmatrix")){
+  if (is.function("xmatrix"))
+    fun <- xmatrix
+  else fun <- function(object) standardGeneric("xmatrix")
+  setGeneric("xmatrix", fun)
+}
+setMethod("xmatrix", "vm", function(object) object@xmatrix)
+setGeneric("xmatrix<-", function(x, value) standardGeneric("xmatrix<-"))
+setReplaceMethod("xmatrix", "vm", function(x, value) {
+  x@xmatrix <- value
+  x
+})
+
+if(!isGeneric("ymatrix")){
+  if (is.function("ymatrix"))
+    fun <- ymatrix
+  else fun <- function(object) standardGeneric("ymatrix")
+  setGeneric("ymatrix", fun)
+}
+setMethod("ymatrix", "vm", function(object) object@ymatrix)
+setGeneric("ymatrix<-", function(x, value) standardGeneric("ymatrix<-"))
+setReplaceMethod("ymatrix", "vm", function(x, value) {
+  x@ymatrix <- value
+  x
+})
+
+setMethod("fitted", "vm", function(object, ...) object@fitted)
+setGeneric("fitted<-", function(x, value) standardGeneric("fitted<-"))
+setReplaceMethod("fitted", "vm", function(x, value) {
+  x@fitted <- value
+  x
+})
+
+if(!isGeneric("lev")){
+  if (is.function("lev"))
+    fun <- lev
+  else fun <- function(object) standardGeneric("lev")
+  setGeneric("lev", fun)
+}
+setMethod("lev", "vm", function(object) object@lev)
+setGeneric("lev<-", function(x, value) standardGeneric("lev<-"))
+setReplaceMethod("lev", "vm", function(x, value) {
+  x@lev <- value
+  x
+})
+
+if(!isGeneric("nclass")){
+  if (is.function("nclass"))
+    fun <- nclass
+  else fun <- function(object) standardGeneric("nclass")
+  setGeneric("nclass", fun)
+}
+setMethod("nclass", "vm", function(object) object@nclass)
+setGeneric("nclass<-", function(x, value) standardGeneric("nclass<-"))
+setReplaceMethod("nclass", "vm", function(x, value) {
+  x@nclass <- value
+  x
+})
+
+if(!isGeneric("alpha")){
+  if (is.function("alpha"))
+    fun <- alpha
+  else fun <- function(object) standardGeneric("alpha")
+  setGeneric("alpha", fun)
+}
+setMethod("alpha", "vm", function(object) object@alpha)
+setGeneric("alpha<-", function(x, value) standardGeneric("alpha<-"))
+setReplaceMethod("alpha", "vm", function(x, value) {
+  x@alpha <- value
+  x
+})
+
+if(!isGeneric("error")){
+  if (is.function("error"))
+    fun <- error
+  else fun <- function(object) standardGeneric("error")
+  setGeneric("error", fun)
+}
+setMethod("error", "vm", function(object) object@error)
+setGeneric("error<-", function(x, value) standardGeneric("error<-"))
+setReplaceMethod("error", "vm", function(x, value) {
+  x@error <- value
+  x
+})
+
+if(!isGeneric("cross")){
+  if (is.function("cross"))
+    fun <- cross
+  else fun <- function(object) standardGeneric("cross")
+  setGeneric("cross", fun)
+}
+setMethod("cross", "vm", function(object) object@cross)
+setGeneric("cross<-", function(x, value) standardGeneric("cross<-"))
+setReplaceMethod("cross", "vm", function(x, value) {
+  x@cross <- value
+  x
+})
+
+if(!isGeneric("n.action")){
+  if (is.function("n.action"))
+    fun <- n.action
+  else fun <- function(object) standardGeneric("n.action")
+  setGeneric("n.action", fun)
+}
+setMethod("n.action", "vm", function(object) object@n.action)
+setGeneric("n.action<-", function(x, value) standardGeneric("n.action<-"))
+setReplaceMethod("n.action", "vm", function(x, value) {
+  x@n.action <- value
+  x
+})
+
+
+
+
+setClass("ksvm", representation(param = "list",
+                                scaling = "ANY",
+                                coef = "ANY",
+                                alphaindex = "ANY",
+                                b = "numeric",
+                                SVindex = "vector",
+                                nSV = "numeric",
+                                prior = "list",
+                                prob.model = "list"
+                                ), contains="vm")
 
 if(!isGeneric("param")){
   if (is.function("param"))
@@ -69,46 +224,6 @@ setMethod("param", "ksvm", function(object) object@param)
 setGeneric("param<-", function(x, value) standardGeneric("param<-"))
 setReplaceMethod("param", "ksvm", function(x, value) {
   x@param <- value
-  x
-})
-
-if(!isGeneric("kernelf")){
-  if (is.function("kernelf"))
-    fun <- kernelf
-  else fun <- function(object) standardGeneric("kernelf")
-  setGeneric("kernelf", fun)
-}
-setMethod("kernelf", "ksvm", function(object) object@kernelf)
-setGeneric("kernelf<-", function(x, value) standardGeneric("kernelf<-"))
-setReplaceMethod("kernelf", "ksvm", function(x, value) {
-  x@kernelf <- value
-  x
-})
-
-if(!isGeneric("kpar")){
-  if (is.function("kpar"))
-    fun <- kpar
-  else fun <- function(object) standardGeneric("kpar")
-  setGeneric("kpar", fun)
-}
-setMethod("kpar", "ksvm", function(object) object@kpar)
-setGeneric("kpar<-", function(x, value) standardGeneric("kpar<-"))
-setReplaceMethod("kpar", "ksvm", function(x, value) {
-  x@kpar <- value
-  x
-})
-
-
-if(!isGeneric("kcall")){
-  if (is.function("kcall"))
-    fun <- kcall
-  else fun <- function(object) standardGeneric("kcall")
-  setGeneric("kcall", fun)
-}
-setMethod("kcall", "ksvm", function(object) object@kcall)
-setGeneric("kcall<-", function(x, value) standardGeneric("kcall<-"))
-setReplaceMethod("kcall", "ksvm", function(x, value) {
-  x@kcall <- value
   x
 })
 
@@ -125,123 +240,10 @@ setReplaceMethod("scaling", "ksvm", function(x, value) {
   x
 })
 
-
-
-if(!isGeneric("kterms")){
-  if (is.function("kterms"))
-    fun <- kterms
-  else fun <- function(object) standardGeneric("kterms")
-  setGeneric("kterms", fun)
-}
-setMethod("kterms", "ksvm", function(object) object@kterms)
-setGeneric("kterms<-", function(x, value) standardGeneric("kterms<-"))
-setReplaceMethod("kterms", "ksvm", function(x, value) {
-  x@kterms <- value
-  x
-})
-
-if(!isGeneric("xmatrix")){
-  if (is.function("xmatrix"))
-    fun <- xmatrix
-  else fun <- function(object) standardGeneric("xmatrix")
-  setGeneric("xmatrix", fun)
-}
-setMethod("xmatrix", "ksvm", function(object) object@xmatrix)
-setGeneric("xmatrix<-", function(x, value) standardGeneric("xmatrix<-"))
-setReplaceMethod("xmatrix", "ksvm", function(x, value) {
-  x@xmatrix <- value
-  x
-})
-
-if(!isGeneric("ymatrix")){
-  if (is.function("ymatrix"))
-    fun <- ymatrix
-  else fun <- function(object) standardGeneric("ymatrix")
-  setGeneric("ymatrix", fun)
-}
-setMethod("ymatrix", "ksvm", function(object) object@ymatrix)
-setGeneric("ymatrix<-", function(x, value) standardGeneric("ymatrix<-"))
-setReplaceMethod("ymatrix", "ksvm", function(x, value) {
-  x@ymatrix <- value
-  x
-})
-
-if(!isGeneric("fit")){
-  if (is.function("fit"))
-    fun <- fit
-  else fun <- function(object) standardGeneric("fit")
-  setGeneric("fit", fun)
-}
-setMethod("fit", "ksvm", function(object) object@fit)
-setGeneric("fit<-", function(x, value) standardGeneric("fit<-"))
-setReplaceMethod("fit", "ksvm", function(x, value) {
-  x@fit <- value
-  x
-})
-
-if(!isGeneric("lev")){
-  if (is.function("lev"))
-    fun <- lev
-  else fun <- function(object) standardGeneric("lev")
-  setGeneric("lev", fun)
-}
-setMethod("lev", "ksvm", function(object) object@lev)
-setGeneric("lev<-", function(x, value) standardGeneric("lev<-"))
-setReplaceMethod("lev", "ksvm", function(x, value) {
-  x@lev <- value
-  x
-})
-
-if(!isGeneric("prior")){
-  if (is.function("prior"))
-    fun <- prior
-  else fun <- function(object) standardGeneric("prior")
-  setGeneric("prior", fun)
-}
-setMethod("prior", "ksvm", function(object) object@prior)
-setGeneric("prior<-", function(x, value) standardGeneric("prior<-"))
-setReplaceMethod("prior", "ksvm", function(x, value) {
-  x@prior <- value
-  x
-})
-
-
-if(!isGeneric("nclass")){
-  if (is.function("nclass"))
-    fun <- nclass
-  else fun <- function(object) standardGeneric("nclass")
-  setGeneric("nclass", fun)
-}
-setMethod("nclass", "ksvm", function(object) object@nclass)
-setGeneric("nclass<-", function(x, value) standardGeneric("nclass<-"))
-setReplaceMethod("nclass", "ksvm", function(x, value) {
-  x@nclass <- value
-  x
-})
-
-if(!isGeneric("alpha")){
-  if (is.function("alpha"))
-    fun <- alpha
-  else fun <- function(object) standardGeneric("alpha")
-  setGeneric("alpha", fun)
-}
-setMethod("alpha", "ksvm", function(object) object@alpha)
-setGeneric("alpha<-", function(x, value) standardGeneric("alpha<-"))
-setReplaceMethod("alpha", "ksvm", function(x, value) {
-  x@alpha <- value
-  x
-})
-
-if(!isGeneric("coeff")){
-  if (is.function("coeff"))
-    fun <- coeff
-  else fun <- function(object) standardGeneric("coeff")
-  setGeneric("coeff", fun)
-}
-setMethod("coeff", "ksvm", function(object) object@coeff)
-setGeneric("coeff<-", function(x, value) standardGeneric("coeff<-"))
-setReplaceMethod("coeff", "ksvm", function(x, value) {
-  x@coeff <- value
+setMethod("coef", "ksvm", function(object, ...) object@coef)
+setGeneric("coef<-", function(x, value) standardGeneric("coef<-"))
+setReplaceMethod("coef", "ksvm", function(x, value) {
+  x@coef <- value
   x
 })
 
@@ -257,20 +259,6 @@ setReplaceMethod("alphaindex", "ksvm", function(x, value) {
   x@alphaindex <- value
   x
 })
-
-if(!isGeneric("prob.model")){
-  if (is.function("prob.model"))
-    fun <- prob.model
-  else fun <- function(object) standardGeneric("prob.model")
-  setGeneric("prob.model", fun)
-}
-setMethod("prob.model", "ksvm", function(object) object@prob.model)
-setGeneric("prob.model<-", function(x, value) standardGeneric("prob.model<-"))
-setReplaceMethod("prob.model", "ksvm", function(x, value) {
-  x@prob.model <- value
-  x
-})
-
 
 if(!isGeneric("b")){
   if (is.function("b"))
@@ -311,54 +299,76 @@ setReplaceMethod("nSV", "ksvm", function(x, value) {
   x
 })
 
-if(!isGeneric("error")){
-  if (is.function("error"))
-    fun <- error
-  else fun <- function(object) standardGeneric("error")
-  setGeneric("error", fun)
+if(!isGeneric("prior")){
+  if (is.function("prior"))
+    fun <- prior
+  else fun <- function(object) standardGeneric("prior")
+  setGeneric("prior", fun)
 }
-setMethod("error", "ksvm", function(object) object@error)
-setGeneric("error<-", function(x, value) standardGeneric("error<-"))
-setReplaceMethod("error", "ksvm", function(x, value) {
-  x@error <- value
+setMethod("prior", "ksvm", function(object) object@prior)
+setGeneric("prior<-", function(x, value) standardGeneric("prior<-"))
+setReplaceMethod("prior", "ksvm", function(x, value) {
+  x@prior <- value
   x
 })
 
-if(!isGeneric("cross")){
-  if (is.function("cross"))
-    fun <- cross
-  else fun <- function(object) standardGeneric("cross")
-  setGeneric("cross", fun)
+if(!isGeneric("prob.model")){
+  if (is.function("prob.model"))
+    fun <- prob.model
+  else fun <- function(object) standardGeneric("prob.model")
+  setGeneric("prob.model", fun)
 }
-setMethod("cross", "ksvm", function(object) object@cross)
-setGeneric("cross<-", function(x, value) standardGeneric("cross<-"))
-setReplaceMethod("cross", "ksvm", function(x, value) {
-  x@cross <- value
-  x
-})
-
-if(!isGeneric("n.action")){
-  if (is.function("n.action"))
-    fun <- n.action
-  else fun <- function(object) standardGeneric("n.action")
-  setGeneric("n.action", fun)
-}
-setMethod("n.action", "ksvm", function(object) object@n.action)
-setGeneric("n.action<-", function(x, value) standardGeneric("n.action<-"))
-setReplaceMethod("n.action", "ksvm", function(x, value) {
-  x@n.action <- value
+setMethod("prob.model", "ksvm", function(object) object@prob.model)
+setGeneric("prob.model<-", function(x, value) standardGeneric("prob.model<-"))
+setReplaceMethod("prob.model", "ksvm", function(x, value) {
+  x@prob.model <- value
   x
 })
 
 
+setClass("lssvm", representation(param = "list",
+                                scaling = "ANY",
+                                coef = "ANY",
+                                alphaindex = "ANY",
+                                b = "numeric",
+                                 nSV = "numeric"
+                                 ), contains="vm")
 
+setMethod("param", "lssvm", function(object) object@param)
+setReplaceMethod("param", "lssvm", function(x, value) {
+  x@param <- value
+  x
+})
 
+setMethod("scaling", "lssvm", function(object) object@scaling)
+setReplaceMethod("scaling", "lssvm", function(x, value) {
+  x@scaling<- value
+  x
+})
 
+setMethod("coef", "lssvm", function(object, ...) object@coef)
+setReplaceMethod("coef", "lssvm", function(x, value) {
+  x@coef <- value
+  x
+})
 
+setMethod("alphaindex", "lssvm", function(object) object@alphaindex)
+setReplaceMethod("alphaindex", "lssvm", function(x, value) {
+  x@alphaindex <- value
+  x
+})
 
+setMethod("b", "lssvm", function(object) object@b)
+setReplaceMethod("b", "lssvm", function(x, value) {
+  x@b <- value
+  x
+})
 
-
-
+setMethod("nSV", "lssvm", function(object) object@nSV)
+setReplaceMethod("nSV", "lssvm", function(x, value) {
+  x@nSV <- value
+  x
+})
 
 
 
@@ -387,16 +397,14 @@ setReplaceMethod("n.action", "ksvm", function(x, value) {
 #}
 
 
-#kernel principal components object
-setClass("kpca", representation(pcv = "matrix",
-                                eig = "vector",
-                                kernelf = "function",
-                                kpar = "list",
-                                rotated = "matrix",
-                                xmatrix = "matrix",
-                                kcall = "ANY",
-                                kterms = "ANY",
-                                n.action = "ANY"))
+setClass("prc", representation(pcv = "matrix",
+                               eig = "vector",
+                               kernelf = "kfunction",
+                               kpar = "list",
+                               xmatrix = "input",
+                               kcall = "ANY",
+                               terms = "ANY",
+                               n.action = "ANY"),contains="VIRTUAL")
 #accessor functions 
 if(!isGeneric("pcv")){
   if (is.function("pcv"))
@@ -404,9 +412,9 @@ if(!isGeneric("pcv")){
   else fun <- function(object) standardGeneric("pcv")
   setGeneric("pcv", fun)
 }
-setMethod("pcv", "kpca", function(object) object@pcv)
+setMethod("pcv", "prc", function(object) object@pcv)
 setGeneric("pcv<-", function(x, value) standardGeneric("pcv<-"))
-setReplaceMethod("pcv", "kpca", function(x, value) {
+setReplaceMethod("pcv", "prc", function(x, value) {
   x@pcv <- value
   x
 })
@@ -417,12 +425,51 @@ if(!isGeneric("eig")){
   else fun <- function(object) standardGeneric("eig")
   setGeneric("eig", fun)
 }
-setMethod("eig", "kpca", function(object) object@eig)
+setMethod("eig", "prc", function(object) object@eig)
 setGeneric("eig<-", function(x, value) standardGeneric("eig<-"))
-setReplaceMethod("eig", "kpca", function(x, value) {
+setReplaceMethod("eig", "prc", function(x, value) {
   x@eig <- value
   x
 })
+
+
+
+setMethod("kernelf","prc", function(object) object@kernelf)
+setReplaceMethod("kernelf","prc", function(x, value){
+  x@kernelf <- value
+  x
+})
+
+setMethod("xmatrix","prc", function(object) object@xmatrix)
+setReplaceMethod("xmatrix","prc", function(x, value){
+  x@xmatrix <- value
+  x
+})
+
+setMethod("kcall","prc", function(object) object@kcall)
+setReplaceMethod("kcall","prc", function(x, value){
+  x@kcall <- value
+  x
+})
+
+setMethod("terms","prc", function(x, ...) x@terms)
+setReplaceMethod("terms","prc", function(x, value){
+  x@terms <- value
+  x
+})
+
+setMethod("n.action","prc", function(object) object@n.action)
+setReplaceMethod("n.action","prc", function(x, value){
+  x@n.action <- value
+  x
+})
+
+
+
+
+##kernel principal components object
+setClass("kpca", representation(rotated = "matrix"),contains="prc")
+#accessor functions 
 
 if(!isGeneric("rotated")){
   if (is.function("rotated"))
@@ -438,36 +485,6 @@ setReplaceMethod("rotated", "kpca", function(x, value) {
 })
 
 
-
-setMethod("kernelf","kpca", function(object) object@kernelf)
-setReplaceMethod("kernelf","kpca", function(x, value){
-  x@kernelf <- value
-  x
-})
-
-setMethod("xmatrix","kpca", function(object) object@xmatrix)
-setReplaceMethod("xmatrix","kpca", function(x, value){
-  x@xmatrix <- value
-  x
-})
-
-setMethod("kcall","kpca", function(object) object@kcall)
-setReplaceMethod("kcall","kpca", function(x, value){
-  x@kcall <- value
-  x
-})
-
-setMethod("kterms","kpca", function(object) object@kterms)
-setReplaceMethod("kterms","kpca", function(x, value){
-  x@kterms <- value
-  x
-})
-
-setMethod("n.action","kpca", function(object) object@n.action)
-setReplaceMethod("n.action","kpca", function(x, value){
-  x@n.action <- value
-  x
-})
 
 
 setClass("ipop", representation(primal = "vector",
@@ -587,99 +604,14 @@ setReplaceMethod("yvar", "kcca", function(x, value) {
   x
 })
 
-
+## Gaussian Processes object
 setClass("gausspr",representation(tol = "numeric",
-                                  kernelf = "function",
-                                  kpar = "list",
-                                  kcall = "ANY",
-                                  type = "character",
-                                  kterms = "ANY",
-                                  xmatrix = "matrix",
-                                  ymatrix = "ANY",
-                                  fit = "ANY",
-                                  lev = "vector",
-                                  nclass = "numeric",
-                                  alpha = "ANY",
+                                  scaling = "ANY",
                                   alphaindex="list",
-                                  nvar = "numeric",
-                                  error = "numeric",
-                                  cross = "numeric",
-                                  n.action = "ANY"))
+                                  nvar = "numeric"
+                                  ),contains="vm")
 
 
-         
-setMethod("kpar","gausspr", function(object) object@kpar)
-setReplaceMethod("kpar","gausspr", function(x, value){
-  x@kpar <- value
-  x
-})
-
-setMethod("lev","gausspr", function(object) object@lev)
-setReplaceMethod("lev","gausspr", function(x, value){
-  x@lev <- value
-  x
-})
-
-setMethod("type","gausspr", function(object) object@type)
-setReplaceMethod("type","gausspr", function(x, value){
-  x@type <- value
-  x
-})
-
-setMethod("kernelf","gausspr", function(object) object@kernelf)
-setReplaceMethod("kernelf","gausspr", function(x, value){
-  x@kernelf <- value
-  x
-})
-         
-setMethod("alpha","gausspr", function(object) object@alpha)
-setReplaceMethod("alpha","gausspr", function(x, value){
-  x@alpha <- value
-  x
-})
-
-setMethod("xmatrix","gausspr", function(object) object@xmatrix)
-setReplaceMethod("xmatrix","gausspr", function(x, value){
-  x@xmatrix <- value
-  x
-})
-
-setMethod("ymatrix","gausspr", function(object) object@ymatrix)
-setReplaceMethod("ymatrix","gausspr", function(x, value){
-  x@ymatrix <- value
-  x
-})
-
-setMethod("nclass","gausspr", function(object) object@nclass)
-setReplaceMethod("nclass","gausspr", function(x, value){
-  x@nclass <- value
-  x
-})
-
-
-setMethod("kcall","gausspr", function(object) object@kcall)
-setReplaceMethod("kcall","gausspr", function(x, value){
-  x@kcall <- value
-  x
-})
-
-setMethod("fit","gausspr", function(object) object@fit)
-setReplaceMethod("fit","gausspr", function(x, value){
-  x@fit <- value
-  x
-})
-
-setMethod("error","gausspr", function(object) object@error)
-setReplaceMethod("error","gausspr", function(x, value){
-  x@error <- value
-  x
-})
-
-setMethod("cross","gausspr", function(object) object@cross)
-setReplaceMethod("cross","gausspr", function(x, value){
-  x@cross <- value
-  x
-})
 
 setMethod("alphaindex","gausspr", function(object) object@alphaindex)
 setReplaceMethod("alphaindex","gausspr", function(x, value){
@@ -687,41 +619,22 @@ setReplaceMethod("alphaindex","gausspr", function(x, value){
   x
 })
 
-
-
-setMethod("kterms","gausspr", function(object) object@kterms)
-setReplaceMethod("kterms","gausspr", function(x, value){
-  x@kterms <- value
+setMethod("scaling","gausspr", function(object) object@scaling)
+setReplaceMethod("scaling","gausspr", function(x, value){
+  x@scaling <- value
   x
 })
 
-setMethod("n.action","gausspr", function(object) object@n.action)
-setReplaceMethod("n.action","gausspr", function(x, value){
-  x@n.action <- value
-  x
-})         
+
+setMethod("coef", "gausspr", function(object, ...) object@alpha)
+
 
 # Relevance Vector Machine object 
-setClass("rvm", representation( 
-                                tol = "numeric",
-                                kernelf = "function",
-                                kpar = "list",
-                                kcall = "ANY",
-                                type = "character",
-                                kterms = "ANY",
-                                xmatrix = "matrix",
-                                ymatrix = "ANY",
-                                fit = "ANY",
-                                lev = "vector",
-                                nclass = "numeric",
-                                alpha = "ANY",
-                                nvar = "numeric",
+setClass("rvm", representation( tol = "numeric",
+                               nvar = "numeric",
                                 mlike = "numeric",
                                 RVindex = "vector",
-                                nRV = "numeric",
-                                cross = "ANY",
-                                error = "numeric",
-                                n.action= "ANY"))
+                                nRV = "numeric"),contains ="vm")
 
 
 if(!isGeneric("tol")){
@@ -737,12 +650,6 @@ setReplaceMethod("tol", "rvm", function(x, value) {
   x
 })
 
-
-setMethod("type","rvm", function(object) object@type)
-setReplaceMethod("type","rvm", function(x, value){
-  x@type <- value
-  x
-})
 
 if(!isGeneric("RVindex")){
   if (is.function("RVindex"))
@@ -783,6 +690,7 @@ setReplaceMethod("nRV", "rvm", function(x, value) {
   x
 })
 
+setMethod("coef", "rvm", function(object, ...) object@alpha)
 
 if(!isGeneric("mlike")){
   if (is.function("mlike"))
@@ -798,94 +706,14 @@ setReplaceMethod("mlike", "rvm", function(x, value) {
 })
 
 
-setMethod("kpar","rvm", function(object) object@kpar)
-setReplaceMethod("kpar","rvm", function(x, value){
-  x@kpar <- value
-  x
-})
-
-setMethod("lev","rvm", function(object) object@lev)
-setReplaceMethod("lev","rvm", function(x, value){
-  x@lev <- value
-  x
-})
-
-setMethod("kernelf","rvm", function(object) object@kernelf)
-setReplaceMethod("kernelf","rvm", function(x, value){
-  x@kernelf <- value
-  x
-})
-
-setMethod("xmatrix","rvm", function(object) object@xmatrix)
-setReplaceMethod("xmatrix","rvm", function(x, value){
-  x@xmatrix <- value
-  x
-})
-
-setMethod("ymatrix","rvm", function(object) object@ymatrix)
-setReplaceMethod("ymatrix","rvm", function(x, value){
-  x@ymatrix <- value
-  x
-})
-
-setMethod("nclass","rvm", function(object) object@nclass)
-setReplaceMethod("nclass","rvm", function(x, value){
-  x@nclass <- value
-  x
-})
-
-setMethod("kcall","rvm", function(object) object@kcall)
-setReplaceMethod("kcall","rvm", function(x, value){
-  x@kcall <- value
-  x
-})
-
-setMethod("fit","rvm", function(object) object@fit)
-setReplaceMethod("fit","rvm", function(x, value){
-  x@fit <- value
-  x
-})
-
-setMethod("kterms","rvm", function(object) object@kterms)
-setReplaceMethod("kterms","rvm", function(x, value){
-  x@kterms <- value
-  x
-})
-                 
-
-setMethod("alpha","rvm", function(object) object@alpha)
-setReplaceMethod("alpha","rvm", function(x, value){
-  x@alpha <- value
-  x
-})
-
-
-setMethod("error","rvm", function(object) object@error)
-setReplaceMethod("error","rvm", function(x, value){
-  x@error <- value
-  x
-})
-
-setMethod("cross","rvm", function(object) object@cross)
-setReplaceMethod("cross","rvm", function(x, value){
-  x@cross <- value
-  x
-})
-
-setMethod("n.action","rvm", function(object) object@n.action)
-setReplaceMethod("n.action","rvm", function(x, value){
-  x@n.action <- value
-  x
-})
-
-setClass("inc.chol",representation("matrix",
- 				    pivots="vector",
-				    diag.residues="vector",
-				    maxresiduals="vector"),
-				    prototype=structure(.Data=matrix(),
-				    pivots=vector(),
-				    diag.residues=vector(), 
-				    maxresiduals=vector()))
+setClass("inchol",representation("matrix",
+                                 pivots="vector",
+                                 diagresidues="vector",
+                                 maxresiduals="vector"),
+         prototype=structure(.Data=matrix(),
+           pivots=vector(),
+           diagresidues=vector(), 
+           maxresiduals=vector()))
 
 
 if(!isGeneric("pivots")){
@@ -894,23 +722,23 @@ if (is.function("pivots"))
 else fun <- function(object) standardGeneric("pivots")
 setGeneric("pivots", fun)
 }
-setMethod("pivots", "inc.chol", function(object) object@pivots)
+setMethod("pivots", "inchol", function(object) object@pivots)
 setGeneric("pivots<-", function(x, value) standardGeneric("pivots<-"))
-setReplaceMethod("pivots", "inc.chol", function(x, value) {
+setReplaceMethod("pivots", "inchol", function(x, value) {
   x@pivots <- value
   x
 })
 
-if(!isGeneric("diag.residues")){
-if (is.function("diag.residues"))
-  fun <- diag.residues
-else fun <- function(object) standardGeneric("diag.residues")
-setGeneric("diag.residues", fun)
+if(!isGeneric("diagresidues")){
+if (is.function("diagresidues"))
+  fun <- diagresidues
+else fun <- function(object) standardGeneric("diagresidues")
+setGeneric("diagresidues", fun)
 }
-setMethod("diag.residues", "inc.chol", function(object) object@diag.residues)
-setGeneric("diag.residues<-", function(x,value) standardGeneric("diag.residues<-"))
-setReplaceMethod("diag.residues", "inc.chol", function(x, value) {
-  x@diag.residues <- value
+setMethod("diagresidues", "inchol", function(object) object@diagresidues)
+setGeneric("diagresidues<-", function(x,value) standardGeneric("diagresidues<-"))
+setReplaceMethod("diagresidues", "inchol", function(x, value) {
+  x@diagresidues <- value
   x
 })
 
@@ -920,20 +748,81 @@ if (is.function("maxresiduals"))
 else fun <- function(object) standardGeneric("maxresiduals")
 setGeneric("maxresiduals", fun)
 }
-setMethod("maxresiduals", "inc.chol", function(object) object@maxresiduals)
+setMethod("maxresiduals", "inchol", function(object) object@maxresiduals)
 setGeneric("maxresiduals<-", function(x,value) standardGeneric("maxresiduals<-"))
-setReplaceMethod("maxresiduals", "inc.chol", function(x, value) {
+setReplaceMethod("maxresiduals", "inchol", function(x, value) {
   x@maxresiduals <- value
   x
 })
 
 
+## csi object
+setClass("csi",representation(Q = "matrix",
+                              R = "matrix",
+                              truegain = "vector",
+                              predgain = "vector"),contains="inchol")
 
+if(!isGeneric("Q")){
+if (is.function("Q"))
+  fun <- Q
+else fun <- function(object) standardGeneric("Q")
+setGeneric("Q", fun)
+}
+setMethod("Q", "csi", function(object) object@Q)
+setGeneric("Q<-", function(x, value) standardGeneric("Q<-"))
+setReplaceMethod("Q", "csi", function(x, value) {
+  x@Q <- value
+  x
+})
+
+if(!isGeneric("R")){
+if (is.function("R"))
+  fun <- R
+else fun <- function(object) standardGeneric("R")
+setGeneric("R", fun)
+}
+setMethod("R", "csi", function(object) object@R)
+setGeneric("R<-", function(x, value) standardGeneric("R<-"))
+setReplaceMethod("R", "csi", function(x, value) {
+  x@R <- value
+  x
+})
+
+if(!isGeneric("truegain")){
+if (is.function("truegain"))
+  fun <- truegain
+else fun <- function(object) standardGeneric("truegain")
+setGeneric("truegain", fun)
+}
+setMethod("truegain", "csi", function(object) object@truegain)
+setGeneric("truegain<-", function(x, value) standardGeneric("truegain<-"))
+setReplaceMethod("truegain", "csi", function(x, value) {
+  x@truegain <- value
+  x
+})
+
+if(!isGeneric("predgain")){
+if (is.function("predgain"))
+  fun <- predgain
+else fun <- function(object) standardGeneric("predgain")
+setGeneric("predgain", fun)
+}
+setMethod("predgain", "csi", function(object) object@predgain)
+setGeneric("predgain<-", function(x, value) standardGeneric("predgain<-"))
+setReplaceMethod("predgain", "csi", function(x, value) {
+  x@predgain <- value
+  x
+})
+
+
+setClass("kernelMatrix",representation("matrix"),prototype=structure(.Data=matrix()))
+
+setClassUnion("kpinput", c("kernelMatrix","missing"))
 
 setClass("specc",representation("vector",
                                 centers="matrix",
                                 size="vector",
-                                kernelf="function",
+                                kernelf="kfunction",
                                 withinss = "vector"
                                 ),prototype=structure(.Data=vector(),
                                     centers = matrix(),
@@ -1025,7 +914,7 @@ setReplaceMethod("edgegraph", "ranking", function(x, value) {
 ## online learning algorithms class
 
 setClass("onlearn", representation(
-                                kernelf = "function",
+                                kernelf = "kfunction",
                                 buffer = "numeric",
                                 kpar = "list",
                                 xmatrix = "matrix",
@@ -1035,12 +924,19 @@ setClass("onlearn", representation(
                                 alpha = "ANY",
                                 rho = "numeric",
                                 b = "numeric",
-                                pattern ="factor",
+                                pattern ="ANY",
                                 type="character"
                                ))
 
 
+if(!isGeneric("fit")){
+  if (is.function("fit"))
+    fun <- fit
+  else fun <- function(object) standardGeneric("fit")
+  setGeneric("fit", fun)
+}
 setMethod("fit","onlearn", function(object) object@fit)
+setGeneric("fit<-", function(x, value) standardGeneric("fit<-"))
 setReplaceMethod("fit","onlearn", function(x, value){
   x@fit <- value
   x
@@ -1154,11 +1050,13 @@ setReplaceMethod("pattern", "onlearn", function(x, value) {
 
 setClass("kfa",representation(alpha = "matrix",
                               alphaindex = "vector",
-                              kernelf = "function",
+                              kernelf = "kfunction",
                               xmatrix = "matrix",
-                              kcall = "ANY",
-                              kterms = "ANY" )) 
+                              kcall = "call",
+                              terms = "ANY" )) 
 
+
+setMethod("coef", "kfa", function(object, ...) object@alpha)
 
 setMethod("kernelf","kfa", function(object) object@kernelf)
 setReplaceMethod("kernelf","kfa", function(x, value){
@@ -1192,40 +1090,17 @@ setReplaceMethod("kcall","kfa", function(x, value){
 })
 
 
-setMethod("kterms","kfa", function(object) object@kterms)
-setReplaceMethod("kterms","kfa", function(x, value){
-  x@kterms <- value
+setMethod("terms","kfa", function(x, ...) x@terms)
+setReplaceMethod("terms","kfa", function(x, value){
+  x@terms <- value
   x
 })
 
 
-#kernel hebbian algorithm object
-setClass("kha", representation(pcv = "matrix",
-                                eig = "vector",
-                                kernelf = "function",
-                                kpar = "list",
-                               eskm ="vector",
-                                xmatrix = "matrix",
-                                kcall = "ANY",
-                                kterms = "ANY",
-                                n.action = "ANY"))
-#accessor functions 
+## kernel hebbian algorithm object
+setClass("kha", representation(eskm ="vector"),contains="prc")
 
-setMethod("pcv", "kha", function(object) object@pcv)
-setReplaceMethod("pcv", "kha", function(x, value) {
-  x@pcv <- value
-  x
-})
-
-
-setMethod("eig", "kha", function(object) object@eig)
-setReplaceMethod("eig", "kha", function(x, value) {
-  x@eig <- value
-  x
-})
-
-
-
+## accessor functions 
 
 if(!isGeneric("eskm")){
   if (is.function("eskm"))
@@ -1240,33 +1115,3 @@ setReplaceMethod("eskm", "kha", function(x, value) {
   x
 })
 
-
-setMethod("kernelf","kha", function(object) object@kernelf)
-setReplaceMethod("kernelf","kha", function(x, value){
-  x@kernelf <- value
-  x
-})
-
-setMethod("xmatrix","kha", function(object) object@xmatrix)
-setReplaceMethod("xmatrix","kha", function(x, value){
-  x@xmatrix <- value
-  x
-})
-
-setMethod("kcall","kha", function(object) object@kcall)
-setReplaceMethod("kcall","kha", function(x, value){
-  x@kcall <- value
-  x
-})
-
-setMethod("kterms","kha", function(object) object@kterms)
-setReplaceMethod("kterms","kha", function(x, value){
-  x@kterms <- value
-  x
-})
-
-setMethod("n.action","kha", function(object) object@n.action)
-setReplaceMethod("n.action","kha", function(x, value){
-  x@n.action <- value
-  x
-})

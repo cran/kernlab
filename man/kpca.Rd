@@ -2,6 +2,8 @@
 \alias{kpca}
 \alias{kpca,formula-method}
 \alias{kpca,matrix-method}
+\alias{kpca,kernelMatrix-method}
+\alias{kpca,list-method}
 \alias{predict,kpca-method}
 \title{Kernel Principal Components Analysis}
 \description{
@@ -12,16 +14,17 @@ component analysis.}
 
 \S4method{kpca}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1), features = 0, 
     th = 1e-4, ...)
+
+\S4method{kpca}{kernelMatrix}(x, features = 0, th = 1e-4, ...)
+
+\S4method{kpca}{list}(x, kernel = "stringdot", kpar = list(length = 4, lambda = 0.5), features = 0, th = 1e-4, na.action = na.omit, ...)
 }
 
 \arguments{
-  \item{x}{ The data matrix indexed by row
-    or a formula descibing the model. Note, that an
-          intercept is always included, whether given in the formula or
-          not.} 
-	\item{data}{an optional data frame containing the variables in
-	  the model
-	  (when using a formula).}
+  \item{x}{the data matrix indexed by row or a formula descibing the
+    model, or a kernel Matrix of class \code{kernelMatrix}, or a list of character vectors} 
+\item{data}{an optional data frame containing the variables in
+	  the model (when using a formula).}
 	
 	\item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which computes a dot product between two
@@ -44,7 +47,7 @@ component analysis.}
 
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -74,7 +77,11 @@ component analysis.}
 }
 \details{Using kernel functions one can efficiently compute
   principal components in high-dimensional 
- feature spaces, related to input space by some non-linear map.
+  feature spaces, related to input space by some non-linear map.\cr
+  The data can be passed to the \code{kpca} function in a \code{matrix} or a
+\code{data.frame}, in addition \code{kpca} also supports input in the form of a
+kernel matrix of class \code{kernelMatrix} or as a list of character
+vectors where a string kernel has to be used.
 }
 \value{
  An S4 object containing the principal component vectors along with the
@@ -87,7 +94,7 @@ component analysis.}
 
 all the slots of the object can be accessed by accessor functions.
 }
-\notes{The predict function can be used to embed new data on the new space}
+\note{The predict function can be used to embed new data on the new space}
 \references{
   Schoelkopf B., A. Smola, K.-R. Mueller :\cr
   \emph{Nonlinear component analysis as a kernel eigenvalue problem}\cr

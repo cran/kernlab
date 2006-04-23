@@ -17,7 +17,7 @@ The \code{plot} function returns a contour plot of the decision values. }
 
   \item{object}{a \code{ksvm} classification object created by the
     \code{ksvm} function}
-  \item{data}{a data frame or matrix containing new data}
+  \item{data}{a data frame or matrix containing data to be plotted}
   \item{grid}{granularity for the contour plot.}
   \item{slice}{a list of named numeric values for the dimensions held
     constant (only needed if more than two variables are
@@ -41,7 +41,7 @@ x <- rbind(matrix(rnorm(120),,2),matrix(rnorm(120,mean=3),,2))
 y <- matrix(c(rep(1,60),rep(-1,60)))
 
 svp <- ksvm(x,y,type="C-svc")
-plot(svp)
+plot(svp,data=x)
 
 }
 

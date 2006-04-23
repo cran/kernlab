@@ -1,24 +1,25 @@
-\name{gausspr-class}
+\name{lssvm-class}
 \docType{class}
-\alias{gausspr-class}
-\alias{alpha,gausspr-method}
-\alias{cross,gausspr-method}
-\alias{error,gausspr-method}
-\alias{kcall,gausspr-method}
-\alias{kernelf,gausspr-method}
-\alias{kpar,gausspr-method}
-\alias{lev,gausspr-method}
-\alias{type,gausspr-method}
-\alias{alphaindex,gausspr-method}
-\alias{xmatrix,gausspr-method}
-\alias{ymatrix,gausspr-method}
-\alias{scaling,gausspr-method}
+\alias{lssvm-class}
+\alias{alpha,lssvm-method}
+\alias{b,lssvm-method}
+\alias{cross,lssvm-method}
+\alias{error,lssvm-method}
+\alias{kcall,lssvm-method}
+\alias{kernelf,lssvm-method}
+\alias{kpar,lssvm-method}
+\alias{lev,lssvm-method}
+\alias{type,lssvm-method}
+\alias{alphaindex,lssvm-method}
+\alias{xmatrix,lssvm-method}
+\alias{ymatrix,lssvm-method}
+\alias{scaling,lssvm-method}
 
-\title{Class "gausspr"}
-\description{The Gaussian Processes object class}
+\title{Class "lssvm"}
+\description{The Gaussian Processes object }
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("gausspr", ...)}.
-    or by calling the \code{gausspr} function 
+Objects can be created by calls of the form \code{new("lssvm", ...)}.
+    or by calling the \code{lssvm} function 
 }
 \section{Slots}{
   \describe{
@@ -28,13 +29,13 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
       kernel parameter used }
-    \item{\code{kcall}:}{Object of class \code{"list"} contains the used
+    \item{\code{kcall}:}{Object of class \code{"call"} contains the used
       function call }
     \item{\code{type}:}{Object of class \code{"character"} contains
       type of problem }
     \item{\code{terms}:}{Object of class \code{"ANY"} contains the
       terms representation of the symbolic model used (when using a formula)}
-    \item{\code{xmatrix}:}{Object of class \code{"input"} containing
+    \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the data matrix used }
     \item{\code{ymatrix}:}{Object of class \code{"output"} containing the
       response matrix}
@@ -42,15 +43,14 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
       fitted values  }
     \item{\code{lev}:}{Object of class \code{"vector"} containing the
       levels of the response (in case of classification) }
+        \item{\code{scaling}:}{Object of class \code{"ANY"} containing the
+      scaling information performed on the data}
     \item{\code{nclass}:}{Object of class \code{"numeric"} containing
       the number of classes (in case of classification) }
     \item{\code{alpha}:}{Object of class \code{"listI"} containing the
       computes alpha values }
     \item{\code{alphaindex}}{Object of class \code{"list"} containing
-      the indexes for the alphas in various classes (in multi-class
-      problems).}
-     \item{\code{scaling}}{Object of class \code{"ANY"} containing
-      the scaling coefficients of the data (when case \code{scaled = TRUE} is used).}
+      the indexes for the alphas in various classes (in multi-class problems).}
     \item{\code{nvar}:}{Object of class \code{"numeric"} containing the
       computed variance}
     \item{\code{error}:}{Object of class \code{"numeric"} containing the
@@ -63,29 +63,28 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
 }
 \section{Methods}{
   \describe{ 
-    \item{alpha}{\code{signature(object = "gausspr")}: returns the alpha
+    \item{alpha}{\code{signature(object = "lssvm")}: returns the alpha
     vector}
-  \item{cross}{\code{signature(object = "gausspr")}: returns the cross
+  \item{cross}{\code{signature(object = "lssvm")}: returns the cross
     validation error }
-    \item{error}{\code{signature(object = "gausspr")}: returns the
+    \item{error}{\code{signature(object = "lssvm")}: returns the
       training error }
     \item{fitted}{\code{signature(object = "vm")}: returns the fitted values }
-    \item{kcall}{\code{signature(object = "gausspr")}: returns the call performed}
-    \item{kernelf}{\code{signature(object = "gausspr")}: returns the
+    \item{kcall}{\code{signature(object = "lssvm")}: returns the call performed}
+    \item{kernelf}{\code{signature(object = "lssvm")}: returns the
       kernel function used}
-    \item{kpar}{\code{signature(object = "gausspr")}: returns the kernel
+    \item{kpar}{\code{signature(object = "lssvm")}: returns the kernel
     parameter used}
-    \item{lev}{\code{signature(object = "gausspr")}: returns the
+    \item{lev}{\code{signature(object = "lssvm")}: returns the
       response levels (in classification) }
-    \item{type}{\code{signature(object = "gausspr")}: returns the type
+    \item{type}{\code{signature(object = "lssvm")}: returns the type
       of problem}
-    \item{xmatrix}{\code{signature(object = "gausspr")}: returns the
+     \item{scaling}{\code{signature(object = "ksvm")}: returns the
+      scaling values }
+    \item{xmatrix}{\code{signature(object = "lssvm")}: returns the
       data matrix used}
-    \item{ymatrix}{\code{signature(object = "gausspr")}: returns the
+    \item{ymatrix}{\code{signature(object = "lssvm")}: returns the
       response matrix used}
-    \item{scaling}{\code{signature(object = "gausspr")}: returns the
-      scaling coefficients of the data (when \code{scaled = TRUE} is used)}
-  
   }
 }
 
@@ -94,15 +93,14 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
 
 
 \seealso{
-  \code{\link{gausspr}}, 
-  \code{\link{ksvm-class}},
-  \code{\link{vm-class}}
+  \code{\link{lssvm}}, 
+  \code{\link{ksvm-class}}
 }
 \examples{
 
 # train model
 data(iris)
-test <- gausspr(Species~.,data=iris,var=2)
+test <- lssvm(Species~.,data=iris,var=2)
 test
 alpha(test)
 error(test)

@@ -3,8 +3,9 @@
 \alias{gausspr,formula-method}
 \alias{gausspr,vector-method}
 \alias{gausspr,matrix-method}
+\alias{coef,gausspr-method}
 \alias{show,gausspr-method}
-\alias{predict,gausspr-method}
+
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Gaussian processes for regression and classification}
 \description{
@@ -27,11 +28,8 @@
 \arguments{
 
 \item{x}{a symbolic description of the model to be fit or a matrix or
-  vector when a formula interface is not used. Note, that an when using
-  the formula interface, that an intercept is always included, whether
-  given in the formula or not.
-  When not using a formula x is a matrix or vector
-	  containg the variables in the model} 
+  vector when a formula interface is not used. 
+  When not using a formula x is a matrix or vector containg the variables in the model} 
 	   
   \item{data}{an optional data frame containing the variables in the model.
           By default the variables are taken from the environment which
@@ -63,7 +61,7 @@
 
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
-    kernel function. For valid parameters for existing kernels are :
+    kernel function. Valid parameters for existing kernels are :
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
@@ -77,26 +75,28 @@
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.}
 
-  \item{var}{the initial noise variance}
+  \item{var}{the initial noise variance, (only for regression) (default
+    : 0.001)}
 
   \item{tol}{tolerance of termination criterion (default: 0.001)}
 
   \item{fit}{indicates whether the fitted values should be computed and
-          included in the model or not (default: 'TRUE')}
-	\item{cross}{if a integer value k>0 is specified, a k-fold cross
+    included in the model or not (default: 'TRUE')}
+
+  \item{cross}{if a integer value k>0 is specified, a k-fold cross
           validation on the training data is performed to assess the
           quality of the model: the Mean Squared Error for regression}
 
-	\item{subset}{An index vector specifying the cases to be used in the
+  \item{subset}{An index vector specifying the cases to be used in the
           training sample.  (NOTE: If given, this argument must be
           named.)}
-  \item{na.action}{A function to specify the action to be taken if \code{NA}s are
-          found. The default action is \code{na.omit}, which leads to rejection of cases
-          with missing values on any required variable. An alternative
-	  is \code{na.fail}, which causes an error if \code{NA} cases
-	  are found. (NOTE: If given, this argument must be named.)}
-	
 
+  \item{na.action}{A function to specify the action to be taken if \code{NA}s are
+    found. The default action is \code{na.omit}, which leads to
+    rejection of cases with missing values on any required variable. An
+    alternative is \code{na.fail}, which causes an error if \code{NA}
+    cases are found. (NOTE: If given, this argument must be named.)}
+	
   \item{\dots}{ additional parameters}
 
 }
@@ -108,8 +108,11 @@ is a function \eqn{C(x,x')} which expresses the expected covariance between the
 value of the function y at the points x and x'.
 The actual function \eqn{y(x)} in any data modelling problem is assumed to be
 a single sample from this Gaussian distribution.
-Model parameter estimation in classification is done by a gradient descent algorithm.
+Laplace approximation is used for the parameter estimation in gaussian
+processes for classification.\cr
 
+The predict function can return class probabilities for 
+classification problems by setting the \code{type} parameter to "probabilities".
 }
 \value{
 An S4 object of class "gausspr" containing the fitted model along with
@@ -121,16 +124,15 @@ information.
   
   }
   \references{
-    Christopher K.I. Williams, Carl Edward Rasmussen\cr
-    \emph{Gaussian Processes for Regression}\cr
-    Advances in Neural Information Processing Systems, NIPS\cr
-    \url{http://books.nips.cc/papers/files/nips08/0514.pdf}
-
+    C. K. I. Williams and D. Barber \cr
+    Bayesian classification with Gaussian processes. \cr
+    IEEE Transactions on Pattern Analysis and Machine Intelligence, 20(12):1342-1351, 1998\cr
+    \url{http://www.dai.ed.ac.uk/homes/ckiw/postscript/pami_final.ps.gz}
   }
 \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
 
-\seealso{\code{\link{rvm}}, \code{\link{ksvm}} }
+\seealso{\code{\link{predict.gausspr}}, \code{\link{rvm}}, \code{\link{ksvm}}, \code{\link{gausspr-class}}, \code{\link{lssvm}} }
 
 \examples{
 # train model
@@ -141,7 +143,8 @@ alpha(test)
 
 # predict on the training set
 predict(test,iris[,-5])
-
+# class probabilities 
+predict(test, iris[,-5], type="probabilities")
 
 # create regression data
 x <- seq(-20,20,0.1)
@@ -159,3 +162,4 @@ lines(x, ytest, col="red")
 \keyword{classif}
 \keyword{regression}
 \keyword{nonlinear}
+\keyword{methods}
