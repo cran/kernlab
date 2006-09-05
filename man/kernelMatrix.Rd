@@ -15,7 +15,7 @@
 \alias{kernelMatrix,anovakernel,matrix-method}
 \alias{kernelMatrix,splinekernel,matrix-method}
 \alias{kernelMatrix,besselkernel,matrix-method}
-\alias{kernelMatrix,stringkernel-method}
+\alias{kernelMatrix,stringkernel,ANY-method}
 \alias{kernelMult,rbfkernel,matrix-method}
 \alias{kernelMult,splinekernel,matrix-method}
 \alias{kernelMult,polykernel,matrix-method}
@@ -25,7 +25,7 @@
 \alias{kernelMult,anovakernel,matrix-method}
 \alias{kernelMult,vanillakernel,matrix-method}
 \alias{kernelMult,character,kernelMatrix-method}
-\alias{kernelMult,stringkernel-method}
+\alias{kernelMult,stringkernel,ANY-method}
 \alias{kernelPol,rbfkernel,matrix-method}
 \alias{kernelPol,splinekernel,matrix-method}
 \alias{kernelPol,polykernel,matrix-method}
@@ -34,7 +34,7 @@
 \alias{kernelPol,anovakernel,matrix-method}
 \alias{kernelPol,besselkernel,matrix-method}
 \alias{kernelPol,laplacekernel,matrix-method}
-\alias{kernelPol,stringkernel-method}
+\alias{kernelPol,stringkernel,ANY-method}
 \alias{kernelFast,rbfkernel,matrix-method}
 \alias{kernelFast,splinekernel,matrix-method}
 \alias{kernelFast,polykernel,matrix-method}
@@ -43,8 +43,8 @@
 \alias{kernelFast,anovakernel,matrix-method}
 \alias{kernelFast,besselkernel,matrix-method}
 \alias{kernelFast,laplacekernel,matrix-method}
-\alias{kernelFast,stringkernel-method}
-\alias{kernelFast,splinekernel-method}
+\alias{kernelFast,stringkernel,ANY-method}
+\alias{kernelFast,splinekernel,ANY-method}
 
 \title{Kernel Matrix functions}
 \description{

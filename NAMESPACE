@@ -1,121 +1,120 @@
-
 export(	
-## kernel functions
-	"rbfdot",
-	"laplacedot",
-	"besseldot",
-	"polydot",
-	"tanhdot",
-	"vanilladot",
-	"anovadot",
+       ## kernel functions
+       "rbfdot",
+       "laplacedot",
+       "besseldot",
+       "polydot",
+       "tanhdot",
+       "vanilladot",
+       "anovadot",
        "splinedot",
        "stringdot",
-	"kernelMatrix",
-	"kernelMult",
-	"kernelPol",
-	"kernelFast",
-	"as.kernelMatrix",
+       "kernelMatrix",
+       "kernelMult",
+       "kernelPol",
+       "kernelFast",
+       "as.kernelMatrix",
 	
-## High level functions 
-	"kpca",
-	"kcca",
-	"kha",
-	"specc",
-	"kkmeans",
-	"ksvm",
-	"rvm",
-	"gausspr",
-	"ranking",
-       	"csi",
-        "lssvm",
+       ## High level functions 
+       "kpca",
+       "kcca",
+       "kha",
+       "specc",
+       "kkmeans",
+       "ksvm",
+       "rvm",
+       "gausspr",
+       "ranking",
+       "csi",
+       "lssvm",
 
-## Utility functions
-	"ipop",
-	"inchol",
-	"couple",
-	"sigest",
-## Accessor functions
-	## VM
-	"type",
-	"prior",
-	"alpha",
-	"alphaindex",
-	"kernelf",
-	"kpar",
-	"scaling",
-	"xmatrix",
-	"ymatrix",
-	"lev",
-	"kcall",
-	"error",
-	"cross",
-	"SVindex",
-	"RVindex",
-	"prob.model",
-	"b",
-##        "margin",
+       ## Utility functions
+       "ipop",
+       "inchol",
+       "couple",
+       "sigest",
+       ## Accessor functions
+       ## VM
+       "type",
+       "prior",
+       "alpha",
+       "alphaindex",
+       "kernelf",
+       "kpar",
+       "scaling",
+       "xmatrix",
+       "ymatrix",
+       "lev",
+       "kcall",
+       "error",
+       "cross",
+       "SVindex",
+       "RVindex",
+       "prob.model",
+       "b",
+       ## "margin",
 
-	## kpca
-	"rotated",
-	"eig",
-	"pcv",
+       ## kpca
+       "rotated",
+       "eig",
+       "pcv",
+       
+       ## ipop
+       "primal",
+       "dual",
+       "how",
+       
+       ## kcca
+       "kcor",
+       "xcoef",
+       "ycoef",
+       "xvar",
+       "yvar",
+       
+       ## specc
+       "size",
+       "centers",
+       "withinss",
+       
+       ## rvm
+       "mlike",
+       "nvar",
+       
+       ## ranking
+       "convergence",
+       "edgegraph",
+       
+       ## onlearn
+       "onlearn",
+       "inlearn",
+       "buffer",
+       "rho",
+
+       ## kfa
+       "kfa",
 	
-	## ipop
-	"primal",
-	"dual",
-	"how",
+       ## inc.chol
+       "pivots",
+       "diagresidues",
+       "maxresiduals",
+       
+       ## csi
+       "R",
+       "Q",
+       "truegain",
+       "predgain")
 
- 	# kcca
-	"kcor",
-	"xcoef",
-        "ycoef",
-	"xvar",
-	"yvar",
-	
-	## specc
-	"size",
-	"centers",
-	"withinss",
-		
-	## rvm
-	"mlike",
-	"nvar",
-
-	## ranking
-	"convergence",
-	"edgegraph",
-	
-
-	## onlearn
-	"onlearn",
-	"inlearn",
-	"buffer",
-	"rho",
-
-	## kfa
-	"kfa",
-	
-	## inc.chol
-	"pivots",
-	"diagresidues",
-	"maxresiduals",
-
-        ## csi
-         "R",
-         "Q",
-         "truegain",
-         "predgain")
-
-import(methods)
-importFrom("stats","predict")
-importFrom("stats","terms")
-importFrom("stats","fitted")
-importFrom("stats","coef")
+import("methods")
+importFrom("stats", "coef", "fitted", "na.omit", "predict", "terms")
 importFrom("graphics","plot")
 
-exportMethods(predict,show,plot,fitted, coef)
+exportMethods("coef", "fitted", "plot", "predict", "show")
 
-exportClasses("ksvm",  "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha", "kcca","kernel", "rbfkernel","laplacekernel", "besselkernel", "tanhkernel","polykernel","vanillakernel", "anovakernel", "splinekernel", "stringkernel", "specc", "ranking","inchol","onlearn", "kfa","csi")
+exportClasses("ksvm", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
+              "kcca", "kernel", "rbfkernel", "laplacekernel",
+              "besselkernel", "tanhkernel", "polykernel",
+              "vanillakernel", "anovakernel", "splinekernel",
+              "stringkernel", "specc", "ranking", "inchol", "onlearn",
+              "kfa", "csi")
 
 useDynLib("kernlab")
-	
