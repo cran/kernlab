@@ -1678,7 +1678,7 @@ kernelPol.polykernel <- function(kernel, x, y=NULL, z, k=NULL)
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   degree <- kpar(kernel)$degree
-  scale <- kpar(kernl)$scale
+  scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
 

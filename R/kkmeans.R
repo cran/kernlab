@@ -530,7 +530,7 @@ affinMult.rbfkernel <- function(kernel, x, y=NULL, z, p, D, D1,blocksize = 256)
             else{
               tmp <- exp(sigma*(2*x[lowerl:upperl,]%*%t(y) - dotbb - dota[lowerl:upperl]%*%t(rep.int(1,n2))))
               D1 <- 1/colSums(tmp)
-              res[lowerl:upperl,] <- D1*tmp%*%Diag(D1)%*%z
+              res[lowerl:upperl,] <- D1*tmp%*%diag(D1)%*%z
             }
             lowerl <- upperl + 1
           }
