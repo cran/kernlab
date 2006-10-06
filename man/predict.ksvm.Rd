@@ -16,9 +16,10 @@
   \item{object}{an S4 object of class \code{ksvm} created by the
     \code{ksvm} function}
   \item{newdata}{a data frame or matrix containing new data}
-  \item{type}{one of \code{response}, \code{probabilities} ,\code{votes}
+  \item{type}{one of \code{response}, \code{probabilities}
+    ,\code{votes}, \code{decision}
     indicating the type of output: predicted values, matrix of class
-    probabilities, or matrix of vote counts.}
+    probabilities, matrix of vote counts, or matrix of decision values.}
   \item{coupler}{Coupling method used in the multiclass case, can be one
     of \code{minpair} or \code{pkpd} (see reference for more details).}
 
