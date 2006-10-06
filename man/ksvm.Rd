@@ -44,13 +44,13 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
 
   \item{x}{a symbolic description of the model to be fit.  When not
     using a formula x can be a matrix or vector containg the training
-    data \cr
+    data 
     or a kernel matrix of class \code{kernelMatrix} of the training data
     or a list of character vectors (for use with the string
-    kernel).\cr. Note, that the intercept is always excluded, whether
+    kernel). Note, that the intercept is always excluded, whether
     given in the formula or not.}
 
-  \item{data}{ an optional data frame containing the training data, when using a formula.
+  \item{data}{an optional data frame containing the training data, when using a formula.
           By default the data is taken from the environment which
           `ksvm' is called from.}
 	  
@@ -156,8 +156,9 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
     Gaussian RBF or Laplace kernel, from the data.
     (default = "automatic").}
   
-  \item{C}{cost of constraints violation (default: 1)---this is the
-    `C'-constant of the regularization term in the Lagrange formulation.}
+  \item{C}{cost of constraints violation (default: 1) this is the
+    `C'-constant of the regularization term in the Lagrange
+    formulation.}
 
   \item{nu}{parameter needed for \code{nu-svc},
     \code{one-svc}, and \code{nu-svr}. The \code{nu}
@@ -367,6 +368,13 @@ svp <- ksvm(x,y,type="C-svc")
 plot(svp,data=x)
 
 
+### Use kernelMatrix
+K <- as.kernelMatrix(crossprod(t(x)))
+
+svp2 <- ksvm(K, y, type="C-svc")
+
+svp2
+
 
 #### Use custom kernel 
 
@@ -379,6 +387,9 @@ data(promotergene)
 gene <- ksvm(Class~.,data=promotergene,kernel=k,C=10,cross=5)
 
 gene
+
+
+
 
 ## regression
 # create data

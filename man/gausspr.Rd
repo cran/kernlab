@@ -102,10 +102,10 @@
 }
 \details{
  A Gaussian process is specified by a mean and a covariance function.
-  The mean is a function of x (which is often the zero function), and
+  The mean is a function of \eqn{x} (which is often the zero function), and
   the covariance
 is a function \eqn{C(x,x')} which expresses the expected covariance between the
-value of the function y at the points x and x'.
+value of the function \eqn{y} at the points \eqn{x} and \eqn{x'}.
 The actual function \eqn{y(x)} in any data modelling problem is assumed to be
 a single sample from this Gaussian distribution.
 Laplace approximation is used for the parameter estimation in gaussian

@@ -7,8 +7,9 @@
 \alias{show,specc-method}
 \title{Spectral Clustering}
 \description{
-A spectral clustering  algorithm. Clustering performed by
-embedding the data into the subspace of the eigenvectors of a kernel matrix.
+A spectral clustering algorithm. Clustering is performed by
+embedding the data into the subspace of the eigenvectors 
+of an affinity matrix.
 }
 \usage{
 \S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
@@ -32,12 +33,12 @@ embedding the data into the subspace of the eigenvectors of a kernel matrix.
   \item{data}{an optional data frame containing the variables in the model.
     By default the variables are taken from the environment which
     `specc' is called from.}
-  \item{centers}{Either the number of clusters or a set of initial cluster
+
+\item{centers}{Either the number of clusters or a set of initial cluster
     centers. If the first, a random set of rows in the eigenvectors
     matrix are chosen as the initial centers.}
 
-
-\item{kernel}{the kernel function used in training and predicting.
+\item{kernel}{the kernel function used in computing the affinity matrix. 
     This parameter can be set to any function, of class kernel, which computes a dot product between two
     vector arguments. kernlab provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
@@ -51,6 +52,7 @@ embedding the data into the subspace of the eigenvectors of a kernel matrix.
       \item \code{besseldot} Bessel kernel function
       \item \code{anovadot} ANOVA RBF kernel function
       \item \code{splinedot} Spline kernel 
+      \item \code{stringdot} String kernel
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
@@ -72,6 +74,10 @@ embedding the data into the subspace of the eigenvectors of a kernel matrix.
       function "tanhdot"
       \item \code{sigma, order, degree} for the Bessel kernel "besseldot". 
       \item \code{sigma, degree} for the ANOVA kernel "anovadot".
+      \item \code{length, lambda, normalized} for the "stringdot" kernel
+       where length is the length of the strings considered, lambda the
+       decay factor and normalized a logical parameter determining if the
+       kernel evaluations should be normalized.
     }
     
     Hyper-parameters for user defined kernels can be passed through the
@@ -79,17 +85,17 @@ embedding the data into the subspace of the eigenvectors of a kernel matrix.
 
   \item{nystrom.red}{use nystrom method to calculate eigenvectors. When
     \code{TRUE} a sample of the dataset is used to calculate the
-    eigenvalues, thus only a \eqn{n x m} matrix where n the sample size
+    eigenvalues, thus only a \eqn{n x m} matrix where \eqn{n} the sample size
     is stored in memory (default: \code{FALSE}}
 
-  \item{nystrom.sample}{Number of data points to use for estimating the
+  \item{nystrom.sample}{number of data points to use for estimating the
     eigenvalues when using the nystrom method. (default : dim(x)[1]/6)}
 
-  \item{mod.sample}{Proportion of data to use when estimating sigma (default: 0.75)}	
+  \item{mod.sample}{proportion of data to use when estimating sigma (default: 0.75)}	
 
-  \item{iterations}{The maximum number of iterations allowed. }
+  \item{iterations}{the maximum number of iterations allowed. }
 
-  \item{na.action}{The action to perform on NA}
+  \item{na.action}{the action to perform on NA}
 
   \item{\dots}{additional parameters}
     
@@ -98,9 +104,9 @@ embedding the data into the subspace of the eigenvectors of a kernel matrix.
   Spectral clustering  works by embedding the data points of the
   partitioning problem into the
   subspace of the \eqn{k} largest eigenvectors of a normalized affinity/kernel matrix.
-Using a simple clustering method like kmeans on the embedded points usually
-leads to good performance. It can be shown that  spectral clustering methods boil down to a
-a graph partitioning problem.\cr
+Using a simple clustering method like \code{kmeans} on the embedded points usually
+leads to good performance. It can be shown that spectral clustering methods boil down to 
+ graph partitioning.\cr
 The data can be passed to the \code{specc} function in a \code{matrix} or a
 \code{data.frame}, in addition \code{specc} also supports input in the form of a
 kernel matrix of class \code{kernelMatrix} or as a list of character
