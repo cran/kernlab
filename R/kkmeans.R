@@ -80,15 +80,22 @@ setMethod("kkmeans",signature(x="matrix"),function(x, centers, kernel
     }
   if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
 
-
   if(length(centers) == 1){
     suppressWarnings(vgr<- vgr2 <- split(sample(1:m,m),1:centers))
     ncenters <- centers
   }
   else
-    ncenters <- dim(centers)[1]
-
-
+  {
+    ncenters <- ns <- dim(centers)[1]
+    dota <- rowSums(x*x)/2
+    dotb <- rowSums(centers*centers)/2
+    ktmp <- x%*%t(centers)
+    for(i in 1:ns)
+       ktmp[,i]<- ktmp[,i] - dota - rep(dotb[i],m)
+    prts <- max.col(ktmp)
+    vgr <- vgr2 <- lapply(1:ns, function(x) which(x==prts))
+    }
+ 
   if(is.character(alg)) 
     alg <- match.arg(alg,c("kkmeans","kerninghan", "normcut"))
 

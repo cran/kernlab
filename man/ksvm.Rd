@@ -12,9 +12,9 @@
   Support Vector Machines are an excellent tool for classification, 
   novelty detection, and regression. \code{ksvm} supports the 
   well known C-svc, nu-svc, (classification) one-class-svc (novelty)
-  eps-svr, nu-svr (regression) formulations along with the Crammer-Singer 
-  for multi-class classification formulation spoc-svc and 
- the  bound-constraint SVM C-bsvc, eps-bsvr formulations.\cr
+  eps-svr, nu-svr (regression) formulations along with 
+  native multi-class classification formulations and 
+ the bound-constraint SVM formulations.\cr
   \code{ksvm} also supports class-probabilities output and 
   confidence intervals for regression.
 }
@@ -41,7 +41,6 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
 }
 
 \arguments{
-
   \item{x}{a symbolic description of the model to be fit.  When not
     using a formula x can be a matrix or vector containg the training
     data 
@@ -68,31 +67,35 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
   \item{type}{\code{ksvm} can be used for classification
     , for regression, or for novelty detection.
     Depending on whether \code{y} is
-    a factor or not, the default setting for \code{type} is \code{C-svc} or \code{eps-svr}, respectively, but can be overwritten by setting an explicit value.\cr
+    a factor or not, the default setting for \code{type} is \code{C-svc}
+    or \code{eps-svr},
+    respectively, but can be overwritten by setting an explicit value.\cr
     Valid options are:
 
     \itemize{
-      \item \code{C-svc}   (C classification)
+      \item \code{C-svc}   C classification
 
-      \item \code{nu-svc}  (nu classification)
+      \item \code{nu-svc}  nu classification
 
-      \item \code{C-bsvc}  bound-constraint svm (classification) 
+      \item \code{C-bsvc}  bound-constraint svm classification
 
-      \item \code{spoc-svc}  (Crammer Singer multi-class)
+      \item \code{spoc-svc}  Crammer, Singer native multi-class
 
-      \item \code{one-svc}  (novelty detection)
+      \item \code{kbb-svc}  Weston, Watkins native multi-class
 
-      \item \code{eps-svr}  (epsilon regression)
+      \item \code{one-svc}  novelty detection
 
-      \item \code{nu-svr}   (nu regression)
+      \item \code{eps-svr}  epsilon regression
 
-      \item \code{eps-bsvr}  bound-constraint svm (regression)
+      \item \code{nu-svr}   nu regression
+
+      \item \code{eps-bsvr}  bound-constraint svm regression
     }
   }
 
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which
-    computes the inner product in fetaure space between two
+    computes the inner product in feature space between two
     vector arguments (see \code{\link{kernels}}). \cr
     kernlab provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
@@ -116,7 +119,6 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
       \item \code{splinedot} Spline kernel 
 
       \item \code{stringdot} String kernel 
-
     }
 
     Setting the kernel parameter to "matrix" treats \code{x} as a kernel
@@ -218,6 +220,7 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
   \item{coef}{The corresponding coefficients times the training labels.}
   \item{b}{The negative intercept.}
   \item{nSV}{The number of Support Vectors}
+ \item{obj}{The value of the objective function. In case of one-against-one classification this is a vector of values} 
   \item{error}{Training error}
   \item{cross}{Cross validation error, (when cross > 0)}
   \item{prob.model}{Contains the width of the Laplacian fitted on the
@@ -227,16 +230,15 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
 
   
 \details{
-  \code{ksvm} uses the John Platt's SMO algorithm for solving the SVM QP problem an
-  most SVM formulations. On the \code{spoc-svc}, \code{C-bsvc} and
+  \code{ksvm} uses John Platt's SMO algorithm for solving the SVM QP problem an
+  most SVM formulations. On the \code{spoc-svc}, \code{kbb-svc}, \code{C-bsvc} and
   \code{eps-bsvr} formulations a chunking algorithm based on the TRON QP
   solver is used. \cr
-  
   For multiclass-classification with \eqn{k} classes, \eqn{k > 2}, \code{ksvm} uses the
   `one-against-one'-approach, in which \eqn{k(k-1)/2} binary classifiers are
   trained; the appropriate class is found by a voting scheme,
-  only the \code{spoc-svc} is not using a voting sheme for multi-class
-  classification.\cr
+  The \code{spoc-svc} and the {kbb-svc} formulations deal with the
+  multiclass-classification problems by solving a single quadratic problem involing all the classes.\cr
   If the predictor variables include factors, the formula interface must be used to get a
   correct model matrix. \cr
   In classification when \code{prob.model} is \code{TRUE} a 3-fold cross validation is
@@ -249,11 +251,9 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
   The \code{plot} function for binary classification \code{ksvm} objects
   displays a contour plot of the decision values with the corresponding
   support vectors highlighted.\cr
-
  The predict function can return class probabilities for 
  classification problems by setting the \code{type} parameter to
  "probabilities". \cr
-
  The problem of model selection is partially addressed by an empirical
  observation for the RBF kernels (Gaussian , Laplace) where the optimal values of the
  \eqn{sigma} width parameter are shown to lie in between the 0.1 and 0.9
@@ -261,21 +261,19 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
  and setting \code{kpar} to "automatic", \code{ksvm} uses the \code{sigest} function
  to estimate the quantiles and uses the median of the values.
 }
-\note{Data is scaled internally, usually yielding better results.}
+\note{Data is scaled internally by default, usually yielding better results.}
 \references{
   \itemize{
     \item
-      Chang, Chih-Chung and Lin, Chih-Jen:\cr
+      Chang Chih-Chung, Lin Chih-Jen\cr
       \emph{LIBSVM: a library for Support Vector Machines}\cr
       \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm}
-
-     \item
-      Exact formulations of models, algorithms, etc. can be found in the
-      document:\cr
-      Chang, Chih-Chung and Lin, Chih-Jen:\cr
-      \emph{LIBSVM: a library for Support Vector Machines}\cr
-      \url{http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.ps.gz}
    
+   \item
+      Chih-Wei Hsu, Chih-Jen Lin\cr
+       \emph{BSVM}
+       \url{http://www.csie.ntu.edu.tw/~cjlin/bsvm/}
+
      \item
      J. Platt\cr
      \emph{Probabilistic outputs for support vector machines and comparison to regularized likelihood methods} \cr
@@ -287,31 +285,30 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
     \emph{A note on Platt's probabilistic outputs for support vector machines}\cr
     \url{http://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.ps}
     
-  \item
+    \item
      C.-W. Hsu and C.-J. Lin \cr
      \emph{A comparison on methods for multi-class support vector machines}\cr
      IEEE Transactions on Neural Networks, 13(2002) 415-425.\cr
      \url{http://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.ps.gz}
 
      \item
-	C.-W. Hsu and C.-J. Lin. \cr
-	\emph{ A simple decomposition method for support vector machines}\cr 
-	 Machine Learning 46(2002), 291-314.\cr
-	 \url{http://www.csie.ntu.edu.tw/~cjlin/papers/decomp.ps.gz}
-
-     \item
      K. Crammer, Y. Singer\cr
      \emph{On the learnability and design of output codes for multiclass prolems}\cr
      Computational Learning Theory, 35-46, 2000.\cr
      \url{http://www.cs.huji.ac.il/~kobics/publications/mlj01.ps.gz}
-  
+
+     \item
+     J. Weston, C. Watkins\cr
+     \emph{Multi-class support vector machines} \cr
+     In M. Verleysen, Proceedings of ESANN99 Brussels, 1999\cr
+     \url{http://citeseer.ist.psu.edu/8884.html}
   }
 }
 \author{
-  Alexandros Karatzoglou (SMO optimizers in C/C++ by Chih-Chung Chang & Chih-Jen Lin)\cr
+  Alexandros Karatzoglou (SMO optimizers in C++ by Chih-Chung Chang & Chih-Jen Lin)\cr
   \email{alexandros.karatzoglou@ci.tuwien.ac.at}
 }
-\seealso{\code{\link{predict.ksvm}}, \code{\link{couple}} }
+\seealso{\code{\link{predict.ksvm}}, \code{\link{ksvm-class}}, \code{\link{couple}} }
   
 \keyword{methods}
 \keyword{regression}
@@ -323,7 +320,6 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
 
 ## simple example using the spam data set
 data(spam)
-
 
 ## create test and training set
 index <- sample(1:dim(spam)[1])

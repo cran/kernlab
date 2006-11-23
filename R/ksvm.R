@@ -1,3 +1,4 @@
+
 ## Support Vector Machines
 ## author : alexandros karatzoglou
 ## updated : 08.02.06
@@ -72,7 +73,6 @@ function (x,
       stop("Need SparseM package for handling of sparse structures!")
   }
 
-
   if(is.character(kernel)){
     kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot","matrix"))
 
@@ -122,7 +122,6 @@ function (x,
     x <- t(t(x)) ## make shure that col-indices are sorted
   }
 
-  
   x.scale <- y.scale <- NULL
   ## scaling
   if (length(scaled) == 1)
@@ -325,7 +324,7 @@ function (x,
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), ##weightlabel
                       as.double(weight),
@@ -334,21 +333,24 @@ function (x,
                       as.double(tol),
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-    
-        tmpres <- resv[-(li+lj+1)]
+
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         ## alpha
         svind <- tmpres > 0
         alpha(ret)[p] <- list(tmpres[svind])
         ## coefficients alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[svind])
+        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[reind][svind])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[svind])
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[svind, ,drop=FALSE])
+        xmatrix(ret)[p] <- list(xd[reind,,drop=FALSE][svind, ,drop=FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+	## store objective function values in a vector
+	obj(ret) <- c(obj(ret), resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -420,7 +422,7 @@ if(type(ret) == "nu-svc"){
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), #weightlabl.
                       as.double(weight),
@@ -429,17 +431,21 @@ if(type(ret) == "nu-svc"){
                       as.double(tol), 
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-        tmpres <- resv[-(li+lj+1)]
+        
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         svind <- tmpres != 0
         alpha(ret)[p] <- coef(ret)[p] <- list(tmpres[svind])
         ##store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[svind])
+       	alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[svind,,drop=FALSE])
+        xmatrix(ret)[p] <- list(xd[reind,,drop=FALSE][svind,,drop=FALSE])
         ##save the indexes from all the SV in a vector (use unique!)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+	## store objective function values in a vector
+	obj(ret) <- c(obj(ret), resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes"
         problem[p] <- list(c(i,j))
         param(ret)$nu <- nu
@@ -513,7 +519,7 @@ if(type(ret) == "nu-svc"){
                       as.double(C),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.double(1),  ##  cost value of alpha seeding
                       as.double(2),  ## step value of alpha seeding
@@ -526,19 +532,22 @@ if(type(ret) == "nu-svc"){
                       as.integer(10), ##qpsize
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-
-        svind <- resv > 0
-        alpha(ret)[p] <- list(resv[svind])
+        
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        svind <- resv[-(li+lj+1)][reind] > 0
+        alpha(ret)[p] <- list(resv[-(li+lj+1)][reind][svind])
         ## nonzero alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[svind])
+        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[reind][svind])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[svind])
+       	alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[svind,,drop = FALSE])
+        xmatrix(ret)[p] <- list(xd[reind,,drop = FALSE][svind,,drop = FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- - sapply(coef(ret),sum) 
+	## store obj. values in vector 
+	obj(ret) <- c(obj(ret), resv[(li+lj+1)])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -556,20 +565,20 @@ if(type(ret) =="spoc-svc")
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
-    x <- matrix(x[yd$ix,],nrow=dim(x)[1])
+    xd <- matrix(x[yd$ix,],nrow=dim(x)[1])
     count <- 0
 
        if(ktype==4)
           K <- kernelMatrix(kernel,x)
     
     resv <- .Call("tron_optim",
-                  as.double(t(x)),
-                  as.integer(nrow(x)),
-                  as.integer(ncol(x)),
+                  as.double(t(xd)),
+                  as.integer(nrow(xd)),
+                  as.integer(ncol(xd)),
                   as.double(rep(yd$x-1,2)),
                   as.double(K),
-                  as.integer(if (sparse) x@ia else 0),
-                  as.integer(if (sparse) x@ja else 0),
+                  as.integer(if (sparse) xd@ia else 0),
+                  as.integer(if (sparse) xd@ja else 0),
                   as.integer(sparse),
                   as.integer(nclass(ret)),
                   as.integer(count),
@@ -578,7 +587,7 @@ if(type(ret) =="spoc-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.double(C), 
                   as.double(2), #Cstep
@@ -591,14 +600,16 @@ if(type(ret) =="spoc-svc")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   PACKAGE="kernlab")
-
-    alpha(ret) <- t(matrix(resv,nclass(ret)))
+    
+    reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+    alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xd) + 1)],nclass(ret)))[reind,,drop=FALSE]
     coef(ret) <- lapply(1:nclass(ret), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
     names(coef(ret)) <- lev(ret)
-    alphaindex(ret) <-  lapply(1:nclass(ret), function(x) which(alpha(ret)[,x]!=0))
+    alphaindex(ret) <-  lapply(sort(unique(y)), function(x) which(alpha(ret)[,x]!=0))
     xmatrix(ret) <- x
+    obj(ret) <- resv[(nclass(ret)*nrow(xd) + 1)]
     names(alphaindex(ret)) <- lev(ret)
-    svindex <- which(alpha(ret)!=0)
+    svindex <- which(rowSums(alpha(ret)!=0)!=0)
     b(ret) <- 0
     param(ret)$C <- C
   }
@@ -611,11 +622,10 @@ if(type(ret) =="kbb-svc")
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
-    x<-x[yd$ix,]
+    x <- x[yd$ix,,drop=FALSE]
     count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
-
-       if(ktype==4)
-          K <- kernelMatrix(kernel,x)
+    if(ktype==4)
+      K <- kernelMatrix(kernel,x)
     resv <- .Call("tron_optim",
                   as.double(t(x)),
                   as.integer(nrow(x)),
@@ -632,9 +642,9 @@ if(type(ret) =="kbb-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
-                  as.double(1), #Cbegin
+                  as.double(C), #Cbegin
                   as.double(2), #Cstep
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -646,19 +656,22 @@ if(type(ret) =="kbb-svc")
                   as.integer(shrinking),
                   PACKAGE="kernlab")
 
-    alpha(ret) <- matrix(resv,nrow(x))
-
+    reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+    alpha(ret) <- matrix(resv[-(nrow(x)*(nclass(ret)-1)+1)],nrow(x))[reind,,drop=FALSE]
+    xmatrix(ret) <- x<- x[reind,,drop=FALSE]
     coef(ret) <-  lapply(1:(nclass(ret)-1), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
-    alphaindex(ret) <-  lapply(1:(nclass(ret)-1), function(x) which(alpha(ret)[,x]!=0))
-    svindex <- which(resv !=0)  ## have to figure out what to do with this...!
-    b(ret) <- - sapply(coef(ret),sum) 
+    alphaindex(ret) <-  lapply(sort(unique(y)), function(x) which((y == x) & (rowSums(alpha(ret))!=0)))
+    svindex <- which(rowSums(alpha(ret)!=0)!=0)
+    b(ret) <- - sapply(coef(ret),sum)
+    obj(ret) <- resv[(nrow(x)*(nclass(ret)-1)+1)]
+    param(ret)$C <- C
   }
 
   ## Novelty detection
   if(type(ret) =="one-svc")
   {
-       if(ktype==4)
-          K <- kernelMatrix(kernel,x)
+    if(ktype==4)
+      K <- kernelMatrix(kernel,x)
        
     resv <- .Call("smo_optim",
                   as.double(t(x)),
@@ -676,7 +689,7 @@ if(type(ret) =="kbb-svc")
                   as.double(nu),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -686,12 +699,12 @@ if(type(ret) =="kbb-svc")
                   as.integer(shrinking),
                   PACKAGE="kernlab")
 
-       tmpres <- resv[-(m+1)]
+       tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-       alphaindex(ret) <- which(alpha(ret)!=0) ## in this case and in regr. the same with svindex
-       svindex <- which(tmpres !=0)
+       svindex <-  alphaindex(ret) <- which(tmpres != 0) 
        xmatrix(ret) <- x[svindex,,drop=FALSE]
        b(ret) <- resv[(m+1)]
+       obj(ret) <- resv[(m+2)]
        param(ret)$nu <- nu
   }
 
@@ -717,7 +730,7 @@ if(type(ret) =="kbb-svc")
                     as.double(nu),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.integer(0), #weightlabl.
                     as.double(0),
@@ -726,13 +739,14 @@ if(type(ret) =="kbb-svc")
                     as.double(tol), 
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-      alphaindex(ret) <- which(alpha(ret) != 0)
-      svindex <- which(tmpres != 0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0) 
       xmatrix(ret) <- x[svindex, ,drop=FALSE]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
+      param(ret)$C <- C
     }
 
   ## nu regression
@@ -766,12 +780,12 @@ if(type(ret) =="kbb-svc")
                     as.double(tol), 
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0) 
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       xmatrix(ret) <- x[svindex,,drop=FALSE]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
       param(ret)$nu <- nu
     }
@@ -791,14 +805,14 @@ if(type(ret) =="kbb-svc")
                     as.integer(if (sparse) x@ia else 0),
                     as.integer(if (sparse) x@ja else 0),
                     as.integer(sparse),
-                    as.double(2),
-                    as.double(0),
+                    as.integer(2),
+                    as.integer(0),
                     as.integer(ktype),
                     as.integer(6),
                     as.double(C),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.double(1),  #Cbegin
                     as.double(2), #Cstep
@@ -811,20 +825,21 @@ if(type(ret) =="kbb-svc")
                     as.integer(10), #qpsize
                     as.integer(shrinking), 
                    PACKAGE="kernlab")
-      tmpres <- resv
+      tmpres <- resv[-(m + 1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       xmatrix(ret) <- x[svindex,,drop=FALSE]
       b(ret) <- -sum(alpha(ret))
+      obj(ret) <-  resv[(m + 1)]
       param(ret)$epsilon <- epsilon
+      param(ert)$C <- C
   }
 
   
   kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   ymatrix(ret) <- y
-  SVindex(ret) <- unique(svindex)
+  SVindex(ret) <- sort(unique(svindex),method="quick")
   nSV(ret)  <- length(unique(svindex))
   if(nSV(ret)==0)
     stop("No Support Vectors found. You may want to change your parameters")
@@ -878,8 +893,6 @@ if(type(ret) =="kbb-svc")
   
   if(prob.model)
     {
-
-
       if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
         {
           p <- 0
@@ -915,7 +928,6 @@ if(type(ret) =="kbb-svc")
                 }
               m <- li+lj
               suppressWarnings(vgr <- split(sample(1:m,m),1:3))
-
               pres <- yres <- NULL
               for(k in 1:3)
                 {
@@ -931,6 +943,7 @@ if(type(ret) =="kbb-svc")
         }
       if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
         suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+        pres <- NULL
         for(i in 1:3)
           {
             cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
@@ -1047,11 +1060,9 @@ function (x,
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
         xdi <- 1:(li+lj) <= li
-        xd <- matrix(0,(li+lj),dim(x)[2])
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-
-        xd <- xd[,c(indexes[[i]],indexes[[j]])]
+        xd <- matrix(0,(li+lj),(li+lj))
+        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1099,7 +1110,7 @@ function (x,
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), ##weightlabel
                       as.double(weight),
@@ -1108,22 +1119,24 @@ function (x,
                       as.double(tol),
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-
         
-        tmpres <- resv[-(li+lj+1)]
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix        
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         ## alpha
         svind <- tmpres > 0
         alpha(ret)[p] <- list(tmpres[svind])
         ## coefficients alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[svind])
+        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[reind][svind])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[svind])
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
         ## xmatrix(ret)[p] <- list(xd[svind, svind,drop=FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+	## store objective function values in vector 
+	obj(ret) <- c(obj(ret), resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -1142,12 +1155,10 @@ if(type(ret) == "nu-svc"){
        ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        xd <- matrix(0,(li+lj),dim(x)[2])
+        xd <- matrix(0,(li+lj),(li+lj))
         xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-
-        xd <- xd[,c(indexes[[i]],indexes[[j]])]
+        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1193,7 +1204,7 @@ if(type(ret) == "nu-svc"){
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), #weightlabl.
                       as.double(weight),
@@ -1202,17 +1213,20 @@ if(type(ret) == "nu-svc"){
                       as.double(tol), 
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-        tmpres <- resv[-(li+lj+1)]
-        
+
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         alpha(ret)[p] <- coef(ret)[p] <- list(tmpres[tmpres != 0])
         ##store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[resv[-(li+lj+1)]!= 0])
-        ## store Support Vectors
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][tmpres != 0])
+	## store Support Vectors
         ## xmatrix(ret)[p] <- list(xd[tmpres != 0,tmpres != 0,drop=FALSE])
         ##save the indexes from all the SV in a vector (use unique!)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+	## store objective function values in vector
+	obj(ret) <- c(obj(ret), resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes"
         problem[p] <- list(c(i,j))
         param(ret)$nu <- nu
@@ -1235,12 +1249,10 @@ if(type(ret) == "nu-svc"){
         ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        xd <- matrix(0,(li+lj),dim(x)[2])
+        xd <- matrix(0,(li+lj),(li+lj))
         xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-
-        xd <- xd[,c(indexes[[i]],indexes[[j]])]
+        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1285,7 +1297,7 @@ if(type(ret) == "nu-svc"){
                       as.double(C),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.double(1),  ##  cost value of alpha seeding
                       as.double(2),  ## step value of alpha seeding
@@ -1299,17 +1311,20 @@ if(type(ret) == "nu-svc"){
                       as.integer(shrinking),
                       PACKAGE="kernlab")
 
-        alpha(ret)[p] <- list(resv[resv > 0])
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        alpha(ret)[p] <- list(resv[-(li+lj+1)][reind][resv[-(li+lj+1)][reind] > 0])
         ## nonzero alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[resv > 0])
+        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[reind][resv[-(li+lj+1)][reind] > 0])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[resv > 0])
+	alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][resv[-(li+lj+1)][reind] > 0])	
         ## store Support Vectors
         ## xmatrix(ret)[p] <- list(xd[resv > 0 ,resv > 0,drop = FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
-        b(ret) <- - sapply(coef(ret),sum) 
+        b(ret) <- - sapply(coef(ret),sum)
+        ## store objective function values vector
+        obj(ret) <- c(obj(ret), resv[(li+lj+1)])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -1347,7 +1362,7 @@ if(type(ret) =="spoc-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.double(C), 
                   as.double(2), #Cstep
@@ -1360,37 +1375,38 @@ if(type(ret) =="spoc-svc")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   PACKAGE="kernlab")
-
-    alpha(ret) <- t(matrix(resv,nclass(ret)))
+    reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+    alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xdd)+1)],nclass(ret)))[reind,,drop=FALSE]
     coef(ret) <- lapply(1:nclass(ret), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
     names(coef(ret)) <- lev(ret)
-    alphaindex(ret) <-  lapply(1:nclass(ret), function(x) which(alpha(ret)[,x]!=0))
+    alphaindex(ret) <-  lapply(sort(unique(y)), function(x) which(alpha(ret)[,x]!=0))
     ## xmatrix(ret) <- x
     names(alphaindex(ret)) <- lev(ret)
-    svindex <- which(alpha(ret)!=0)
+    svindex <- which(rowSums(alpha(ret)!=0)!=0)
     b(ret) <- 0
+    obj(ret) <- resv[(nclass(ret)*nrow(xdd)+1)]
     param(ret)$C <- C
   }
 
 ## KBB multiclass classification  
 if(type(ret) =="kbb-svc")
   {
-    if(!is.null(class.weights))
-      weightedC <- weightlabels * rep(C,nclass(ret))
+     if(!is.null(class.weights))
+     weightedC <- class.weights[weightlabels] * rep(C,nclass(ret))
     else
       weightedC <- rep(C,nclass(ret)) 
-    yd <- sort(y,method="quick", index.return = TRUE)
-    x<-x[yd$ix,]
-    count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
+     yd <- sort(y,method="quick", index.return = TRUE)
+     x <- matrix(x[yd$ix,yd$ix],nrow=dim(x)[1])
+     count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
+     
+     xdd <- matrix(1,m,1)
 
-       if(ktype==4)
-          K <- kernelMatrix(kernel,x)
     resv <- .Call("tron_optim",
-                  as.double(t(x)),
-                  as.integer(nrow(x)),
-                  as.integer(ncol(x)),
+                  as.double(t(xdd)),
+                  as.integer(nrow(xdd)),
+                  as.integer(ncol(xdd)),
                   as.double(yd$x-1),
-                  as.double(K),
+                  as.double(x),
                   as.integer(if (sparse) x@ia else 0),
                   as.integer(if (sparse) x@ja else 0),
                   as.integer(sparse),
@@ -1401,7 +1417,7 @@ if(type(ret) =="kbb-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.double(1), #Cbegin
                   as.double(2), #Cstep
@@ -1414,14 +1430,16 @@ if(type(ret) =="kbb-svc")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   PACKAGE="kernlab")
-
-    alpha(ret) <- matrix(resv,nrow(x))
-
-    coef(ret) <-  lapply(1:(nclass(ret)-1), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
-    alphaindex(ret) <-  lapply(1:(nclass(ret)-1), function(x) which(alpha(ret)[,x]!=0))
-    svindex <- which(resv !=0)  ## have to figure out what to do with this...!
-    b(ret) <- - sapply(coef(ret),sum) 
-  }
+     
+     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+     alpha(ret) <- matrix(resv[-(nrow(x)*(nclass(ret)-1) + 1)],nrow(x))[reind,,drop=FALSE]
+     coef(ret) <-  lapply(1:(nclass(ret)-1), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
+     alphaindex(ret) <-  lapply(sort(unique(y)), function(x) which((y == x) & (rowSums(alpha(ret))!=0)))
+     svindex <- which(rowSums(alpha(ret)!=0)!=0)
+     b(ret) <- - sapply(coef(ret),sum)
+     obj(ret) <- resv[(nrow(x)*(nclass(ret)-1) + 1)]
+     param(ret)$C <- C
+   }
 
   ## Novelty detection
   if(type(ret) =="one-svc")
@@ -1444,7 +1462,7 @@ if(type(ret) =="kbb-svc")
                   as.double(nu),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -1454,12 +1472,12 @@ if(type(ret) =="kbb-svc")
                   as.integer(shrinking),
                   PACKAGE="kernlab")
 
-       tmpres <- resv[-(m+1)]
+       tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-       alphaindex(ret) <- which(alpha(ret)!=0) ## in this case and in regr. the same with svindex
-       svindex <- which(tmpres !=0)
+       svindex <-  alphaindex(ret) <- which(tmpres != 0) 
        ## xmatrix(ret) <- x[svindex,svindex,drop=FALSE]
        b(ret) <- resv[(m+1)]
+       obj(ret) <- resv[(m+2)]
        param(ret)$nu <- nu
   }
 
@@ -1483,7 +1501,7 @@ if(type(ret) =="kbb-svc")
                     as.double(nu),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.integer(0), #weightlabl.
                     as.double(0),
@@ -1493,13 +1511,14 @@ if(type(ret) =="kbb-svc")
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
 
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-      alphaindex(ret) <- which(alpha(ret) != 0)
-      svindex <- which(tmpres != 0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0) 
       ## xmatrix(ret) <- x[svindex,svindex ,drop=FALSE]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
+      param(ret)$C <- C
     }
 
   ## nu regression
@@ -1531,12 +1550,12 @@ if(type(ret) =="kbb-svc")
                     as.double(tol), 
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0) 
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       ## xmatrix(ret) <- x[svindex,svindex,drop=FALSE]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
       param(ret)$nu <- nu
     }
@@ -1554,14 +1573,14 @@ if(type(ret) =="kbb-svc")
                     as.integer(if (sparse) x@ia else 0),
                     as.integer(if (sparse) x@ja else 0),
                     as.integer(sparse),
-                    as.double(2),
-                    as.double(0),
+                    as.integer(2),
+                    as.integer(0),
                     as.integer(ktype),
                     as.integer(6),
                     as.double(C),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.double(1),  #Cbegin
                     as.double(2), #Cstep
@@ -1574,25 +1593,26 @@ if(type(ret) =="kbb-svc")
                     as.integer(10), #qpsize
                     as.integer(shrinking), 
                    PACKAGE="kernlab")
-      tmpres <- resv
+      tmpres <- resv[-(m+1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       ## xmatrix(ret) <- x[svindex,,drop=FALSE]
       b(ret) <- -sum(alpha(ret))
+      obj(ret) <- resv[(m+1)]
       param(ret)$epsilon <- epsilon
+      param(ret)$C <- C
   }
 
   
   kcall(ret) <- match.call()
   kernelf(ret) <- " Kernel matrix used as input."
   ymatrix(ret) <- y
-  SVindex(ret) <- unique(svindex)
+  SVindex(ret) <- unique(sort(svindex,method="quick"))
   nSV(ret)  <- length(unique(svindex))
   if(nSV(ret)==0)
     stop("No Support Vectors found. You may want to change your parameters")
   fitted(ret)  <- if (fit)
-    predict(ret, as.kernelMatrix(x[,svindex,drop = FALSE])) else NULL
+    predict(ret, as.kernelMatrix(x[,SVindex(ret),drop = FALSE])) else NULL
 
   if (fit){
     if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
@@ -1627,7 +1647,6 @@ if(type(ret) =="kbb-svc")
             }
           if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
             {
-              x <- x[,cind]
               cret <- ksvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
@@ -1640,8 +1659,6 @@ if(type(ret) =="kbb-svc")
   
   if(prob.model)
     {
-
-
       if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
         {
           p <- 0
@@ -1652,12 +1669,10 @@ if(type(ret) =="kbb-svc")
               ##prepare data
               li <- length(indexes[[i]])
               lj <- length(indexes[[j]])
-              xd <- matrix(0,(li+lj),dim(x)[2])
+              xd <- matrix(0,(li+lj),(li+lj))
               xdi <- 1:(li+lj) <= li
-              xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-              xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-
-              xd <- xd[,c(indexes[[i]],indexes[[j]])]
+              xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+              xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
               
               if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
                 {
@@ -1695,6 +1710,7 @@ if(type(ret) =="kbb-svc")
         }
       if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
         suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+        pres <-  NULL
         for(i in 1:3)
           {
             cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
@@ -1752,7 +1768,7 @@ function (x,
     x <- na.action(x)
 
   n.action(ret) <- na.action
-  
+  sparse <- FALSE 
   if (is.null(type)) type(ret) <- if (is.null(y)) "one-svc" else if (is.factor(y)) "C-svc" else "eps-svr"
   
   if(!is.null(type))
@@ -1833,6 +1849,8 @@ function (x,
     svindex <- problem <- NULL
     ktype <- 4
     prior(ret) <- list(NULL)
+    sigma <- 0.1
+    degree <- offset <- scale <- 1
 
 ## C classification
   if(type(ret) == "C-svc"){
@@ -1872,14 +1890,13 @@ function (x,
         md <- length(yd)
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
-
         
         K <- kernelMatrix(kernel,xd)
-        
+        xdd <- matrix(1,li+lj,1) 
         resv <- .Call("smo_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(xdd)),
+                      as.integer(nrow(xdd)),
+                      as.integer(ncol(xdd)),
                       as.double(yd),
                       as.double(K),
                       
@@ -1894,7 +1911,7 @@ function (x,
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), ##weightlabel
                       as.double(weight),
@@ -1903,20 +1920,22 @@ function (x,
                       as.double(tol),
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-    
-        tmpres <- resv[-(li+lj+1)]
+
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         ## alpha
         alpha(ret)[p] <- list(tmpres[tmpres > 0])
         ## coefficients alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[tmpres > 0])
+        coef(ret)[p] <- list(alpha(ret)[[p]]*yd[reind][tmpres > 0])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(which(tmpres > 0))
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][tmpres>0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[alphaindex(ret)[[p]]])
+        xmatrix(ret)[p] <- list(xd[reind][tmpres > 0])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+        obj(ret) <- c(obj(ret),resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -1965,11 +1984,11 @@ if(type(ret) == "nu-svc"){
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0)
 
         K <- kernelMatrix(kernel,xd)
-        
+        xdd <- matrix(1,li+lj,1)
         resv <- .Call("smo_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(xdd)),
+                      as.integer(nrow(xdd)),
+                      as.integer(ncol(xdd)),
                       as.double(yd),
                       as.double(K),
                       as.integer(if (sparse) xd@ia else 0),
@@ -1983,7 +2002,7 @@ if(type(ret) == "nu-svc"){
                       as.double(nu),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.integer(wl), #weightlabl.
                       as.double(weight),
@@ -1992,17 +2011,18 @@ if(type(ret) == "nu-svc"){
                       as.double(tol), 
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-        tmpres <- resv[-(li+lj+1)]
-        
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         alpha(ret)[p] <- coef(ret)[p] <- list(tmpres[tmpres != 0])
         ##store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[resv[-(li+lj+1)]!= 0])
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][tmpres!=0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[alphaindex(ret)[[p]]])
+        xmatrix(ret)[p] <- list(xd[reind][tmpres != 0])
         ##save the indexes from all the SV in a vector (use unique!)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
         b(ret) <- c(b(ret), resv[li+lj+1])
+        obj(ret) <- c(obj(ret), resv[li+lj+2])
         ## used to reconstruct indexes for the patterns matrix x from "indexes"
         problem[p] <- list(c(i,j))
         param(ret)$nu <- nu
@@ -2055,11 +2075,11 @@ if(type(ret) == "nu-svc"){
 
            if(ktype==4)
           K <- kernelMatrix(kernel,xd)
-        
+          xdd <- matrix(1,li+lj,1) 
         resv <- .Call("tron_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(xdd)),
+                      as.integer(nrow(xdd)),
+                      as.integer(ncol(xdd)),
                       as.double(yd),
                       as.double(K),
                       as.integer(if (sparse) xd@ia else 0),
@@ -2072,7 +2092,7 @@ if(type(ret) == "nu-svc"){
                       as.double(C),
                       as.double(epsilon),
                       as.double(sigma),
-                      as.double(degree),
+                      as.integer(degree),
                       as.double(offset),
                       as.double(1),  ##  cost value of alpha seeding
                       as.double(2),  ## step value of alpha seeding
@@ -2085,18 +2105,20 @@ if(type(ret) == "nu-svc"){
                       as.integer(10), ##qpsize
                       as.integer(shrinking),
                       PACKAGE="kernlab")
-
-        alpha(ret)[p] <- list(resv[resv > 0])
+                
+        reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
+        alpha(ret)[p] <- list(resv[-(li+lj+1)][reind][resv[-(li+lj+1)][reind] > 0])
         ## nonzero alpha*y
-        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[resv > 0])
+        coef(ret)[p] <- list(alpha(ret)[[p]] * yd[reind][resv[-(li+lj+1)][reind] > 0])
         ## store SV indexes from current problem for later use in predict
-        alphaindex(ret)[p] <- list(which(resv > 0))
+        alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][resv[-(li+lj+1)][reind] > 0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[resv > 0])
+        xmatrix(ret)[p] <- list(xd[reind][resv[-(li+lj+1)][reind] > 0])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
-        b(ret) <- - sapply(coef(ret),sum) 
+        b(ret) <- - sapply(coef(ret),sum)
+	obj(ret) <- c(obj(ret),resv[(li+lj+1)])
         ## used to reconstruct indexes for the patterns matrix x from "indexes" (really usefull ?)
         problem[p] <- list(c(i,j))
         ##store C  in return object
@@ -2114,15 +2136,15 @@ if(type(ret) =="spoc-svc")
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
-    x <- matrix(x[yd$ix,],nrow=dim(x)[1])
+    x <- x[yd$ix]
     count <- 0
 
     K <- kernelMatrix(kernel,x)
-    
+    xdd <- matrix(1,length(x),1) 
     resv <- .Call("tron_optim",
-                  as.double(t(x)),
-                  as.integer(nrow(x)),
-                  as.integer(ncol(x)),
+                  as.double(t(xdd)),
+                  as.integer(nrow(xdd)),
+                  as.integer(ncol(xdd)),
                   as.double(rep(yd$x-1,2)),
                   as.double(K),
                   as.integer(if (sparse) x@ia else 0),
@@ -2135,7 +2157,7 @@ if(type(ret) =="spoc-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.double(C), 
                   as.double(2), #Cstep
@@ -2149,14 +2171,16 @@ if(type(ret) =="spoc-svc")
                   as.integer(shrinking),
                   PACKAGE="kernlab")
 
-    alpha(ret) <- t(matrix(resv,nclass(ret)))
+    reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+    alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xdd) + 1)],nclass(ret)))[reind,,drop=FALSE]
     coef(ret) <- lapply(1:nclass(ret), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
     names(coef(ret)) <- lev(ret)
     alphaindex(ret) <-  lapply(1:nclass(ret), function(x) which(alpha(ret)[,x]!=0))
     names(alphaindex(ret)) <- lev(ret)
     xmatrix(ret) <- x
-    svindex <- which(alpha(ret)!=0)
+    svindex <- which(rowSums(alpha(ret)!=0)!=0)
     b(ret) <- 0
+    obj(ret) <- resv[(nclass(ret)*nrow(xdd) + 1)]
     param(ret)$C <- C
   }
 
@@ -2168,15 +2192,17 @@ if(type(ret) =="kbb-svc")
     else
       weightedC <- rep(C,nclass(ret)) 
     yd <- sort(y,method="quick", index.return = TRUE)
-    x<-x[yd$ix,]
+    x <- x[yd$ix]
     count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
 
-       if(ktype==4)
-          K <- kernelMatrix(kernel,x)
+    if(ktype==4)
+      K <- kernelMatrix(kernel,x)
+    xdd <- matrix(1,length(x),1)
+
     resv <- .Call("tron_optim",
-                  as.double(t(x)),
-                  as.integer(nrow(x)),
-                  as.integer(ncol(x)),
+                  as.double(t(xdd)),
+                  as.integer(nrow(xdd)),
+                  as.integer(ncol(xdd)),
                   as.double(yd$x-1),
                   as.double(K),
                   as.integer(if (sparse) x@ia else 0),
@@ -2189,7 +2215,7 @@ if(type(ret) =="kbb-svc")
                   as.double(C),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.double(1), #Cbegin
                   as.double(2), #Cstep
@@ -2202,24 +2228,26 @@ if(type(ret) =="kbb-svc")
                   as.integer(10), #qpsize
                   as.integer(shrinking),
                   PACKAGE="kernlab")
-
-    alpha(ret) <- matrix(resv,nrow(x))
-    xmatrix(ret) <- x
+    reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
+    alpha(ret) <- matrix(resv[-((nclass(ret)-1)*length(x)+1)],length(x))[reind,,drop=FALSE]
+    xmatrix(ret) <- x<- x[reind]
     coef(ret) <-  lapply(1:(nclass(ret)-1), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
-    alphaindex(ret) <-  lapply(1:(nclass(ret)-1), function(x) which(alpha(ret)[,x]!=0))
-    svindex <- which(resv !=0)  ## have to figure out what to do with this...!
-    b(ret) <- - sapply(coef(ret),sum) 
+    alphaindex(ret) <-  lapply(sort(unique(y)), function(x) which((y == x) & (rowSums(alpha(ret))!=0)))
+    svindex <- which(rowSums(alpha(ret)!=0)!=0)
+    b(ret) <- - sapply(coef(ret),sum)
+    obj(ret) <- resv[((nclass(ret)-1)*length(x)+1)]
+    param(ret)$C <- C
   }
 
   ## Novelty detection
   if(type(ret) =="one-svc")
   {
     K <- kernelMatrix(kernel,x)
-       
+    xdd <- matrix(1,length(x),1) 
     resv <- .Call("smo_optim",
-                  as.double(t(x)),
-                  as.integer(nrow(x)),
-                  as.integer(ncol(x)),
+                  as.double(t(xdd)),
+                  as.integer(nrow(xdd)),
+                  as.integer(ncol(xdd)),
                   as.double(matrix(rep(1,m))),
                   as.double(K),
                   as.integer(if (sparse) x@ia else 0),
@@ -2232,7 +2260,7 @@ if(type(ret) =="kbb-svc")
                   as.double(nu),
                   as.double(epsilon),
                   as.double(sigma),
-                  as.double(degree),
+                  as.integer(degree),
                   as.double(offset),
                   as.integer(0), #weightlabl.
                   as.double(0),
@@ -2242,12 +2270,12 @@ if(type(ret) =="kbb-svc")
                   as.integer(shrinking),
                   PACKAGE="kernlab")
 
-       tmpres <- resv[-(m+1)]
+       tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-       alphaindex(ret) <- which(alpha(ret)!=0) ## in this case and in regr. the same with svindex
-       svindex <- which(tmpres !=0)
+       svindex <- alphaindex(ret) <- which(tmpres !=0)
        xmatrix(ret) <- x[svindex]
        b(ret) <- resv[(m+1)]
+       obj(ret) <- resv[(m+2)]
        param(ret)$nu <- nu
   }
 
@@ -2255,11 +2283,11 @@ if(type(ret) =="kbb-svc")
   if(type(ret) =="eps-svr")
     {
       K <- kernelMatrix(kernel,x)
-      
+      xdd <- matrix(1,length(x),1)  
       resv <- .Call("smo_optim",
-                    as.double(t(x)),
-                    as.integer(nrow(x)),
-                    as.integer(ncol(x)),
+                    as.double(t(xdd)),
+                    as.integer(nrow(xdd)),
+                    as.integer(ncol(xdd)),
                     as.double(y),
                     as.double(K),
                     as.integer(if (sparse) x@ia else 0),
@@ -2272,7 +2300,7 @@ if(type(ret) =="kbb-svc")
                     as.double(nu),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.integer(0), #weightlabl.
                     as.double(0),
@@ -2281,24 +2309,25 @@ if(type(ret) =="kbb-svc")
                     as.double(tol), 
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
-      alphaindex(ret) <- which(alpha(ret) != 0)
-      svindex <- which(tmpres != 0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       xmatrix(ret) <- x[svindex]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
+      param(ret)$C <- C
     }
 
   ## nu regression
   if(type(ret) =="nu-svr")
     {
       K <- kernelMatrix(kernel,x)
-      
+      xdd <- matrix(1,length(x),1)
       resv <- .Call("smo_optim",
-                    as.double(t(x)),
-                    as.integer(nrow(x)),
-                    as.integer(ncol(x)),
+                    as.double(t(xdd)),
+                    as.integer(nrow(xdd)),
+                    as.integer(ncol(xdd)),
                     as.double(y),
                     as.double(K),
                     as.integer(if (sparse) x@ia else 0),
@@ -2320,12 +2349,12 @@ if(type(ret) =="kbb-svc")
                     as.double(tol), 
                     as.integer(shrinking), 
                     PACKAGE="kernlab")
-      tmpres <- resv[-(m+1)]
+      tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0) 
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       xmatrix(ret) <- x[svindex]
       b(ret) <- resv[(m+1)]
+      obj(ret) <- resv[(m+2)]
       param(ret)$epsilon <- epsilon
       param(ret)$nu <- nu
     }
@@ -2334,24 +2363,24 @@ if(type(ret) =="kbb-svc")
   if(type(ret) =="eps-bsvr")
     {
       K <- kernelMatrix(kernel,x)
-      
+      xdd <- matrix(1,length(x),1)	 
       resv <- .Call("tron_optim",
-                    as.double(t(x)),
-                    as.integer(nrow(x)),
-                    as.integer(ncol(x)),
+                    as.double(t(xdd)),
+                    as.integer(nrow(xdd)),
+                    as.integer(ncol(xdd)),
                     as.double(y),
                     as.double(K),
                     as.integer(if (sparse) x@ia else 0),
                     as.integer(if (sparse) x@ja else 0),
                     as.integer(sparse),
-                    as.double(2),
-                    as.double(0),
+                    as.integer(2),
+                    as.integer(0),
                     as.integer(ktype),
                     as.integer(6),
                     as.double(C),
                     as.double(epsilon),
                     as.double(sigma),
-                    as.double(degree),
+                    as.integer(degree),
                     as.double(offset),
                     as.double(1),  #Cbegin
                     as.double(2), #Cstep
@@ -2364,15 +2393,15 @@ if(type(ret) =="kbb-svc")
                     as.integer(10), #qpsize
                     as.integer(shrinking), 
                    PACKAGE="kernlab")
-      tmpres <- resv
+      tmpres <- resv[-(m+1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
-      alphaindex(ret) <- which(alpha(ret)!=0)
-      svindex <- which(alpha(ret) !=0)
+      svindex <-  alphaindex(ret) <- which(tmpres != 0)
       xmatrix(ret) <- x[svindex]
       b(ret) <- -sum(alpha(ret))
+      obj(ret) <- resv[(m+1)]
       param(ret)$epsilon <- epsilon
+      param(ret)$C <- C
   }
-
   
   kcall(ret) <- match.call()
   kernelf(ret) <- kernel
@@ -2394,16 +2423,110 @@ if(type(ret) =="kbb-svc")
   }
 
   cross(ret) <- -1
+  if(FALSE)
+    {
+      if(cross == 1)
+        cat("\n","cross should be >1 no cross-validation done!","\n","\n")
+      else if (cross > 1)
+    {
+      cerror <- 0
+      suppressWarnings(vgr<-split(sample(1:dim(K)[1],dim(K)[1]),1:cross))
+      for(i in 1:cross)
+        {
+          cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
+          if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
+            {
+              if(is.null(class.weights))
+                cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
+              else
+                cret <- ksvm(as.kernelMatrix(K[cind,cind]),lev(ret)[y[cind]],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+              cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+              cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
+            }
+          if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
+            {
+              cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+              cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+            }
+         }
+      cross(ret) <- cerror
+    }
+      prob.model(ret) <- list(NULL)
+      if(prob.model)
+    {
+      if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
+        {
+          p <- 0
+          for (i in 1:(nclass(ret)-1)) {
+            jj <- i+1
+            for(j in jj:nclass(ret)) {
+              p <- p+1
+              ##prepare data
+              li <- length(indexes[[i]])
+              lj <- length(indexes[[j]])
+              xd <- matrix(0,(li+lj),dim(K)[2])
+              xdi <- 1:(li+lj) <= li
+              xd[xdi,rep(TRUE,li+lj)] <- K[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+              xd[xdi == FALSE,rep(TRUE,li+lj)] <- K[indexes[[j]],c(indexes[[i]],indexes[[j]])]
+              
+              if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
+                {
+                  yd <- c(rep(-1,li),rep(1,lj))
+                  if(!is.null(class.weights)){
+                    weight <- weightlabels[c(i,j)]
+                    wl <- c(1,0)
+                    nweights <- 2
+                  }
+                }
+              else
+                {
+                  yd <- c(rep(1,li),rep(-1,lj))
+                  if(!is.null(class.weights)){
+                    weight <- weightlabels[c(j,i)]
+                    wl <- c(0,1)
+                    nweigths <- 2
+                  }
+                }
+              m <- li+lj
+              suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+              pres <- yres <- NULL
+              for(k in 1:3)
+                {
+                  cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
+                  cret <- ksvm(as.kernelMatrix(as.kernelMatrix(xd[cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+                  yres <- c(yres,yd[vgr[[k]]])
+                  pres <- rbind(pres,predict(cret, as.kernelMatrix(xd[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
+                  
+                }
+              prob.model(ret)[[p]] <- .probPlatt(pres,yres)
+            }
+          }
+        }
+      if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
+        suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+        pres <-  NULL
+        for(i in 1:3)
+          {
+            cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
+            cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C, nu=nu, epsilon=epsilon, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+            cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind, drop = FALSE][,SVindex(cret), drop = FALSE]))
+            pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[i]],cind , drop = FALSE][,SVindex(cret) ,drop = FALSE]),type="decision"))
+          }
+        pres[abs(pres) > (5*sd(pres))] <- 0
+        prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
+      }
+    }
+ }
+else{
   if(cross == 1)
     cat("\n","cross should be >1 no cross-validation done!","\n","\n")
   else if (cross > 1)
     {
-     
       cerror <- 0
       suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
       for(i in 1:cross)
         {
-         
           cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
             {
@@ -2488,7 +2611,7 @@ if(type(ret) =="kbb-svc")
         prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
       }
     }
-
+}
   return(ret)
 })
 
@@ -2497,31 +2620,34 @@ if(type(ret) =="kbb-svc")
 
 setMethod("predict", signature(object = "ksvm"),
 function (object, newdata, type = "response", coupler = "minpair")
-{
+{ 
   type <- match.arg(type,c("response","probabilities","votes","decision"))
   if (missing(newdata) && type=="response" & !is.null(fitted(object)))
     return(fitted(object))
   else if(missing(newdata))
     stop("Missing data !")
 
-  
-  if (!is.null(terms(object)) & !is(newdata,"kernelMatrix") & !is(newdata,"list"))
+ if(!is(newdata,"list")){ 
+  if (!is.null(terms(object)) & !is(newdata,"kernelMatrix"))
     {
       if(!is.matrix(newdata))
         newdata <- model.matrix(delete.response(terms(object)), as.data.frame(newdata), na.action = n.action(object))
     }
   else
     newdata  <- if (is.vector(newdata)) t(t(newdata)) else as.matrix(newdata)
-       
-  if(!is(newdata,"list")){
+
+  
     newnrows <- nrow(newdata)
     newncols <- ncol(newdata)
-    if(!is(newdata,"kernelMatrix") & !is.null(xmatrix(object))){
+    if(!is(newdata,"kernelMatrix")  & !is.null(xmatrix(object))){
       if(is(xmatrix(object),"list") && is(xmatrix(object)[[1]],"matrix")) oldco <- ncol(xmatrix(object)[[1]])
       if(is(xmatrix(object),"matrix")) oldco <- ncol(xmatrix(object))
       if (oldco != newncols) stop ("test vector does not match model !")
     }
   }
+  else
+   newnrows <- length(newdata)
+  
   p <- 0
   
   if (is.list(scaling(object)))
@@ -2529,21 +2655,17 @@ function (object, newdata, type = "response", coupler = "minpair")
       scale(newdata[,scaling(object)$scaled, drop = FALSE],
             center = scaling(object)$x.scale$"scaled:center", scale  = scaling(object)$x.scale$"scaled:scale")
 
-  ind <- list()
-  if(is(newdata,"kernelMatrix") & (type(object) =="C-svc" | type(object) =="C-bsvc" | type(object) =="nu-svc" ))
-    {
-      len <- cumsum(c(0,sapply(alphaindex(object),length)))
-      for(i in 1:(nclass(object)*(nclass(object)-1)/2))
-        ind[[i]] <- (len[i]+1):(len[i+1])
-    }
-    
   if(type == "response" || type =="decision" || type=="votes")
     {
       if(type(object)=="C-svc"||type(object)=="nu-svc"||type(object)=="C-bsvc")
         {
           predres <- 1:newnrows
-          votematrix <- matrix(0,nclass(object),newnrows)
-          for(i in 1:(nclass(object)-1))
+          if(type=="decision")
+	   votematrix <- matrix(0,nclass(object)*(nclass(object)-1)/2,newnrows)
+	  else
+	   votematrix <- matrix(0,nclass(object),newnrows)
+          
+	  for(i in 1:(nclass(object)-1))
             {
               jj <- i+1
               for(j in jj:nclass(object))
@@ -2551,7 +2673,7 @@ function (object, newdata, type = "response", coupler = "minpair")
                   p <- p+1
 
                   if(is(newdata,"kernelMatrix"))
-                    ret <- newdata[,ind[[p]] , drop=FALSE] %*% coef(object)[[p]] - b(object)[p]
+                    ret <- newdata[,which(SVindex(object)%in%alphaindex(object)[[p]]), drop=FALSE] %*% coef(object)[[p]] - b(object)[p]
                   else
                     ret <- kernelMult(kernelf(object),newdata,xmatrix(object)[[p]],coef(object)[[p]]) - b(object)[p]
 
@@ -2564,12 +2686,7 @@ function (object, newdata, type = "response", coupler = "minpair")
                 }
             }
           if(type == "decision")
-            {
-              if (nclass(object) == 2)
-                predres <- t(votematrix)[,1,drop = FALSE]
-              else
-                predres <-  t(votematrix)
-            }
+            predres <-  t(votematrix)
           else 
             predres <- sapply(predres, function(x) which.max(votematrix[,x]))
         }
@@ -2580,7 +2697,9 @@ function (object, newdata, type = "response", coupler = "minpair")
       votematrix <- matrix(0,nclass(object),newnrows)
       for(i in 1:nclass(object)){
         if(is(newdata,"kernelMatrix"))
-          votematrix[i,] <- newdata[,ind[[i]] , drop=FALSE] %*% coef(object)[[i]] - b(object)[i]
+          votematrix[i,] <- newdata[,which(SVindex(object)%in%alphaindex(object)[[i]]), drop=FALSE] %*% coef(object)[[i]] 
+        else if (is(newdata,"list"))
+          votematrix[i,] <- kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]]],coef(object)[[i]])
         else
           votematrix[i,] <- kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],,drop=FALSE],coef(object)[[i]])
       }
@@ -2591,24 +2710,34 @@ function (object, newdata, type = "response", coupler = "minpair")
     { 
       predres <- 1:newnrows
       votematrix <- matrix(0,nclass(object),newnrows)
-      se <- 1:(nclass(object)-1)
       A <- rowSums(alpha(object))
-      salpha <- colSums(alpha(object))
-      ssalpha <- sum(salpha)
-      
+
       for(i in 1:nclass(object))
         {
           for(k in (1:i)[-i])
-            votematrix[k,] <- votematrix[k,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[k]],,drop=FALSE],coef(object)[[k]]) + salpha[k])
-          
-          if(is.null(k)) k <- 1
-          
-          votematrix[i,] <- votematrix[i,] + (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[k]],,drop=FALSE],A[alphaindex(object)[[k]]]) + sum(A[alphaindex(object)[[k]]]))
-          
-          for(kk in k:(nclass(object)-1))
-            votematrix[kk+1,] <- votematrix[kk+1,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[kk]],,drop=FALSE],coef(object)[[kk]]) + salpha[kk])
+            if(is(newdata,"kernelMatrix"))
+              votematrix[k,] <- votematrix[k,] - (newdata[,which(SVindex(object)%in%alphaindex(object)[[i]]), drop=FALSE] %*% alpha(object)[,k][alphaindex(object)[[i]]] + sum(alpha(object)[,k][alphaindex(object)[[i]]]))
+            else if (is(newdata,"list"))
+              votematrix[k,] <- votematrix[k,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]]],alpha(object)[,k][alphaindex(object)[[i]]]) + sum(alpha(object)[,k][alphaindex(object)[[i]]]))
+            else
+              votematrix[k,] <- votematrix[k,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],,drop=FALSE],alpha(object)[,k][alphaindex(object)[[i]]]) + sum(alpha(object)[,k][alphaindex(object)[[i]]]))
+
+          if(is(newdata,"kernelMatrix"))
+            votematrix[i,] <- votematrix[i,] + (newdata[,which(SVindex(object)%in%alphaindex(object)[[i]]), drop=FALSE] %*% A[alphaindex(object)[[i]]] + sum(A[alphaindex(object)[[i]]]))
+          else if (is(newdata,"list"))
+            votematrix[i,] <- votematrix[i,] + (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]]],A[alphaindex(object)[[i]]]) + sum(A[alphaindex(object)[[i]]]))
+          else
+            votematrix[i,] <- votematrix[i,] + (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],,drop=FALSE],A[alphaindex(object)[[i]]]) + sum(A[alphaindex(object)[[i]]]))
+
+          if(i <= (nclass(object)-1))
+            for(kk in i:(nclass(object)-1))
+              if(is(newdata,"kernelMatrix"))
+                votematrix[kk+1,] <- votematrix[kk+1,] - (newdata[,which(SVindex(object)%in%alphaindex(object)[[i]]), drop=FALSE] %*% alpha(object)[,kk][alphaindex(object)[[i]]] + sum(alpha(object)[,kk][alphaindex(object)[[i]]]))
+              else if (is(newdata,"list"))
+                votematrix[kk+1,] <- votematrix[kk+1,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]]],alpha(object)[,kk][alphaindex(object)[[i]]]) + sum(alpha(object)[,kk][alphaindex(object)[[i]]]))
+              else
+                votematrix[kk+1,] <- votematrix[kk+1,] - (kernelMult(kernelf(object),newdata,xmatrix(object)[alphaindex(object)[[i]],,drop=FALSE],alpha(object)[,kk][alphaindex(object)[[i]]]) + sum(alpha(object)[,kk][alphaindex(object)[[i]]]))
         }
-      
       predres <- sapply(predres, function(x) which.max(votematrix[,x]))
     }
 }
@@ -2628,7 +2757,7 @@ function (object, newdata, type = "response", coupler = "minpair")
                 {
                   p <- p+1
                   if(is(newdata,"kernelMatrix"))
-                    binprob[,p] <- 1 - .SigmoidPredict(as.vector(,newdata[ind[[p]] , drop=FALSE] %*% coef(object)[[p]] - b(object)[p]), prob.model(object)[[p]]$A, prob.model(object)[[p]]$B)
+                    binprob[,p] <- 1 - .SigmoidPredict(as.vector(newdata[,which(SVindex(object)%in%alphaindex(object)[[p]]), drop=FALSE] %*% coef(object)[[p]] - b(object)[p]), prob.model(object)[[p]]$A, prob.model(object)[[p]]$B)
                   else
                     binprob[,p] <- 1 - .SigmoidPredict(as.vector(kernelMult(kernelf(object),newdata,xmatrix(object)[[p]],coef(object)[[p]]) - b(object)[p]), prob.model(object)[[p]]$A, prob.model(object)[[p]]$B)
                 }
@@ -2636,7 +2765,7 @@ function (object, newdata, type = "response", coupler = "minpair")
           multiprob <- couple(binprob, coupler = coupler)
         }
       else
-        stop("probability estimates only supported for C-svc and nu-svc")
+        stop("probability estimates only supported for C-svc, C-bsvc and nu-svc")
     }
   
   if(type(object) == "one-svc")
@@ -2717,14 +2846,17 @@ function(object){
          "one-svc" = cat(paste(" parameter : nu =", param(object)$nu, "\n")),
          "spoc-svc" = cat(paste(" parameter : cost C =",param(object)$C, "\n")),
          "kbb-svc" = cat(paste(" parameter : cost C =",param(object)$C, "\n")),
-         "eps-svr" = cat(paste(" parameter : epsilon =",param(object)$epsilon,"\n")),
-         "nu-svr" = cat(paste(" parameter : epsilon =", param(object)$epsilon, "nu =", param(object)$nu,"\n"))
+         "eps-svr" = cat(paste(" parameter : epsilon =",param(object)$epsilon, " cost C =", param(object)$C,"\n")),
+         "nu-svr" = cat(paste(" parameter : epsilon =", param(object)$epsilon, " nu =", param(object)$nu,"\n"))
          )
   cat("\n")
 
+  
   show(kernelf(object))
   cat(paste("\nNumber of Support Vectors :", nSV(object),"\n"))
 
+  cat("\nObjective Function Value :", round(obj(object),4),"\n")
+  
 
 ##    if(type(object)=="C-svc" || type(object) == "nu-svc")
 ##      cat(paste("Margin width :",margin(object),"\n"))

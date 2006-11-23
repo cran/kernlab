@@ -1,4 +1,4 @@
-\documentclass{Z}
+\documentclass{A}
 
 \usepackage{amsfonts,thumbpdf,alltt}
 \newenvironment{smallverbatim}{\small\verbatim}{\endverbatim}
@@ -21,9 +21,8 @@ options(width = 70)
 \author{Alexandros Karatzoglou\\Technische Universit\"at Wien
    \And Alex Smola\\Australian National University, NICTA
    \And Kurt Hornik\\Wirtschaftsuniversit\"at Wien
-   \And Achim Zeileis\\Wirtschaftsuniversit\"at Wien 
 }
-\Plainauthor{Alexandros Karatzoglou, Alex Smola, Kurt Hornik, Achim Zeileis}
+\Plainauthor{Alexandros Karatzoglou, Alex Smola, Kurt Hornik}
 
 \Abstract{
   A shorter version of this introduction to the \proglang{R} package \pkg{kernlab}

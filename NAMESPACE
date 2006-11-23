@@ -52,6 +52,7 @@ export(
        "RVindex",
        "prob.model",
        "b",
+       "obj",
        ## "margin",
 
        ## kpca
