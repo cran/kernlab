@@ -2,12 +2,14 @@
 \alias{rvm}
 \alias{rvm-methods}
 \alias{rvm,formula-method}
+\alias{rvm,list-method}
 \alias{rvm,vector-method}
+\alias{rvm,kernelMatrix-method}
 \alias{rvm,matrix-method}
 \alias{show,rvm-method}
 \alias{predict,rvm-method}
 \alias{coef,rvm-method}
-\title{Relevance Vector Machine }
+\title{Relevance Vector Machine}
 
 \description{
   The Relevance Vector Machine is a Bayesian model for regression and
@@ -20,21 +22,27 @@
 
 \S4method{rvm}{vector}(x, ...)
 
-\S4method{rvm}{matrix}(x, y, type="regression", kernel="rbfdot", kpar=list(sigma=0.1),
+\S4method{rvm}{matrix}(x, y, type="regression", kernel="rbfdot", kpar="automatic",
 alpha=1, var=0.1, var.fix=FALSE, iterations=100, verbosity=0, tol=
 .Machine$double.eps,minmaxdiff = 1e-3, cross = 0, fit =TRUE, subset,
 na.action = na.omit,...) 
 
+\S4method{rvm}{list}(x, y, type = "regression", kernel = "stringdot", kpar = list(length = 4, lambda = 0.5),
+          alpha = 5, var = 0.1, var.fix = FALSE, iterations = 100, verbosity = 0,
+          tol = .Machine$double.eps, minmaxdiff = 1e-3, cross = 0, fit =TRUE,
+          ... ,subset ,na.action = na.omit)
 }
 
 
 
 \arguments{
 
- \item{x}{a symbolic description of the model to be fit. Note, that an
-          intercept is always included, whether given in the formula or
-          not. When not using a formula x is a matrix or vector
-	  containg the variables in the model.}
+  \item{x}{a symbolic description of the model to be fit.
+    When not using a formula x can be a matrix or vector containg the training
+    data or a kernel matrix of class \code{kernelMatrix} of the training data
+    or a list of character vectors (for use with the string
+    kernel). Note, that the intercept is always excluded, whether
+    given in the formula or not.}
   \item{data}{an optional data frame containing the variables in the model.
           By default the variables are taken from the environment which
           `rvm' is called from.}
@@ -51,34 +59,57 @@ na.action = na.omit,...)
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{
-      \item \code{rbfdot} Radial Basis kernel function "Gaussian"
-      \item \code{polydot} Polynomial kernel function
-      \item \code{vanilladot} Linear kernel function
-      \item \code{tanhdot} Hyperbolic tangent kernel function
-      \item \code{laplacedot} Laplacian kernel function
-      \item \code{besseldot} Bessel kernel function
-      \item \code{anovadot} ANOVA RBF kernel function
-       \item \code{splinedot} Spline kernel 
+    \item \code{rbfdot} Radial Basis kernel "Gaussian"
+
+      \item \code{polydot} Polynomial kernel
+
+      \item \code{vanilladot} Linear kernel 
+
+      \item \code{tanhdot} Hyperbolic tangent kernel 
+
+      \item \code{laplacedot} Laplacian kernel 
+
+      \item \code{besseldot} Bessel kernel 
+
+      \item \code{anovadot} ANOVA RBF kernel 
+
+      \item \code{splinedot} Spline kernel 
+
+      \item \code{stringdot} String kernel 
+
     }
     The kernel parameter can also be set to a user defined function of
     class kernel by passing the function name as an argument.
   }
-
   \item{kpar}{the list of hyper-parameters (kernel parameters).
     This is a list which contains the parameters to be used with the
     kernel function. For valid parameters for existing kernels are :
+
     \itemize{
       \item \code{sigma} inverse kernel width for the Radial Basis
       kernel function "rbfdot" and the Laplacian kernel "laplacedot".
+
       \item \code{degree, scale, offset} for the Polynomial kernel "polydot"
+
       \item \code{scale, offset} for the Hyperbolic tangent kernel
       function "tanhdot"
+
       \item \code{sigma, order, degree} for the Bessel kernel "besseldot". 
+
       \item \code{sigma, degree} for the ANOVA kernel "anovadot".
+      
+      \item \code{length, lambda, normalized} for the "stringdot" kernel
+      where length is the length of the strings considered, lambda the
+      decay factor and normalized a logical parameter determining if the
+      kernel evaluations should be normalized.
     }
 
     Hyper-parameters for user defined kernels can be passed through the
-    kpar parameter as well.}
+    kpar parameter as well. In the case of a Radial Basis kernel function (Gaussian)
+     kpar can also be set to the string "automatic" which uses the heuristics in 
+    \code{\link{sigest}} to calculate a good \code{sigma} value for the
+    Gaussian RBF or Laplace kernel, from the data.
+    (default = "automatic").}
 
   \item{alpha}{The initial alpha vector. Can be either a vector of
     length equal to the number of data points or a single number.}

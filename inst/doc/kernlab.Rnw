@@ -25,10 +25,6 @@ options(width = 70)
 \Plainauthor{Alexandros Karatzoglou, Alex Smola, Kurt Hornik}
 
 \Abstract{
-  A shorter version of this introduction to the \proglang{R} package \pkg{kernlab}
-  is published as \cite{kernlab:Karatzoglou+Smola+Hornik:2004} in the
-  \emph{Journal of Statistical Software}.
-
   \pkg{kernlab} is an extensible package for kernel-based machine
   learning methods in \proglang{R}.  It takes
   advantage of \proglang{R}'s new \proglang{S4} object model and provides a
@@ -680,7 +676,7 @@ y <- sin(x)/x + rnorm(81, sd = 0.03)
 y[41] <- 1
 @
 <<rvm2,echo=TRUE>>=
-rvmm <- rvm(x, y)
+rvmm <- rvm(x, y,kernel="rbfdot",kpar=list(sigma=0.1))
 rvmm
 ytest <- predict(rvmm, x)
 @
@@ -1083,6 +1079,9 @@ well as kernel relevant tools. Sources and binaries for
 the latest version of \pkg{kernlab} are available at CRAN\footnote{\url{http://CRAN.R-project.org}} 
 under the GNU Public License.
 
+A shorter version of this introduction to the \proglang{R} package \pkg{kernlab}
+is published as \cite{kernlab:Karatzoglou+Smola+Hornik:2004} in the
+\emph{Journal of Statistical Software}.
 
 \bibliography{jss}
 

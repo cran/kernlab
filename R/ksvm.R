@@ -1630,7 +1630,7 @@ if(type(ret) =="kbb-svc")
     {
      
       cerror <- 0
-      suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
+      suppressWarnings(vgr <- split(sample(1:m,m),1:cross))
 
       for(i in 1:cross)
         {
@@ -1782,7 +1782,6 @@ function (x,
                                 "eps-bsvr",
                                 "nu-svr"))
 
-  
   m <- length(x)
   
   if(is.character(kernel)){
@@ -2073,9 +2072,9 @@ if(type(ret) == "nu-svc"){
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
 
-           if(ktype==4)
-          K <- kernelMatrix(kernel,xd)
-          xdd <- matrix(1,li+lj,1) 
+        K <- kernelMatrix(kernel,xd)
+        xdd <- matrix(1,li+lj,1) 
+
         resv <- .Call("tron_optim",
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
@@ -2195,8 +2194,7 @@ if(type(ret) =="kbb-svc")
     x <- x[yd$ix]
     count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
 
-    if(ktype==4)
-      K <- kernelMatrix(kernel,x)
+    K <- kernelMatrix(kernel,x)
     xdd <- matrix(1,length(x),1)
 
     resv <- .Call("tron_optim",
@@ -2402,16 +2400,31 @@ if(type(ret) =="kbb-svc")
       param(ret)$epsilon <- epsilon
       param(ret)$C <- C
   }
-  
+
   kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   ymatrix(ret) <- y
   SVindex(ret) <- unique(svindex)
   nSV(ret)  <- length(unique(svindex))
+
+  if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
+    nclass(ret) <- m
+
+  if(type(ret)=="one-svc")
+    nclass(ret) <- 1
+  
   if(nSV(ret)==0)
     stop("No Support Vectors found. You may want to change your parameters")
-  fitted(ret)  <- if (fit)
-    predict(ret, x) else NULL
+  fitted(ret) <- if (fit) {
+    if((type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc") & nclass(ret) > 2)
+      predict(ret, x)
+    else
+      if((type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc"||type(ret)=="spoc-bsvc"||type(ret)=="kbb-bsvc"))
+        predict(ret,as.kernelMatrix(K[reind,reind][,SVindex(ret), drop=FALSE]))
+      else
+        predict(ret,as.kernelMatrix(K[,SVindex(ret), drop=FALSE]))
+  }
+  else NULL
 
   if (fit){
     if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
@@ -2423,195 +2436,199 @@ if(type(ret) =="kbb-svc")
   }
 
   cross(ret) <- -1
-  if(FALSE)
+  if(!((type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc") & nclass(ret) > 2))
     {
+      if((type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc"||type(ret)=="spoc-bsvc"||type(ret)=="kbb-bsvc"))
+        K <- as.kernelMatrix(K[reind,reind])
       if(cross == 1)
         cat("\n","cross should be >1 no cross-validation done!","\n","\n")
       else if (cross > 1)
-    {
-      cerror <- 0
-      suppressWarnings(vgr<-split(sample(1:dim(K)[1],dim(K)[1]),1:cross))
-      for(i in 1:cross)
         {
-          cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
-          if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
+          cerror <- 0
+          suppressWarnings(vgr <- split(sample(1:dim(K)[1],dim(K)[1]),1:cross))
+          for(i in 1:cross)
             {
-              if(is.null(class.weights))
-                cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
-              else
-                cret <- ksvm(as.kernelMatrix(K[cind,cind]),lev(ret)[y[cind]],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
-              cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
-              cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
+              cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
+              if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
+                {
+                  if(is.null(class.weights))
+                    cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
+                  else
+                    cret <- ksvm(as.kernelMatrix(K[cind,cind]),lev(ret)[y[cind]],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                  cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+                  cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
+                }
+              if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
+                {
+                  cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+                  cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+                  cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+                }
             }
-          if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
-            {
-              cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
-              cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
-            }
-         }
-      cross(ret) <- cerror
-    }
+          cross(ret) <- cerror
+        }
       prob.model(ret) <- list(NULL)
       if(prob.model)
-    {
-      if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
         {
-          p <- 0
-          for (i in 1:(nclass(ret)-1)) {
-            jj <- i+1
-            for(j in jj:nclass(ret)) {
-              p <- p+1
-              ##prepare data
-              li <- length(indexes[[i]])
-              lj <- length(indexes[[j]])
-              xd <- matrix(0,(li+lj),dim(K)[2])
-              xdi <- 1:(li+lj) <= li
-              xd[xdi,rep(TRUE,li+lj)] <- K[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-              xd[xdi == FALSE,rep(TRUE,li+lj)] <- K[indexes[[j]],c(indexes[[i]],indexes[[j]])]
-              
-              if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
-                {
-                  yd <- c(rep(-1,li),rep(1,lj))
-                  if(!is.null(class.weights)){
-                    weight <- weightlabels[c(i,j)]
-                    wl <- c(1,0)
-                    nweights <- 2
-                  }
-                }
-              else
-                {
-                  yd <- c(rep(1,li),rep(-1,lj))
-                  if(!is.null(class.weights)){
-                    weight <- weightlabels[c(j,i)]
-                    wl <- c(0,1)
-                    nweigths <- 2
-                  }
-                }
-              m <- li+lj
-              suppressWarnings(vgr <- split(sample(1:m,m),1:3))
-              pres <- yres <- NULL
-              for(k in 1:3)
-                {
-                  cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                  cret <- ksvm(as.kernelMatrix(as.kernelMatrix(xd[cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
-                  yres <- c(yres,yd[vgr[[k]]])
-                  pres <- rbind(pres,predict(cret, as.kernelMatrix(xd[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
+          if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
+            {
+              p <- 0
+              for (i in 1:(nclass(ret)-1)) {
+                jj <- i+1
+                for(j in jj:nclass(ret)) {
+                  p <- p+1
+                  ##prepare data
+                  li <- length(indexes[[i]])
+                  lj <- length(indexes[[j]])
+                  xd <- matrix(0,(li+lj),dim(K)[2])
+                  xdi <- 1:(li+lj) <= li
+                  xd[xdi,rep(TRUE,li+lj)] <- K[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+                  xd[xdi == FALSE,rep(TRUE,li+lj)] <- K[indexes[[j]],c(indexes[[i]],indexes[[j]])]
                   
+                  if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
+                    {
+                      yd <- c(rep(-1,li),rep(1,lj))
+                      if(!is.null(class.weights)){
+                        weight <- weightlabels[c(i,j)]
+                        wl <- c(1,0)
+                        nweights <- 2
+                      }
+                    }
+                  else
+                    {
+                      yd <- c(rep(1,li),rep(-1,lj))
+                      if(!is.null(class.weights)){
+                        weight <- weightlabels[c(j,i)]
+                        wl <- c(0,1)
+                        nweigths <- 2
+                      }
+                    }
+                  m <- li+lj
+                  suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+                  
+                  pres <- yres <- NULL
+                  for(k in 1:3)
+                    {
+                      cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
+                      cret <- ksvm(as.kernelMatrix(as.kernelMatrix(K[cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+                      yres <- c(yres,yd[vgr[[k]]])
+                      pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
+                      
+                    }
+                  prob.model(ret)[[p]] <- .probPlatt(pres,yres)
                 }
-              prob.model(ret)[[p]] <- .probPlatt(pres,yres)
+              }
             }
+          if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
+            suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+            pres <-  NULL
+            for(i in 1:3)
+              {
+                cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
+                cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C, nu=nu, epsilon=epsilon, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+                cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind, drop = FALSE][,SVindex(cret), drop = FALSE]))
+                pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[i]],cind , drop = FALSE][,SVindex(cret) ,drop = FALSE]),type="decision"))
+              }
+            pres[abs(pres) > (5*sd(pres))] <- 0
+            prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
           }
         }
-      if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
-        suppressWarnings(vgr<-split(sample(1:m,m),1:3))
-        pres <-  NULL
-        for(i in 1:3)
-          {
-            cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
-            cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C, nu=nu, epsilon=epsilon, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
-            cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind, drop = FALSE][,SVindex(cret), drop = FALSE]))
-            pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[i]],cind , drop = FALSE][,SVindex(cret) ,drop = FALSE]),type="decision"))
-          }
-        pres[abs(pres) > (5*sd(pres))] <- 0
-        prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
-      }
     }
- }
-else{
-  if(cross == 1)
-    cat("\n","cross should be >1 no cross-validation done!","\n","\n")
-  else if (cross > 1)
-    {
-      cerror <- 0
-      suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
-      for(i in 1:cross)
-        {
-          cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
-          if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
-            {
-              if(is.null(class.weights))
-                cret <- ksvm(x[cind],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
-              else
-                cret <- ksvm(x[cind],lev(ret)[y[cind]],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
-               cres <- predict(cret, x[vgr[[i]]])
-            cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
+  else{
+    if(cross == 1)
+      cat("\n","cross should be >1 no cross-validation done!","\n","\n")
+    else if (cross > 1)
+      {
+        cerror <- 0
+        suppressWarnings(vgr<-split(sample(1:m,m),1:cross))
+        for(i in 1:cross)
+          {
+            cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
+            if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
+              {
+                if(is.null(class.weights))
+                  cret <- ksvm(x[cind],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
+                else
+                  cret <- ksvm(x[cind],lev(ret)[y[cind]],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                cres <- predict(cret, x[vgr[[i]]])
+                cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
+              }
+            if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
+              {
+                cret <- ksvm(x[cind],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+                cres <- predict(cret, x[vgr[[i]]])
+                cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              }
+          }
+        cross(ret) <- cerror
+      }
+    
+    prob.model(ret) <- list(NULL)
+    
+    if(prob.model)
+      {
+        if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
+          {
+            p <- 0
+            for (i in 1:(nclass(ret)-1)) {
+              jj <- i+1
+              for(j in jj:nclass(ret)) {
+                p <- p+1
+                ##prepare data
+                li <- length(indexes[[i]])
+                lj <- length(indexes[[j]])
+                
+                xd <- x[c(indexes[[i]], indexes[[j]])]
+                
+                if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
+                  {
+                    yd <- c(rep(-1,li),rep(1,lj))
+                    if(!is.null(class.weights)){
+                      weight <- weightlabels[c(i,j)]
+                      wl <- c(1,0)
+                      nweights <- 2
+                    }
+                  }
+                else
+                  {
+                    yd <- c(rep(1,li),rep(-1,lj))
+                    if(!is.null(class.weights)){
+                      weight <- weightlabels[c(j,i)]
+                      wl <- c(0,1)
+                      nweigths <- 2
+                    }
+                  }
+                m <- li+lj
+                suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+                
+                pres <- yres <- NULL
+                for(k in 1:3)
+                  { 
+                    cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
+                    cret <- ksvm(xd[cind], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+                    yres <- c(yres,yd[vgr[[k]]])
+                    pres <- rbind(pres,predict(cret, xd[vgr[[k]]],type="decision"))
+                  }
+                prob.model(ret)[[p]] <- .probPlatt(pres,yres)
+              }
             }
-          if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
+          }
+        if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
+          suppressWarnings(vgr<-split(sample(1:m,m),1:3))
+          for(i in 1:3)
             {
+              cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
+              
               cret <- ksvm(x[cind],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
               cres <- predict(cret, x[vgr[[i]]])
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              pres <- rbind(pres,predict(cret, x[vgr[[i]]],type="decision"))
             }
-         }
-      cross(ret) <- cerror
-    }
-
-  prob.model(ret) <- list(NULL)
-  
-  if(prob.model)
-    {
-      if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="C-bsvc")
-        {
-          p <- 0
-          for (i in 1:(nclass(ret)-1)) {
-            jj <- i+1
-            for(j in jj:nclass(ret)) {
-              p <- p+1
-              ##prepare data
-              li <- length(indexes[[i]])
-              lj <- length(indexes[[j]])
-
-              xd <- x[c(indexes[[i]], indexes[[j]])]
-
-              if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
-                {
-                  yd <- c(rep(-1,li),rep(1,lj))
-                  if(!is.null(class.weights)){
-                    weight <- weightlabels[c(i,j)]
-                    wl <- c(1,0)
-                    nweights <- 2
-                  }
-                }
-              else
-                {
-                  yd <- c(rep(1,li),rep(-1,lj))
-                  if(!is.null(class.weights)){
-                    weight <- weightlabels[c(j,i)]
-                    wl <- c(0,1)
-                    nweigths <- 2
-                  }
-                }
-              m <- li+lj
-              suppressWarnings(vgr <- split(sample(1:m,m),1:3))
-
-              pres <- yres <- NULL
-              for(k in 1:3)
-                { 
-                  cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                  cret <- ksvm(xd[cind], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
-                  yres <- c(yres,yd[vgr[[k]]])
-                  pres <- rbind(pres,predict(cret, xd[vgr[[k]]],type="decision"))
-                }
-              prob.model(ret)[[p]] <- .probPlatt(pres,yres)
-            }
-          }
+          pres[abs(pres) > (5*sd(pres))] <- 0
+          prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
         }
-      if(type(ret) == "eps-svr"||type(ret) == "nu-svr"||type(ret)=="eps-bsvr"){
-        suppressWarnings(vgr<-split(sample(1:m,m),1:3))
-        for(i in 1:3)
-          {
-            cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
-
-            cret <- ksvm(x[cind],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
-            cres <- predict(cret, x[vgr[[i]]])
-            pres <- rbind(pres,predict(cret, x[vgr[[i]]],type="decision"))
-          }
-        pres[abs(pres) > (5*sd(pres))] <- 0
-        prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
       }
-    }
-}
+  }
+
   return(ret)
 })
 
@@ -2620,7 +2637,7 @@ else{
 
 setMethod("predict", signature(object = "ksvm"),
 function (object, newdata, type = "response", coupler = "minpair")
-{ 
+{
   type <- match.arg(type,c("response","probabilities","votes","decision"))
   if (missing(newdata) && type=="response" & !is.null(fitted(object)))
     return(fitted(object))
@@ -2639,7 +2656,7 @@ function (object, newdata, type = "response", coupler = "minpair")
   
     newnrows <- nrow(newdata)
     newncols <- ncol(newdata)
-    if(!is(newdata,"kernelMatrix")  & !is.null(xmatrix(object))){
+    if(!is(newdata,"kernelMatrix") && !is.null(xmatrix(object))){
       if(is(xmatrix(object),"list") && is(xmatrix(object)[[1]],"matrix")) oldco <- ncol(xmatrix(object)[[1]])
       if(is(xmatrix(object),"matrix")) oldco <- ncol(xmatrix(object))
       if (oldco != newncols) stop ("test vector does not match model !")
@@ -2770,7 +2787,10 @@ function (object, newdata, type = "response", coupler = "minpair")
   
   if(type(object) == "one-svc")
     {
-      ret <- kernelMult(kernelf(object),newdata,xmatrix(object),coef(object)) - b(object)
+      if(is(newdata,"kernelMatrix"))
+        ret <- newdata %*% coef(object) - b(object)
+      else
+        ret <- kernelMult(kernelf(object),newdata,xmatrix(object),coef(object)) - b(object)
       ##one-class-classification: return TRUE/FALSE (probabilities ?)
       if(type=="decision")
       	return(ret)
@@ -2783,7 +2803,10 @@ function (object, newdata, type = "response", coupler = "minpair")
   else {
     if(type(object)=="eps-svr"||type(object)=="nu-svr"||type(object)=="eps-bsvr")
       {
-        predres <- kernelMult(kernelf(object),newdata,xmatrix(object),coef(object)) - b(object)
+        if(is(newdata,"kernelMatrix"))
+          predres <- newdata %*% coef(object) - b(object)
+       else
+         predres <- kernelMult(kernelf(object),newdata,xmatrix(object),coef(object)) - b(object)
       }
     else {
       ##classification & votes : return votematrix
