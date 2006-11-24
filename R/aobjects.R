@@ -208,6 +208,7 @@ setClass("ksvm", representation(param = "list",
                                 coef = "ANY",
                                 alphaindex = "ANY",
                                 b = "numeric",
+				obj = "vector",
                                 SVindex = "vector",
                                 nSV = "numeric",
                                 prior = "list",
@@ -239,6 +240,20 @@ setReplaceMethod("scaling", "ksvm", function(x, value) {
   x@scaling<- value
   x
 })
+
+if(!isGeneric("obj")){
+  if (is.function("obj"))
+     fun <- obj
+  else fun <- function(object) standardGeneric("obj")
+  setGeneric("obj", fun)
+}
+setMethod("obj", "ksvm", function(object) object@obj)
+setGeneric("obj<-", function(x, value) standardGeneric("obj<-"))
+setReplaceMethod("obj", "ksvm", function(x, value) {
+   x@obj<- value
+   x
+})
+
 
 setMethod("coef", "ksvm", function(object, ...) object@coef)
 setGeneric("coef<-", function(x, value) standardGeneric("coef<-"))

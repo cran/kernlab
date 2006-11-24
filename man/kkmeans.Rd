@@ -29,9 +29,8 @@
     By default the variables are taken from the environment which
     `kkmeans' is called from.}
 
-  \item{centers}{Either the number of clusters or a set of initial cluster
-    centers. If the first, a random set of rows in the eigenvectors
-    matrix are chosen as the initial centers.}
+  \item{centers}{Either the number of clusters or a matrix of initial cluster
+    centers. If the first a random initial partitioning is used.}
 
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which
@@ -108,7 +107,11 @@
   \item{\dots}{additional parameters}
     
  }
-\details{
+ \details{
+  \code{kernel k-means} uses the 'kernel trick' (i.e. implicitly projecting all data
+  into a non-linear feature space with the use of a kernel) in order to
+  deal with one of the major drawbacks of \code{k-means} that is that it cannot
+  capture clusters that are not linearly separable in input space.  \cr
   The algorithm is implemented using the triangle inequality to avoid
   unnecessary and computational expensive distance calculations.
   This leads to significant speedup particularly on large data sets with
@@ -125,7 +128,7 @@ vectors where a string kernel has to be used.
   
 }
 \value{
- An S4 object of class \code{specc} wich extends the class \code{vector}
+ An S4 object of class \code{specc} which extends the class \code{vector}
  containing integers indicating the cluster to which
  each point is allocated. The following slots contain useful information
  

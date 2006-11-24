@@ -1,12 +1,10 @@
 \def\fileversion{1.0}
-\def\filename{Z}
+\def\filename{A}
 \def\filedate{2004/10/08}
 %%
-%% Package `Z' to use with LaTeX2e for Z reports
-%% Copyright (C) 2004 Achim Zeileis
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{Z}[\filedate\space\fileversion\space Z class by Achim Zeileis]
+\ProvidesClass{A}[\filedate\space\fileversion\space A class ]
 
 %% options
 \LoadClass[10pt,a4paper,twoside]{article}
