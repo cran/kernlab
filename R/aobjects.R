@@ -12,6 +12,7 @@ setClassUnion("mpinput", c("matrix","data.frame","missing"))
 setClassUnion("lpinput", c("list","missing"))
 
 
+
 setClass("vm", representation(alpha = "listI", ## since setClassUnion is not  working
                               type = "character",
                               kernelf = "kfunction",
@@ -88,6 +89,8 @@ setReplaceMethod("terms", "vm", function(x, value) {
   x@terms <- value
   x
 })
+
+
 
 if(!isGeneric("xmatrix")){
   if (is.function("xmatrix"))
@@ -645,11 +648,12 @@ setMethod("coef", "gausspr", function(object, ...) object@alpha)
 
 
 # Relevance Vector Machine object 
-setClass("rvm", representation( tol = "numeric",
+setClass("rvm", representation(tol = "numeric",
                                nvar = "numeric",
-                                mlike = "numeric",
-                                RVindex = "vector",
-                                nRV = "numeric"),contains ="vm")
+                               mlike = "numeric",
+                               RVindex = "vector",
+                               coef = "ANY",
+                               nRV = "numeric"),contains ="vm")
 
 
 if(!isGeneric("tol")){
@@ -665,6 +669,12 @@ setReplaceMethod("tol", "rvm", function(x, value) {
   x
 })
 
+
+setMethod("coef", "rvm", function(object, ...) object@coef)
+setReplaceMethod("coef", "rvm", function(x, value) {
+  x@coef <- value
+  x
+})
 
 if(!isGeneric("RVindex")){
   if (is.function("RVindex"))

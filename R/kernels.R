@@ -387,7 +387,7 @@ kernelMatrix.rbfkernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="rbfkernel",x="matrix"),kernelMatrix.rbfkernel)
+setMethod("kernelMatrix",signature(kernel="rbfkernel"),kernelMatrix.rbfkernel)
 
 kernelMatrix.laplacekernel <- function(kernel, x, y = NULL)
 {
@@ -416,7 +416,7 @@ kernelMatrix.laplacekernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="laplacekernel",x="matrix"),kernelMatrix.laplacekernel)
+setMethod("kernelMatrix",signature(kernel="laplacekernel"),kernelMatrix.laplacekernel)
 
 kernelMatrix.besselkernel <- function(kernel, x, y = NULL)
 {
@@ -454,7 +454,7 @@ kernelMatrix.besselkernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix((res/lim)^ni))
   }
 }
-setMethod("kernelMatrix",signature(kernel="besselkernel",x="matrix"),kernelMatrix.besselkernel)
+setMethod("kernelMatrix",signature(kernel="besselkernel"),kernelMatrix.besselkernel)
 
 
 kernelMatrix.anovakernel <- function(kernel, x, y = NULL)
@@ -492,7 +492,7 @@ kernelMatrix.anovakernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="anovakernel",x="matrix"),kernelMatrix.anovakernel)
+setMethod("kernelMatrix",signature(kernel="anovakernel"),kernelMatrix.anovakernel)
 
 
 kernelMatrix.polykernel <- function(kernel, x, y = NULL)
@@ -513,7 +513,7 @@ kernelMatrix.polykernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="polykernel",x="matrix"),kernelMatrix.polykernel)
+setMethod("kernelMatrix",signature(kernel="polykernel"),kernelMatrix.polykernel)
 
 kernelMatrix.vanilla <- function(kernel, x, y = NULL)
 {
@@ -529,7 +529,7 @@ kernelMatrix.vanilla <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="vanillakernel",x="matrix"),kernelMatrix.vanilla)
+setMethod("kernelMatrix",signature(kernel="vanillakernel"),kernelMatrix.vanilla)
 
 kernelMatrix.tanhkernel <- function(kernel, x, y = NULL)
 {
@@ -547,7 +547,7 @@ kernelMatrix.tanhkernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="tanhkernel",x="matrix"),kernelMatrix.tanhkernel)
+setMethod("kernelMatrix",signature(kernel="tanhkernel"),kernelMatrix.tanhkernel)
 
 
 kernelMatrix.splinekernel <- function(kernel, x, y = NULL)
@@ -593,7 +593,7 @@ kernelMatrix.splinekernel <- function(kernel, x, y = NULL)
     return(as.kernelMatrix(res))
   }
 }
-setMethod("kernelMatrix",signature(kernel="splinekernel",x="matrix"),kernelMatrix.splinekernel)
+setMethod("kernelMatrix",signature(kernel="splinekernel"),kernelMatrix.splinekernel)
 
 kernelMatrix.stringkernel <- function(kernel, x, y=NULL)
 { 
@@ -729,8 +729,12 @@ setMethod("kernelMult",signature(kernel="character", x="kernelMatrix"),kernelMul
 
 kernelMult.rbfkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or a vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+   if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   n <- dim(x)[1]
   m <- dim(x)[2]
@@ -785,13 +789,17 @@ kernelMult.rbfkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 }  
-setMethod("kernelMult",signature(kernel="rbfkernel", x="matrix"),kernelMult.rbfkernel)
+setMethod("kernelMult",signature(kernel="rbfkernel"),kernelMult.rbfkernel)
 
 
 kernelMult.laplacekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or a vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+   if(is(x,"vector"))
+    x <- as.matrix(x)
+   if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   n <- dim(x)[1]
   m <- dim(x)[2]
@@ -846,14 +854,18 @@ kernelMult.laplacekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 }  
-setMethod("kernelMult",signature(kernel="laplacekernel", x="matrix"),kernelMult.laplacekernel)
+setMethod("kernelMult",signature(kernel="laplacekernel"),kernelMult.laplacekernel)
 
 
 
 kernelMult.besselkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+   if(is(x,"vector"))
+    x <- as.matrix(x)
+   if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   nu <- kpar(kernel)$order
   ni <- kpar(kernel)$degree
@@ -928,12 +940,16 @@ kernelMult.besselkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 }  
-setMethod("kernelMult",signature(kernel="besselkernel", x="matrix"),kernelMult.besselkernel)
+setMethod("kernelMult",signature(kernel="besselkernel"),kernelMult.besselkernel)
 
 kernelMult.anovakernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or a vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   degree <- kpar(kernel)$degree
   n <- dim(x)[1]
@@ -1021,16 +1037,20 @@ kernelMult.anovakernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 }  
-setMethod("kernelMult",signature(kernel="anovakernel", x="matrix"),kernelMult.anovakernel)
+setMethod("kernelMult",signature(kernel="anovakernel"),kernelMult.anovakernel)
 
 
 
 kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or a vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   n <- dim(x)[1]
   m <- dim(x)[2]
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   nblocks <- floor(n/blocksize)
   lowerl <- 1
   upperl <- 0
@@ -1119,13 +1139,17 @@ kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 }  
-setMethod("kernelMult",signature(kernel="splinekernel", x="matrix"),kernelMult.splinekernel)
+setMethod("kernelMult",signature(kernel="splinekernel"),kernelMult.splinekernel)
 
 
 kernelMult.polykernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   degree <- kpar(kernel)$degree
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
@@ -1172,13 +1196,17 @@ kernelMult.polykernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 } 
-setMethod("kernelMult",signature(kernel="polykernel", x="matrix"),kernelMult.polykernel)
+setMethod("kernelMult",signature(kernel="polykernel"),kernelMult.polykernel)
 
 
 kernelMult.tanhkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or a vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
@@ -1226,16 +1254,19 @@ kernelMult.tanhkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 } 
-setMethod("kernelMult",signature(kernel="tanhkernel", x="matrix"),kernelMult.tanhkernel)
+setMethod("kernelMult",signature(kernel="tanhkernel"),kernelMult.tanhkernel)
 
 
 kernelMult.vanillakernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or vector")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   n <- dim(x)[1]
   m <- dim(x)[2]
- 
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   if (is.null(y))
     {
       z <- as.matrix(z)
@@ -1254,7 +1285,7 @@ kernelMult.vanillakernel <- function(kernel, x, y=NULL, z, blocksize = 256)
     }
   return(res)
 } 
-setMethod("kernelMult",signature(kernel="vanillakernel", x="matrix"),kernelMult.vanillakernel)
+setMethod("kernelMult",signature(kernel="vanillakernel"),kernelMult.vanillakernel)
 
 
 kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
@@ -1329,22 +1360,23 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
       
       if (nblocks > 0){
         res1 <- matrix(0,blocksize,m)
-        upperl <- upperl + blocksize
-        
-        for(i in lowerl:(upperl)) {
-          for(j in 1:m) {
-            res1[i,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+        for(k in 1:nblocks){
+          upperl <- upperl + blocksize
+          for(i in lowerl:(upperl)) {
+            for(j in 1:m) {
+              res1[i - (k-1)*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+            }
           }
+          vres[lowerl:upperl,] <- res1 %*% z
+          lowerl <- upperl +1
         }
-        vres[lowerl:upperl,] <- res1 %*% z
-        lowerl <- upperl +1
       }
       if(lowerl <= n)
         {
           res1 <- matrix(0,n-lowerl+1,m)
           for(i in lowerl:n) {
             for(j in 1:m) {
-              res1[i,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+              res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
             }
           }
           vres[lowerl:n,] <- res1  %*% z
@@ -1360,35 +1392,38 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
         if(dim(z)[1]!= m) stop("z rows must be equal to y length")
         dz <- dim(z)[2]
         vres <- matrix(0,n,dz)
-      
+        
         if (nblocks > 0){
           res1 <- matrix(0,blocksize,m)
-          upperl <- upperl + blocksize
-        
-          for(i in lowerl:(upperl)) {
-            for(j in 1:m) {
-              res1[i,j] <- kernel(x[[i]],y[[j]])
+          
+          for(k in 1:nblocks){
+            
+            upperl <- upperl + blocksize
+            
+            for(i in lowerl:(upperl)) {
+              for(j in 1:m) {
+                res1[i - (k-1)*blocksize, j] <- kernel(x[[i]],y[[j]])
+              }
             }
+            vres[lowerl:upperl,] <- res1 %*% z
+            lowerl <- upperl +1
           }
-          vres[lowerl:upperl,] <- res1 %*% z
-          lowerl <- upperl +1
         }
         if(lowerl <= n)
           {
             res1 <- matrix(0,n-lowerl+1,m)
             for(i in lowerl:n) {
               for(j in 1:m) {
-                res1[i,j] <- kernel(x[[i]],y[[j]])
+                res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])
               }
             }
             vres[lowerl:n,] <- res1  %*% z
-        }
+          }
       }
   }
   return(vres)
 }
 setMethod("kernelMult",signature(kernel="stringkernel"),kernelMult.stringkernel)
-
 
 
 ## kernelPol return the quadratic form of a kernel matrix
@@ -1447,9 +1482,13 @@ setGeneric("kernelPol", function(kernel, x, y=NULL, z, k = NULL) standardGeneric
 
 kernelPol.rbfkernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix a vector or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   n <- dim(x)[1]
   dota <- rowSums(x*x)/2
@@ -1481,14 +1520,18 @@ kernelPol.rbfkernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="rbfkernel", x="matrix"),kernelPol.rbfkernel)
+setMethod("kernelPol",signature(kernel="rbfkernel"),kernelPol.rbfkernel)
 
 kernelPol.laplacekernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix, vector or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   sigma <- kpar(kernel)$sigma
+ if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   n <- dim(x)[1]
   dota <- rowSums(x*x)/2
   z <- as.matrix(z)
@@ -1519,15 +1562,19 @@ kernelPol.laplacekernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="laplacekernel", x="matrix"),kernelPol.laplacekernel)
+setMethod("kernelPol",signature(kernel="laplacekernel"),kernelPol.laplacekernel)
 
 
 kernelPol.besselkernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   sigma <- kpar(kernel)$sigma
+   if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   nu <- kpar(kernel)$order
   ni <- kpar(kernel)$degree
   n <- dim(x)[1]
@@ -1571,16 +1618,20 @@ kernelPol.besselkernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="besselkernel", x="matrix"),kernelPol.besselkernel)
+setMethod("kernelPol",signature(kernel="besselkernel"),kernelPol.besselkernel)
 
 
 kernelPol.anovakernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   sigma <- kpar(kernel)$sigma
   degree <- kpar(kernel)$degree
+ if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   n <- dim(x)[1]
   z <- as.matrix(z)
   if(!dim(z)[1]==n)
@@ -1618,14 +1669,18 @@ kernelPol.anovakernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="anovakernel", x="matrix"),kernelPol.anovakernel)
+setMethod("kernelPol",signature(kernel="anovakernel"),kernelPol.anovakernel)
 
 
 kernelPol.splinekernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   sigma <- kpar(kernel)$sigma
   degree <- kpar(kernel)$degree
   n <- dim(x)[1]
@@ -1669,19 +1724,23 @@ kernelPol.splinekernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(k*res*z)
     }
 }
-setMethod("kernelPol",signature(kernel="splinekernel", x="matrix"),kernelPol.splinekernel)
+setMethod("kernelPol",signature(kernel="splinekernel"),kernelPol.splinekernel)
 
 
 kernelPol.polykernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   degree <- kpar(kernel)$degree
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
-
+  
   z <- as.matrix(z)
   if(!dim(z)[1]==n)
     stop("z must have the length equal to x colums")
@@ -1707,14 +1766,18 @@ kernelPol.polykernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="polykernel", x="matrix"),kernelPol.polykernel)
+setMethod("kernelPol",signature(kernel="polykernel"),kernelPol.polykernel)
 
 
 kernelPol.tanhkernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix, vector or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
@@ -1743,17 +1806,20 @@ kernelPol.tanhkernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="tanhkernel", x="matrix"),kernelPol.tanhkernel)
+setMethod("kernelPol",signature(kernel="tanhkernel"),kernelPol.tanhkernel)
 
 
 kernelPol.vanillakernel <- function(kernel, x, y=NULL, z, k=NULL)
 {
-  if(!is(y,"matrix")&&!is.null(y)) stop("y must be a matrix or NULL")
+  if(!is(y,"matrix")&&!is.null(y)&&!is(y,"vector")) stop("y must be a matrix, vector or NULL")
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   n <- dim(x)[1]
   z <- as.matrix(z)
-
+  if(is(x,"vector"))
+    x <- as.matrix(x)
+  if(is(y,"vector"))
+    y <- as.matrix(y)
   if(!dim(z)[1]==n)
     stop("z must have the length equal to x colums")
   if (is.null(y))
@@ -1778,7 +1844,7 @@ kernelPol.vanillakernel <- function(kernel, x, y=NULL, z, k=NULL)
       return(res)
     }
 }
-setMethod("kernelPol",signature(kernel="vanillakernel", x="matrix"),kernelPol.vanillakernel)
+setMethod("kernelPol",signature(kernel="vanillakernel"),kernelPol.vanillakernel)
 
 kernelPol.stringkernel <- function(kernel, x, y=NULL ,z ,k=NULL)
 {
@@ -1889,7 +1955,7 @@ kernelFast.rbfkernel <- function(kernel, x, y, a)
     return(res)
   }
 }
-setMethod("kernelFast",signature(kernel="rbfkernel",x="matrix"),kernelFast.rbfkernel)
+setMethod("kernelFast",signature(kernel="rbfkernel"),kernelFast.rbfkernel)
 
 kernelFast.laplacekernel <- function(kernel, x, y, a)
 {
@@ -1912,7 +1978,7 @@ kernelFast.laplacekernel <- function(kernel, x, y, a)
     return(res)
   }
 }
-setMethod("kernelFast",signature(kernel="laplacekernel",x="matrix"),kernelFast.laplacekernel)
+setMethod("kernelFast",signature(kernel="laplacekernel"),kernelFast.laplacekernel)
 
 kernelFast.besselkernel <- function(kernel, x, y, a)
 {
@@ -1941,33 +2007,33 @@ kernelFast.besselkernel <- function(kernel, x, y, a)
     return((res/lim)^ni)
   }
 }
-setMethod("kernelFast",signature(kernel="besselkernel",x="matrix"),kernelFast.besselkernel)
+setMethod("kernelFast",signature(kernel="besselkernel"),kernelFast.besselkernel)
 
 
 kernelFast.anovakernel <- function(kernel, x, y, a)
 {
   return(kernelMatrix(kernel,x,y))
 }
-setMethod("kernelFast",signature(kernel="anovakernel",x="matrix"),kernelFast.anovakernel)
+setMethod("kernelFast",signature(kernel="anovakernel"),kernelFast.anovakernel)
 
 
 kernelFast.polykernel <- function(kernel, x, y, a)
 {
   return(kernelMatrix(kernel,x,y))
 }
-setMethod("kernelFast",signature(kernel="polykernel",x="matrix"),kernelFast.polykernel)
+setMethod("kernelFast",signature(kernel="polykernel"),kernelFast.polykernel)
 
 kernelFast.vanilla <- function(kernel, x, y, a)
 {
   return(kernelMatrix(kernel,x,y))
 }
-setMethod("kernelFast",signature(kernel="vanillakernel",x="matrix"),kernelFast.vanilla)
+setMethod("kernelFast",signature(kernel="vanillakernel"),kernelFast.vanilla)
 
 kernelFast.tanhkernel <- function(kernel, x, y, a)
 {
   return(kernelMatrix(kernel,x,y))
 }
-setMethod("kernelFast",signature(kernel="tanhkernel",x="matrix"),kernelFast.tanhkernel)
+setMethod("kernelFast",signature(kernel="tanhkernel"),kernelFast.tanhkernel)
 
 kernelFast.stringkernel <- function(kernel, x, y, a)
 {
