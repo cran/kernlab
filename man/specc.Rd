@@ -14,7 +14,7 @@ of an affinity matrix.
 \usage{
 \S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1), 
+\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = "automatic", 
        nystrom.red = FALSE, nystrom.sample = dim(x)[1]/6, iterations = 200,
        mod.sample = 0.75, na.action = na.omit, ...)
 

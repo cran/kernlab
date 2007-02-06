@@ -5,11 +5,10 @@
 \alias{csi,matrix-method}
 \title{Cholesky decomposition with Side Information}
 \description{
- The \code{csi} function in  \pkg{in Package `kernlab'} is an
- implementation of an incomplete Cholesky decomposition algorithm which
- exploits side information (e.g. classification labels, regression
- responses) to compute a low rank decomposition of a kernel matrix from
- the data.
+ The \code{csi} function in \pkg{kernlab} is an implementation of an
+ incomplete Cholesky decomposition algorithm which exploits side
+ information (e.g., classification labels, regression responses) to
+ compute a low rank decomposition of a kernel matrix from the data.
 }
 \usage{
 \S4method{csi}{matrix}(x, y, kernel="rbfdot", kpar=list(sigma=0.1), rank,
@@ -96,7 +95,7 @@ centering = TRUE, kappa = 0.99 ,delta = 40 ,tol = 1e-5)
   
   slots can be accessed either by \code{object@slot}
   or by accessor functions with the same name
-  (e.g. \code{pivots(object))}}
+  (e.g., \code{pivots(object))}}
 
 \references{ \item
       Francis R. Bach, Michael I. Jordan\cr

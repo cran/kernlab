@@ -24,9 +24,9 @@
 \S4method{ksvm}{vector}(x, ...)
 
 \S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", 
-     kpar = list(sigma = 0.1), C = 1, nu = 0.2, epsilon = 0.1, 
-     prob.model = FALSE, class.weights = NULL, cache = 40, 
-     tol = 0.001, shrinking = TRUE, cross = 0, fit = TRUE, ..., 
+     kpar = "automatic", C = 1, nu = 0.2, epsilon = 0.1, 
+     prob.model = FALSE, class.weights = NULL, cross = 0, fit = TRUE,
+     cache = 40, tol = 0.001, shrinking = TRUE, ..., 
      subset, na.action = na.omit)
 
 \S4method{ksvm}{kernelMatrix}(x, y = NULL, type = NULL, C = 1,

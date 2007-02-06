@@ -46,9 +46,10 @@ setMethod("kpca",signature(x="matrix"),
   if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
 
   km <- kernelMatrix(kernel,x)
+
   ## center kernel matrix
-  i <- matrix((1/m), m, m)
-  kc <- km - km %*% i - i %*% km + i %*% km %*% i
+  kc <- t(t(km - colSums(km)/m) -  rowSums(km)/m) + sum(km)/m^2
+
   ## compute eigenvectors
   res <- eigen(kc/m,symmetric=TRUE)
   
@@ -85,8 +86,8 @@ setMethod("kpca",signature(x="list"),
 
   km <- kernelMatrix(kernel,x)
   ## center kernel matrix
-  i <- matrix((1/m), m, m)
-  kc <- km - km %*% i - i %*% km + i %*% km %*% i
+  kc <- t(t(km - colSums(km)/m) -  rowSums(km)/m) + sum(km)/m^2
+ 
   ## compute eigenvectors
   res <- eigen(kc/m,symmetric=TRUE)
   
@@ -116,8 +117,8 @@ setMethod("kpca",signature(x= "kernelMatrix"),
     stop("Kernel matrix has to be symetric, and positive semidefinite")
 
   ## center kernel matrix
-  i <- matrix((1/m), m, m)
-  kc <- x - x %*% i - i %*% x + i %*% x %*% i
+   kc <- t(t(x - colSums(x)/m) -  rowSums(x)/m) + sum(x)/m^2
+  
   ## compute eigenvectors
   res <- eigen(kc/m,symmetric=TRUE)
   
@@ -175,9 +176,8 @@ function(object , x)
         ka <- kernelMatrix(kernelf(object),xmatrix(object))
       }
     ## center
-    yi <- matrix((1/m), m, m)
-    xi <- matrix((1/m), n, m)
-    ret <- knc - knc %*% yi - xi %*% ka + xi %*% ka %*% yi
+    ret <- t(t(knc - rowSums(knc)/m) - rowSums(ka)/m) + sum(ka)/(m*n) 
+
     return(ret %*% pcv(object))
   })
 

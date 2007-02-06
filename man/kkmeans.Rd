@@ -13,11 +13,14 @@
 
 \S4method{kkmeans}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{kkmeans}{matrix}(x, centers, kernel = "rbfdot", kpar = list(sigma = 0.1),alg="kkmeans", p=1, na.action = na.omit, ...)
+\S4method{kkmeans}{matrix}(x, centers, kernel = "rbfdot", kpar = "automatic",
+        alg="kkmeans", p=1, na.action = na.omit, ...)
 
 \S4method{kkmeans}{kernelMatrix}(x, centers, ...)
 
-\S4method{kkmeans}{list}(x, centers, kernel = "stringdot", kpar = list(length=4, lambda=0.5), alg ="kkmeans", p = 1, na.action = na.omit, ...)
+\S4method{kkmeans}{list}(x, centers, kernel = "stringdot",
+        kpar = list(length=4, lambda=0.5),
+        alg ="kkmeans", p = 1, na.action = na.omit, ...)
 }
 
 \arguments{
@@ -35,7 +38,7 @@
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which
     computes a inner product in feature space between two
-    vector arguments (see \code{link{kernels}}). \code{kernlab} provides the most popular kernel functions
+    vector arguments (see \code{link{kernels}}). \pkg{kernlab} provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
 

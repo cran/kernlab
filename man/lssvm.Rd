@@ -24,9 +24,9 @@
 
 \S4method{lssvm}{vector}(x, ...)
 
-\S4method{lssvm}{matrix}(x, y = NULL, scaled = TRUE, kernel = "rbfdot",
-kpar = "automatic", type = NULL, tau = 0.01, tol = 0.0001, rank =
-floor(dim(x)[1]/4), delta = 40, cross = 0, fit = TRUE, ..., subset,
+\S4method{lssvm}{matrix}(x, y, scaled = TRUE, kernel = "rbfdot",
+kpar = "automatic", type = NULL, tau = 0.01, reduced = TRUE, tol = 0.0001, rank =
+floor(dim(x)[1]/3), delta = 40, cross = 0, fit = TRUE, ..., subset,
 na.action = na.omit)
 
 \S4method{lssvm}{kernelMatrix}(x, y, type = NULL, tau = 0.01, tol  =

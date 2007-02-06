@@ -13,7 +13,7 @@
 \alias{kernel-class}
 \alias{kpar,kernel-method}
 \title{Class "kernel" "rbfkernel" "polykernel", "tanhkernel", "vanillakernel"}
-\description{  The build in \code{kernel} classes in \code{kernlab}}
+\description{  The built-in kernel classes in \pkg{kernlab}}
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{new("rbfkernel")},
 \code{new{"polykernel"}}, \code{new{"tanhkernel"}},

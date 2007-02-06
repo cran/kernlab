@@ -3,7 +3,7 @@
 
 setGeneric("sigest", function(x, ...) standardGeneric("sigest"))
 setMethod("sigest",signature(x="formula"),
-function (x, data=NULL, frac = 0.6, na.action = na.omit, scaled = TRUE){
+function (x, data=NULL, frac = 0.5, na.action = na.omit, scaled = TRUE){
   call <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
@@ -32,7 +32,7 @@ function (x, data=NULL, frac = 0.6, na.action = na.omit, scaled = TRUE){
 })
 setMethod("sigest",signature(x="matrix"),
 function (x,
-          frac = 0.25,
+          frac = 0.5,
           scaled    = TRUE,
           na.action = na.omit)
           {

@@ -31,7 +31,7 @@ The data can then be projected on the new basis.
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which
     computes an inner product in feature space between two
-    vector arguments. \code{kernlab} provides the most popular kernel functions
+    vector arguments. \pkg{kernlab} provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{

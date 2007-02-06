@@ -15,18 +15,18 @@
  }
 \usage{
 
-\S4method{gausspr}{formula}(x, data=NULL, ..., subset, na.action = na.omit)
+
+\S4method{gausspr}{formula}(x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE)
 
 \S4method{gausspr}{vector}(x,...)
 
-\S4method{gausspr}{matrix}(x, y, type="classification", kernel="rbfdot", kpar=list(sigma = 0.1),
-          var=1, tol=0.001, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
+\S4method{gausspr}{matrix}(x, y, scaled = TRUE, type= NULL, kernel="rbfdot", kpar="automatic",
+          var=1, tol=0.0005, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
 
 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-
 \item{x}{a symbolic description of the model to be fit or a matrix or
   vector when a formula interface is not used. 
   When not using a formula x is a matrix or vector containg the variables in the model} 
@@ -38,7 +38,18 @@
   \item{y}{a response vector with one label for each row/component of \code{x}. Can be either
     a factor (for classification tasks) or a numeric vector (for
     regression).}
-  \item{type}{Type of problem. Either "classification" or "regression"}
+
+  \item{type}{Type of problem. Either "classification" or "regression".
+    Depending on whether \code{y} is a factor or not, the default
+    setting for \code{type} is \code{classification} or \code{regression},
+    respectively, but can be overwritten by setting an explicit value.\cr}
+
+  \item{scaled}{A logical vector indicating the variables to be
+    scaled. If \code{scaled} is of length 1, the value is recycled as
+    many times as needed and all non-binary variables are scaled.
+    Per default, data are scaled internally (both \code{x} and \code{y}
+    variables) to zero mean and unit variance. The center and scale
+    values are returned and used for later predictions.}
 
  \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class kernel, which computes a dot product between two

@@ -74,7 +74,7 @@
     matrix.
   This has to be a function of class \code{kernel}, i.e. which can be
   generated either one of the build in 
-  kernel generating functions (e.g. \code{rbfdot} etc.) or a user defined
+  kernel generating functions (e.g., \code{rbfdot} etc.) or a user defined
   function of class \code{kernel} taking two vector arguments and returning a scalar.}
   \item{x}{a data matrix to be used to calculate the kernel matrix, or a
   list of vector when a \code{stringkernel} is used}
@@ -82,7 +82,7 @@
   list of vector when a \code{stringkernel} is used}
   \item{z}{a suitable vector or matrix}
   \item{k}{a suitable vector or matrix}
-  \item{a}{the squared norm of \code{x} e.g. \code{rowSums(x^2)}}
+  \item{a}{the squared norm of \code{x}, e.g., \code{rowSums(x^2)}}
   \item{blocksize}{the kernel expansion computations are done block wise
     to avoid storing the kernel matrix into memory. \code{blocksize}
     defines the size of the computational blocks.}
@@ -91,7 +91,7 @@
   Common functions used during kernel based computations.\cr
   The \code{kernel} parameter can be set to any function, of class
   kernel, which computes the inner product in feature space between two
-  vector arguments. \code{kernlab} provides the most popular kernel functions
+  vector arguments. \pkg{kernlab} provides the most popular kernel functions
   which can be initialized by using the following
   functions:
     \itemize{
