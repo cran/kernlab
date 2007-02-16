@@ -38,7 +38,7 @@ function(x, data = NULL, na.action = na.omit, ...)
   })
 
 setMethod("kfa",signature(x="matrix"),
-function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, normalize = TRUE, na.action = na.omit, ...)
+function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, normalize = TRUE, na.action = na.omit)
 {  
   if(!is.matrix(x))
     stop("x must be a matrix")

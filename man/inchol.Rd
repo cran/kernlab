@@ -72,7 +72,7 @@ inchol(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001,
   \item{maxresiduals}{Residuals picked for pivoting}
 
   slots can be accessed either by \code{object@slot}
-or by accessor functions with the same name (e.g. \code{pivots(object))}}
+or by accessor functions with the same name (e.g., \code{pivots(object))}}
 \references{ \item
       Francis R. Bach, Michael I. Jordan\cr
       \emph{Kernel Independent Component Analysis}\cr

@@ -46,7 +46,7 @@ function(x,...)
     
 setMethod("gausspr",signature(x="matrix"),
 function (x,
-          y         = NULL,
+          y,
           scaled    = TRUE, 
           type      = NULL,
           kernel    = "rbfdot",
@@ -286,7 +286,7 @@ if(is.character(kernel)){
 
 
 setMethod("predict", signature(object = "gausspr"),
-function (object, newdata, type = "response", coupler = "minpair",...)
+function (object, newdata, type = "response", coupler = "minpair")
 {
   sc <- 0
   type <- match.arg(type,c("response","probabilities","votes"))

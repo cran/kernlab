@@ -110,7 +110,7 @@ Data Format
 \tab 86 \tab \code{CARAVAN} \tab Number of mobile home policies 0 - 1          \cr
 }
 Note: All the variables starting with M are zipcode variables. They give information on the
-distribution of that variable, e.g. Rented house, in the zipcode area of
+distribution of that variable, e.g., Rented house, in the zipcode area of
 the customer.
 }
 

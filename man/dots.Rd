@@ -72,10 +72,10 @@ stringdot(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
   function
   which calculates the dot (inner) product between two feature vectors in a
   Hilbert Space. These functions can be passed as a \code{kernel} argument on almost all
-  functions in kernlab (eg. \code{ksvm}, \code{kpca}  etc).
+  functions in \pkg{kernlab}(e.g., \code{ksvm}, \code{kpca}  etc).
   
   Although using one of the existing kernel functions as a
-  \code{kernel} argument in various functions in kernlab has the
+  \code{kernel} argument in various functions in \pkg{kernlab} has the
   advantage that optimized code is used to calculate various kernel expressions,
   any other function implementing a dot product of class \code{kernel} can also be used as a kernel
   argument. This allows the user to use, test and develop special kernels

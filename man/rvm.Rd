@@ -23,9 +23,9 @@
 \S4method{rvm}{vector}(x, ...)
 
 \S4method{rvm}{matrix}(x, y, type="regression", kernel="rbfdot", kpar="automatic",
-alpha=1, var=0.1, var.fix=FALSE, iterations=100, verbosity=0, tol=
-.Machine$double.eps,minmaxdiff = 1e-3, cross = 0, fit =TRUE, subset,
-na.action = na.omit,...) 
+alpha= ncol(as.matrix(x)), var=0.1, var.fix=FALSE, iterations=100, verbosity=0, tol=
+.Machine$double.eps,minmaxdiff = 1e-3, cross = 0, fit =TRUE,... , subset,
+na.action = na.omit) 
 
 \S4method{rvm}{list}(x, y, type = "regression", kernel = "stringdot", kpar = list(length = 4, lambda = 0.5),
           alpha = 5, var = 0.1, var.fix = FALSE, iterations = 100, verbosity = 0,

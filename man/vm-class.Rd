@@ -40,7 +40,7 @@
       resulting alpha vector (list in case of multiclass classification) (support vectors)}
 
     \item{\code{type}:}{Object of class \code{"character"}  containing
-      the vector machine type e.g.
+      the vector machine type e.g.,
       ("C-svc", "nu-svc", "C-bsvc", "spoc-svc",
       "one-svc", "eps-svr", "nu-svr", "eps-bsvr")}
 

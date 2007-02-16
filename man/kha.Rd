@@ -12,7 +12,7 @@ component analysis.}
 
 \S4method{kha}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1), features = 5, 
          eta = 0.005, th = 1e-4, maxiter = 10000, verbose = FALSE,
-        na.action = na.omit...)
+        na.action = na.omit, ...)
 }
 
 \arguments{
@@ -28,7 +28,7 @@ component analysis.}
     This parameter can be set to any function, of class kernel, which
     computes the inner product in feature space between two
     vector arguments (see \code{\link{kernels}}).
-    \code{kernlab} provides the most popular kernel functions
+    \pkg{kernlab} provides the most popular kernel functions
     which can be used by setting the kernel parameter to the following
     strings:
     \itemize{

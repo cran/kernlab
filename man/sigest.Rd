@@ -10,8 +10,8 @@
  data to be used.  
 }
 \usage{
-\S4method{sigest}{formula}(x, data=NULL, frac = 0.25, na.action = na.omit, scaled = TRUE)
-\S4method{sigest}{matrix}(x, frac = 0.25, scaled = TRUE, na.action = na.omit)
+\S4method{sigest}{formula}(x, data=NULL, frac = 0.5, na.action = na.omit, scaled = TRUE)
+\S4method{sigest}{matrix}(x, frac = 0.5, scaled = TRUE, na.action = na.omit)
 }
 
 \arguments{
