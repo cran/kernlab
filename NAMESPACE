@@ -27,7 +27,7 @@ export(
        "ranking",
        "csi",
        "lssvm",
-
+       "kqr",
        ## Utility functions
        "ipop",
        "inchol",
@@ -41,6 +41,7 @@ export(
        "alphaindex",
        "kernelf",
        "kpar",
+       "param",
        "scaling",
        "xmatrix",
        "ymatrix",
@@ -116,6 +117,6 @@ exportClasses("ksvm", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
               "besselkernel", "tanhkernel", "polykernel",
               "vanillakernel", "anovakernel", "splinekernel",
               "stringkernel", "specc", "ranking", "inchol", "onlearn",
-              "kfa", "csi")
+              "kfa", "csi","kqr")
 
 useDynLib("kernlab")

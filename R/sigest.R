@@ -57,8 +57,8 @@ function (x,
     
             m <- dim(x)[1]
             n <- floor(frac*m)
-            index <- sample(1:m, n, replace = TRUE)
-            index2 <- sample(1:m, n, replace = TRUE)
+            index <- sample(1:m, n, replace = FALSE)
+            index2 <- sample(1:m, n, replace = FALSE)
             temp <- x[index,, drop=FALSE] - x[index2,,drop=FALSE]
             dist <- rowSums(temp^2)
             ds <- sort(dist[dist!=0])

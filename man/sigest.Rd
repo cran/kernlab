@@ -63,7 +63,6 @@ Proc of NIPS workshop on Statitsical methods for computational experiments in vi
 
 
 \seealso{\code{\link{ksvm}}}
-}
 \examples{
 
 ## estimate good sigma values for promotergene

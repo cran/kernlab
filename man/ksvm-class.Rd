@@ -7,6 +7,7 @@
 \alias{scaling}
 \alias{prior}
 \alias{show}
+\alias{param}
 \alias{b}
 \alias{obj}
 \alias{coef,vm-method}
@@ -15,6 +16,7 @@
 \alias{alphaindex,ksvm-method}
 \alias{cross,ksvm-method}
 \alias{error,ksvm-method}
+\alias{param,ksvm-method}
 \alias{fitted,ksvm-method}
 \alias{prior,ksvm-method}
 \alias{prob.model,ksvm-method}
@@ -119,6 +121,8 @@
       case of classification  }
     \item{prob.model}{\code{signature(object="ksvm")}: returns class
       prob. model values}
+    \item{param}{\code{signature(object="ksvm")}: returns 
+      the parameters of the SVM in a list (C, epsilon, nu etc.)}
     \item{prior}{\code{signature(object="ksvm")}: returns 
       the prior of the training set}
     \item{kcall}{\code{signature(object="ksvm")}: returns the

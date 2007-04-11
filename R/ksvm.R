@@ -854,8 +854,13 @@ if(type(ret) =="kbb-svc")
       error(ret) <- 1 - .classAgreement(table(y,as.integer(fitted(ret))))
     if(type(ret)=="one-svc")
       error(ret) <- sum(!fitted(ret))/m
-    if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
-      error(ret) <- drop(crossprod(fitted(ret) - y)/m)
+    if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr"){
+      if (!is.null(scaling(ret)$y.scale))
+        scal <- scaling(ret)$y.scale$"scaled:scale"
+      error(ret) <- drop((scal^2)*crossprod(fitted(ret) - y)/m)
+      if (!is.null(scaling(ret)$y.scale))
+        fitted(ret) <- fitted(ret) * scaling(ret)$y.scale$"scaled:scale" + scaling(ret)$y.scale$"scaled:center"
+    }
   }
 
   cross(ret) <- -1
@@ -883,7 +888,11 @@ if(type(ret) =="kbb-svc")
             {
               cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              if (!is.null(scaling(ret)$y.scale))
+                scal <- scaling(ret)$y.scale$"scaled:scale"
+              else
+                scal <- 1
+              cerror <- drop((scal^2)*crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
          }
       cross(ret) <- cerror
@@ -950,7 +959,9 @@ if(type(ret) =="kbb-svc")
 
             cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
             cres <- predict(cret, x[vgr[[i]],])
-            pres <- rbind(pres,predict(cret, x[vgr[[i]],],type="decision"))
+            if (!is.null(scaling(ret)$y.scale))
+              cres <- cres * scaling(ret)$y.scale$"scaled:scale" + scaling(ret)$y.scale$"scaled:center"
+            pres <- rbind(pres, cres)
           }
         pres[abs(pres) > (5*sd(pres))] <- 0
         prob.model(ret) <- list(sum(abs(pres))/dim(pres)[1])
@@ -1649,7 +1660,7 @@ if(type(ret) =="kbb-svc")
             {
               cret <- ksvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
          }
       cross(ret) <- cerror
@@ -2462,7 +2473,7 @@ if(type(ret) =="kbb-svc")
                 {
                   cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
                   cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
-                  cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+                  cerror <- drop(crossprod(cres - y[vgr[[i]]])/m) + cerror
                 }
             }
           cross(ret) <- cerror

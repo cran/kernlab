@@ -287,7 +287,7 @@ function (x,
             {
               cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
         }
       cross(ret) <- cerror
