@@ -22,8 +22,8 @@ setClass("vm", representation(alpha = "listI", ## since setClassUnion is not  wo
                               fitted = "output",  
                               lev = "vector",
                               nclass = "numeric",
-                              error = "numeric",
-                              cross = "numeric",
+                              error = "vector",
+                              cross = "vector",
                               n.action= "ANY",
                               terms = "ANY",
                               kcall = "call"), contains= "VIRTUAL")
@@ -388,7 +388,36 @@ setReplaceMethod("nSV", "lssvm", function(x, value) {
   x
 })
 
+setClass("kqr", representation(param = "list",
+                               scaling = "ANY",
+                               coef = "ANY",
+                               b = "numeric"
+                               ), contains="vm")
 
+
+setMethod("b", "kqr", function(object) object@b)
+setReplaceMethod("b", "kqr", function(x, value) {
+  x@b <- value
+  x
+})
+
+setMethod("scaling", "kqr", function(object) object@scaling)
+setReplaceMethod("scaling", "kqr", function(x, value) {
+  x@scaling <- value
+  x
+})
+
+setMethod("coef", "kqr", function(object) object@coef)
+setReplaceMethod("coef", "kqr", function(x, value) {
+  x@coef <- value
+  x
+})
+
+setMethod("param", "kqr", function(object) object@param)
+setReplaceMethod("param", "kqr", function(x, value) {
+  x@param <- value
+  x
+})
 
 ## failed attempt to get rid of all this above
 

@@ -80,7 +80,6 @@ function (x,
     else "regression"
   else type(ret) <- type
   
-  unscaledx <- x  
   x.scale <- y.scale <- NULL
  ## scaling
   if (length(scaled) == 1)
@@ -103,7 +102,7 @@ function (x,
         y.scale <- attributes(y)[c("scaled:center","scaled:scale")]
         y <- as.vector(y)
       }
-      scaling(ret) <- list(scaled = scaled, x.scale = x.scale, y.scale = y.scale)
+      tmpsc <- list(scaled = scaled, x.scale = x.scale, y.scale = y.scale)
     }
   }
 
@@ -244,15 +243,19 @@ if(is.character(kernel)){
   xmatrix(ret) <- x
 
   fitted(ret)  <- if (fit)
-    predict(ret, unscaledx) else NA
+    predict(ret, x) else NA
 
   if (fit){
     if(type(ret)=="classification")
       error(ret) <- 1 - .classAgreement(table(y,as.integer(fitted(ret))))
     if(type(ret)=="regression")
-      error(ret) <- drop(crossprod(fitted(ret) - y)/m)
+      if (!is.null(scaling(ret)$y.scale))
+        fitted(ret) <- fitted(ret) * tmpsc$y.scale$"scaled:scale" + tmpsc$y.scale$"scaled:center"  
+    error(ret) <- drop(crossprod(fitted(ret) - y)/m)
   }
-
+  if(any(scaled))
+    scaling(ret) <- tmpsc
+  
   cross(ret) <- -1
   if(cross == 1)
     cat("\n","cross should be >1 no cross-validation done!","\n","\n")
@@ -273,7 +276,9 @@ if(is.character(kernel)){
             {
               cret <- gausspr(x[cind,],y[cind],type=type(ret),scaled = FALSE, kernel=kernel,var = var,tol=tol, cross = 0, fit = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
-              cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
+              if (!is.null(scaling(ret)$y.scale))
+                scal <- scaling(ret)$y.scale$"scaled:scale"
+              cerror <- drop((scal^2)*crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
         }
       cross(ret) <- cerror
@@ -370,6 +375,9 @@ function (object, newdata, type = "response", coupler = "minpair")
   if(type(object) == "regression")
     {
       predres <- kernelMult(kernelf(object),newdata,xmatrix(object),as.matrix(alpha(object)))
+
+      if (!is.null(scaling(object)$y.scale))
+        predres <- predres * scaling(object)$y.scale$"scaled:scale" + scaling(object)$y.scale$"scaled:center"
     }
 
 
@@ -388,9 +396,6 @@ function (object, newdata, type = "response", coupler = "minpair")
       if(type == "votes")
         return(votematrix)
     }
-  else if (type(object) == "one-classification")
-    ##one-class-classification: return TRUE/FALSE (probabilities ?)
-    return(ret == 1)
   else
     ##else: return raw values
     return(predres)
@@ -422,7 +427,6 @@ solveiter <- function(B,noiseproc,b,x,itmax = 50,tol = 10e-4 ,verbose = FALSE) {
 ## x : initial guess
 ## itmax : max # iterations
 ## iterates while mean(abs(Ax-b)) > tol
-## outputs iterative error if verbose  = TRUE
 ##
 ## Simplified form of Numerical Recipes: linbcg
 ## 

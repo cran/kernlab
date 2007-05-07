@@ -45,5 +45,4 @@ demographics attributes.
 \source{
   Impact Resources, Inc., Columbus, OH (1987).
 }
-}
 \keyword{datasets}

@@ -8,6 +8,7 @@
 \alias{kcall,lssvm-method}
 \alias{kernelf,lssvm-method}
 \alias{kpar,lssvm-method}
+\alias{param,lssvm-method}
 \alias{lev,lssvm-method}
 \alias{type,lssvm-method}
 \alias{alphaindex,lssvm-method}
@@ -29,6 +30,8 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
       kernel parameter used }
+     \item{\code{param}:}{Object of class \code{"list"} contains the
+      regularization parameter used.}
     \item{\code{kcall}:}{Object of class \code{"call"} contains the used
       function call }
     \item{\code{type}:}{Object of class \code{"character"} contains
@@ -74,6 +77,8 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
     \item{kernelf}{\code{signature(object = "lssvm")}: returns the
       kernel function used}
     \item{kpar}{\code{signature(object = "lssvm")}: returns the kernel
+      parameter used}
+     \item{param}{\code{signature(object = "lssvm")}: returns the regularization
     parameter used}
     \item{lev}{\code{signature(object = "lssvm")}: returns the
       response levels (in classification) }

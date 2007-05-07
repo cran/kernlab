@@ -69,10 +69,10 @@
      \item{\code{nclass}:}{Object of class \code{"numeric"}  containing
       the number of classes (in the case of classification)}
     
-    \item{\code{error}:}{Object of class \code{"numeric"} containing the
+    \item{\code{error}:}{Object of class \code{"vector"} containing the
     training error}
   
-   \item{\code{cross}:}{Object of class \code{"numeric"} containing the
+   \item{\code{cross}:}{Object of class \code{"vector"} containing the
       cross-validation error }
 
     \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
