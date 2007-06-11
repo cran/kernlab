@@ -3,6 +3,7 @@
 \alias{kha,formula-method}
 \alias{kha,matrix-method}
 \alias{predict,kha-method}
+\encoding{latin1}
 \title{Kernel Principal Components Analysis}
 \description{
 Kernel Hebbian Algorithm is a nonlinear iterative algorithm for principal
