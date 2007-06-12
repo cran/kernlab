@@ -53,10 +53,10 @@
 \Plainkeywords{\@Keywords}
 
 %% Sweave(-like)
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
-\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
-\newenvironment{Schunk}{}{}
+%\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+%\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+%\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
+%\newenvironment{Schunk}{}{}
 \DefineVerbatimEnvironment{Code}{Verbatim}{}
 \DefineVerbatimEnvironment{CodeInput}{Verbatim}{fontshape=sl}
 \DefineVerbatimEnvironment{CodeOutput}{Verbatim}{}

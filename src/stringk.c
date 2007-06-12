@@ -13,7 +13,7 @@
 double ***cache ;
 
 
-double kaux (char *u, int p, char *v, int q, int n, double lambda) {
+double kaux (const char *u, int p, const char *v, int q, int n, double lambda) {
   register int         j;
   double               tmp;
 
@@ -38,7 +38,7 @@ double kaux (char *u, int p, char *v, int q, int n, double lambda) {
 }
 
 
-double seqk (char *u, int p, char *v, int q, int n, double lambda) {
+double seqk (const char *u, int p, const char *v, int q, int n, double lambda) {
   register int  j;
   double        kp;
 
@@ -59,8 +59,8 @@ double seqk (char *u, int p, char *v, int q, int n, double lambda) {
 
 SEXP subsequencek(SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
 
-  char *u = CHAR(STRING_ELT(s1, 0)); 
-  char *v = CHAR(STRING_ELT(s2, 0)); 
+  const char *u = CHAR(STRING_ELT(s1, 0)); 
+  const char *v = CHAR(STRING_ELT(s2, 0)); 
   int   p = *INTEGER(l1);
   int   q = *INTEGER(l2);
   int   n = *INTEGER(nr);
@@ -104,8 +104,8 @@ SEXP subsequencek(SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
 
 SEXP fullsubstringk (SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
 
-  char *u = CHAR(STRING_ELT(s1, 0)); 
-  char *v = CHAR(STRING_ELT(s2, 0)); 
+  const char *u = CHAR(STRING_ELT(s1, 0)); 
+  const char *v = CHAR(STRING_ELT(s2, 0)); 
   int   p = *INTEGER(l1);
   int   q = *INTEGER(l2);
   int   n = *INTEGER(nr);
@@ -139,8 +139,8 @@ SEXP fullsubstringk (SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) 
 
 SEXP substringk (SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
 
-  char *u = CHAR(STRING_ELT(s1, 0)); 
-  char *v = CHAR(STRING_ELT(s2, 0)); 
+  const char *u = CHAR(STRING_ELT(s1, 0)); 
+  const char *v = CHAR(STRING_ELT(s2, 0)); 
   int   p = *INTEGER(l1);
   int   q = *INTEGER(l2);
   int   n = *INTEGER(nr);

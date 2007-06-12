@@ -281,7 +281,7 @@ function (x,
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -290,7 +290,7 @@ function (x,
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -381,7 +381,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -390,7 +390,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -479,7 +479,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(i,j)]]
+              weight <- class.weights[weightlabels[c(j,i)]]
               wl <- c(1,0)
               nweights <- 2
             }
@@ -488,7 +488,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(j,i)]]
+              weight <- class.weights[weightlabels[c(i,j)]]
               wl <- c(0,1)
               nweigths <- 2
             }
@@ -880,7 +880,7 @@ if(type(ret) =="kbb-svc")
               if(is.null(class.weights))
                 cret <- ksvm(x[cind,],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache)
               else
-                cret <- ksvm(x[cind,],lev(ret)[y[cind]],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                cret <- ksvm(x[cind,],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
@@ -921,7 +921,7 @@ if(type(ret) =="kbb-svc")
                 {
                   yd <- c(rep(-1,li),rep(1,lj))
                   if(!is.null(class.weights)){
-                    weight <- weightlabels[c(i,j)]
+                    weight <- weightlabels[c(j,i)]
                     wl <- c(1,0)
                     nweights <- 2
                   }
@@ -930,7 +930,7 @@ if(type(ret) =="kbb-svc")
                 {
                   yd <- c(rep(1,li),rep(-1,lj))
                   if(!is.null(class.weights)){
-                    weight <- weightlabels[c(j,i)]
+                    weight <- weightlabels[c(i,j)]
                     wl <- c(0,1)
                     nweigths <- 2
                   }
@@ -941,10 +941,13 @@ if(type(ret) =="kbb-svc")
               for(k in 1:3)
                 {
                   cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                  cret <- ksvm(xd[cind,], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
-                  yres <- c(yres,yd[vgr[[k]]])
-                  pres <- rbind(pres,predict(cret, xd[vgr[[k]],],type="decision"))
-                  
+                  if(is.null(class.weights))
+                    cret <- ksvm(xd[cind,],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache, prob.model = FALSE)
+                  else
+                    cret <- ksvm(xd[cind,],as.factor(lev(ret)[yd[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
+                                    
+                  yres <- c(yres, yd[vgr[[k]]])
+                  pres <- rbind(pres, predict(cret, xd[vgr[[k]],],type="decision"))
                 }
               prob.model(ret)[[p]] <- .probPlatt(pres,yres)
             }
@@ -1079,7 +1082,7 @@ function (x,
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -1088,7 +1091,7 @@ function (x,
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -1175,7 +1178,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -1184,7 +1187,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -1269,7 +1272,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(i,j)]]
+              weight <- class.weights[weightlabels[c(j,i)]]
               wl <- c(1,0)
               nweights <- 2
             }
@@ -1278,7 +1281,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(j,i)]]
+              weight <- class.weights[weightlabels[c(i,j)]]
               wl <- c(0,1)
               nweigths <- 2
             }
@@ -1652,7 +1655,7 @@ if(type(ret) =="kbb-svc")
               if(is.null(class.weights))
                 cret <- ksvm(as.kernelMatrix(x[cind,cind]),y[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
               else
-                cret <- ksvm(as.kernelMatrix(x[cind,cind]),lev(ret)[y[cind]],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                cret <- ksvm(as.kernelMatrix(x[cind,cind]), as.factor(lev(ret)[y[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
               cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
@@ -1689,7 +1692,7 @@ if(type(ret) =="kbb-svc")
                 {
                   yd <- c(rep(-1,li),rep(1,lj))
                   if(!is.null(class.weights)){
-                    weight <- weightlabels[c(i,j)]
+                    weight <- weightlabels[c(j,i)]
                     wl <- c(1,0)
                     nweights <- 2
                   }
@@ -1698,7 +1701,7 @@ if(type(ret) =="kbb-svc")
                 {
                   yd <- c(rep(1,li),rep(-1,lj))
                   if(!is.null(class.weights)){
-                    weight <- weightlabels[c(j,i)]
+                    weight <- weightlabels[c(i,j)]
                     wl <- c(0,1)
                     nweigths <- 2
                   }
@@ -1710,10 +1713,12 @@ if(type(ret) =="kbb-svc")
               for(k in 1:3)
                 {
                   cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                  cret <- ksvm(as.kernelMatrix(as.kernelMatrix(xd[cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+                  if(is.null(class.weights))
+                    cret <- ksvm(as.kernelMatrix(xd[cind,cind]),yd[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
+                  else
+                    cret <- ksvm(as.kernelMatrix(xd[cind,cind]), as.factor(lev(ret)[yd[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
                   yres <- c(yres,yd[vgr[[k]]])
                   pres <- rbind(pres,predict(cret, as.kernelMatrix(xd[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
-                  
                 }
               prob.model(ret)[[p]] <- .probPlatt(pres,yres)
             }
@@ -1879,7 +1884,7 @@ function (x,
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -1888,7 +1893,7 @@ function (x,
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -1972,7 +1977,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(i,j)]]
+            weight <- class.weights[weightlabels[c(j,i)]]
             wl <- c(1,0)
             nweights <- 2
           }
@@ -1981,7 +1986,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-            weight <- class.weights[weightlabels[c(j,i)]]
+            weight <- class.weights[weightlabels[c(i,j)]]
             wl <- c(0,1)
             nweigths <- 2
           }
@@ -2062,7 +2067,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(-1,li),rep(1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(i,j)]]
+              weight <- class.weights[weightlabels[c(j,i)]]
               wl <- c(1,0)
               nweights <- 2
             }
@@ -2071,7 +2076,7 @@ if(type(ret) == "nu-svc"){
           {
             yd <- c(rep(1,li),rep(-1,lj))
             if(!is.null(class.weights)){
-              weight <- class.weights[weightlabels[c(j,i)]]
+              weight <- class.weights[weightlabels[c(i,j)]]
               wl <- c(0,1)
               nweigths <- 2
             }
@@ -2465,7 +2470,7 @@ if(type(ret) =="kbb-svc")
                   if(is.null(class.weights))
                     cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
                   else
-                    cret <- ksvm(as.kernelMatrix(K[cind,cind]),lev(ret)[y[cind]],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                    cret <- ksvm(as.kernelMatrix(K[cind,cind]),as.factor(lev(ret)[y[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
                   cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
                   cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
                 }
@@ -2500,7 +2505,7 @@ if(type(ret) =="kbb-svc")
                     {
                       yd <- c(rep(-1,li),rep(1,lj))
                       if(!is.null(class.weights)){
-                        weight <- weightlabels[c(i,j)]
+                        weight <- weightlabels[c(j,i)]
                         wl <- c(1,0)
                         nweights <- 2
                       }
@@ -2509,7 +2514,7 @@ if(type(ret) =="kbb-svc")
                     {
                       yd <- c(rep(1,li),rep(-1,lj))
                       if(!is.null(class.weights)){
-                        weight <- weightlabels[c(j,i)]
+                        weight <- weightlabels[c(i,j)]
                         wl <- c(0,1)
                         nweigths <- 2
                       }
@@ -2560,7 +2565,7 @@ if(type(ret) =="kbb-svc")
                 if(is.null(class.weights))
                   cret <- ksvm(x[cind],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
                 else
-                  cret <- ksvm(x[cind],lev(ret)[y[cind]],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
+                  cret <- ksvm(x[cind],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
                 cres <- predict(cret, x[vgr[[i]]])
                 cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
               }
@@ -2595,7 +2600,7 @@ if(type(ret) =="kbb-svc")
                   {
                     yd <- c(rep(-1,li),rep(1,lj))
                     if(!is.null(class.weights)){
-                      weight <- weightlabels[c(i,j)]
+                      weight <- weightlabels[c(j,i)]
                       wl <- c(1,0)
                       nweights <- 2
                     }
@@ -2604,7 +2609,7 @@ if(type(ret) =="kbb-svc")
                   {
                     yd <- c(rep(1,li),rep(-1,lj))
                     if(!is.null(class.weights)){
-                      weight <- weightlabels[c(j,i)]
+                      weight <- weightlabels[c(i,j)]
                       wl <- c(0,1)
                       nweigths <- 2
                     }
@@ -2616,7 +2621,12 @@ if(type(ret) =="kbb-svc")
                 for(k in 1:3)
                   { 
                     cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                    cret <- ksvm(xd[cind], yd[cind], type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+
+
+                if(is.null(class.weights))
+                  cret <- ksvm(xd[cind],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
+                else
+                  cret <- ksvm(xd[cind],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
                     yres <- c(yres,yd[vgr[[k]]])
                     pres <- rbind(pres,predict(cret, xd[vgr[[k]]],type="decision"))
                   }
