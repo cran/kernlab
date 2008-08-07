@@ -9,8 +9,6 @@
 ## functions with an additional slot for the kernel parameter list.
 ## kernel functions take two vector arguments and return a scalar (dot product)
 
-setClass("kernel",representation("function",kpar="list"))
-
 
 rbfdot<- function(sigma=1)
   {
@@ -216,12 +214,16 @@ vanilladot <- function( )
   return(new("vanillakernel",.Data=rval,kpar=list()))
 }
 
-setClass("stringkernel",prototype=structure(.Data=function(){},kpar=list(length = 4, lambda = 0.5, type = "seq", normalized = TRUE)),contains=c("kernel"))
+setClass("stringkernel",prototype=structure(.Data=function(){},kpar=list(length = 4, lambda = 1.1, type = "spectrum", normalized = TRUE)),contains=c("kernel"))
 
-stringdot <- function(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
+stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = TRUE)
 {
-  type <- match.arg(type,c("sequence","string","fullstring"))
+  type <- match.arg(type,c("sequence","string","fullstring","exponential","constant","spectrum", "boundrange"))
 
+  ## need to do this to set the length parameters
+  if(type == "spectrum" | type == "boundrange")
+    lambda <- length
+  
    switch(type,
           "sequence" = {
 
@@ -232,7 +234,6 @@ stringdot <- function(length = 4, lambda = 0.5, type = "sequence", normalized = 
                 
                 if (is(x,"vector") && is.null(y) && normalized == FALSE)
                   return(.Call("subsequencek",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
-                
                 if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
                   return(.Call("subsequencek",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
@@ -242,6 +243,98 @@ stringdot <- function(length = 4, lambda = 0.5, type = "sequence", normalized = 
               }
           },
           
+          "exponential" = {
+            rval <- function(x,y=NULL)
+              {
+                if(!is(x,"vector")) stop("x must be a vector")
+                if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
+
+                x <- paste(x,"\n",sep="")
+                if(!is.null(y))
+                  y <- paste(y,"\n",sep="")
+
+                if (normalized == FALSE){
+                  if(is.null(y))
+                    y <- x
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))}
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                  return(1)
+                if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(2),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))
+                
+              }
+          },
+
+          "constant" = {
+            rval <- function(x,y=NULL)
+              {
+                if(!is(x,"vector")) stop("x must be a vector")
+                if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
+
+                x <- paste(x,"\n",sep="")
+                if(!is.null(y))
+                  y <- paste(y,"\n",sep="")
+                
+                if (normalized == FALSE){
+                  if(is.null(y))
+                    y <- x
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))}
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                  return(1)
+                if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(1),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))
+              }
+          },
+          
+          "spectrum" = {
+            rval <- function(x,y=NULL)
+              {
+                if(!is(x,"vector")) stop("x must be a vector")
+                if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
+
+                x <- paste(x,"\n",sep="")
+                if(!is.null(y))
+                   y <- paste(y,"\n",sep="")
+                
+                n <- nchar(x)
+                m <- nchar(y)
+                if(n < length | m < length){
+                  warning("String length smaller than length parameter value")
+                  return(0)}
+
+                if (normalized == FALSE){
+                  if(is.null(y))
+                    y <- x
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length)))}
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                  return(1)
+                if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(n),as.integer(n),as.integer(3),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(m),as.integer(m),as.integer(3),as.double(length)))
+                
+              }
+          },
+          "boundrange" = {
+            rval <- function(x,y=NULL)
+              {
+                if(!is(x,"vector")) stop("x must be a vector")
+                if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
+
+                x <- paste(x,"\n",sep="")
+                if(!is.null(y))
+                   y <- paste(y,"\n",sep="")
+                
+                if (normalized == FALSE){
+                  if(is.null(y))
+                    y <- x
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))}
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                  return(1)
+                if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(4),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))
+                
+              }
+          },
+
           "string" =
           {
             rval<- function(x, y = NULL)
@@ -254,32 +347,32 @@ stringdot <- function(length = 4, lambda = 0.5, type = "sequence", normalized = 
                 
                 if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
                   return(.Call("substringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
-                  if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
                   return(.Call("substringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")/sqrt(.Call("substringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")*.Call("substringk",as.character(y), as.character(y), as.integer(nchar(y)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")))
               }
           },
-
+          
           "fullstring" =
-            {
-              rval<- function(x, y = NULL)
-                {
-                  if(!is(x,"vector")) stop("x must be a vector")
-                  if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
-                                  
+          {
+            rval<- function(x, y = NULL)
+              {
+                if(!is(x,"vector")) stop("x must be a vector")
+                if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
+                
                 if (is(x,"vector") && is.null(y) && normalized == FALSE)
                   return(.Call("fullsubstringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
-                  
-                  if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
-                    return(.Call("fullsubstringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
-                  if (is(x,"vector") && is.null(y) && normalized == TRUE)
+                
+                if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
+                  return(.Call("fullsubstringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
                   return(.Call("fullsubstringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")/sqrt(.Call("fullsubstringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")*.Call("fullsubstringk",as.character(y), as.character(y), as.integer(nchar(y)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")))
-                }
-            })
-   
+              }
+          })
+  
   return(new("stringkernel",.Data=rval,kpar=list(length=length, lambda =lambda, type = type, normalized = normalized)))
 }
 
@@ -297,7 +390,15 @@ setMethod("show",signature(object="kernel"),
                    "polykernel" = cat(paste("Polynomial kernel function.", "\n","Hyperparameters :","degree = ",kpar(object)$degree," scale = ", kpar(object)$scale," offset = ", kpar(object)$offset,"\n")),
                    "vanillakernel" = cat(paste("Linear (vanilla) kernel function.", "\n")),
                    "splinekernel" = cat(paste("Spline kernel function.", "\n")),
-                   "stringkernel" = {cat(paste("String kernel function.", " Type = ", kpar(object)$type, "\n","Hyperparameters :","sub-sequence/string length = ",kpar(object)$length," lambda = ", kpar(object)$lambda, "\n"))
+
+                   "stringkernel" = {
+                     if(kpar(object)$type =="spectrum" | kpar(object)$type =="boundrange")
+                       cat(paste("String kernel function.", " Type = ", kpar(object)$type, "\n","Hyperparameters :","sub-sequence/string length = ",kpar(object)$length, "\n"))
+                     else
+                       if(kpar(object)$type =="exponential" | kpar(object)$type =="constant")
+                         cat(paste("String kernel function.", " Type = ", kpar(object)$type, "\n","Hyperparameters :"," lambda = ", kpar(object)$lambda, "\n"))
+                       else
+                         cat(paste("String kernel function.", " Type = ", kpar(object)$type, "\n","Hyperparameters :","sub-sequence/string length = ",kpar(object)$length," lambda = ", kpar(object)$lambda, "\n"))
                    if(kpar(object)$normalized == TRUE) cat(" Normalized","\n")
                    if(kpar(object)$normalized == FALSE) cat(" Not Normalized","\n")}
                    )
@@ -356,7 +457,6 @@ kernelMatrix <- function(kernel, x, y=NULL)
 }
 
 setGeneric("kernelMatrix",function(kernel, x, y = NULL) standardGeneric("kernelMatrix"))
-
 
 
 
@@ -569,7 +669,7 @@ kernelMatrix.splinekernel <- function(kernel, x, y = NULL)
 	dr <- 	x + x[,i]	
 	dp <-   x * x[,i]
 	dm <-   pmin(x,x[,i])
-	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+	res[i,] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
       }
         return(as.kernelMatrix(res))
   }
@@ -587,9 +687,8 @@ kernelMatrix.splinekernel <- function(kernel, x, y = NULL)
 	dr <- 	y + x[,i]	
 	dp <-   y * x[,i]
 	dm <-   pmin(y,x[,i])
-	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+	res[i,] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
    	}
-	res[lower.tri(res)] <- 
     return(as.kernelMatrix(res))
   }
 }
@@ -599,68 +698,133 @@ kernelMatrix.stringkernel <- function(kernel, x, y=NULL)
 { 
   n <- length(x)
   res1 <- matrix(rep(0,n*n), ncol = n)
-  resdiag <- rep(0,n)
-  
   normalized = kpar(kernel)$normalized
-  if(normalized == TRUE)
-    kernel <- stringdot(length = kpar(kernel)$length, type = kpar(kernel)$type, lambda = kpar(kernel)$lambda, normalized = FALSE)
-  ## y is null   
 
-  if(is.null(y)){
-    if(normalized == TRUE){
-      ## calculate diagonal elements first, and use them to normalize
-      for (i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-      
-      for(i in 1:n) {
-        for(j in (i:n)[-1]) {
-          res1[i,j]  <- kernel(x[[i]],x[[j]])/sqrt(resdiag[i]*resdiag[j])
-        }
-      }
-      res1 <- res1 + t(res1)
-      diag(res1) <- rep(1,n)
-    }
-    else{
-      for (i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-      
-      for(i in 1:n) {
-        for(j in (i:n)[-1]) {
-          res1[i,j]  <- kernel(x[[i]],x[[j]])
-        }
-      }
-      res1 <- res1 + t(res1)
-      diag(res1) <- resdiag
-    }
-  }
+  if(is(x,"list"))
+    x <- sapply(x,paste,collapse="")
+  
+  if(is(y,"list"))
+    y <- sapply(y,paste,collapse="")
 
-  if (!is.null(y)){
-    m <- length(y)
-    res1 <- matrix(0,n,m)
-    resdiag1 <- rep(0,m)
-    if(normalized == TRUE){     
-      for(i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
+  if (kpar(kernel)$type == "sequence" |kpar(kernel)$type == "string"|kpar(kernel)$type == "fullstring")
+    {
+      resdiag <- rep(0,n)
+      if(normalized == TRUE)
+        kernel <- stringdot(length = kpar(kernel)$length, type = kpar(kernel)$type, lambda = kpar(kernel)$lambda, normalized = FALSE)
+      ## y is null   
       
-      for(i in 1:m)
-        resdiag1[i] <- kernel(y[[i]],y[[i]])
+      if(is.null(y)){
+        if(normalized == TRUE){
+          ## calculate diagonal elements first, and use them to normalize
+          for (i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
       
-      for(i in 1:n) {
-        for(j in 1:m) {
-          res1[i,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+          for(i in 1:n) {
+            for(j in (i:n)[-1]) {
+              res1[i,j]  <- kernel(x[[i]],x[[j]])/sqrt(resdiag[i]*resdiag[j])
+            }
+          }
+          res1 <- res1 + t(res1)
+          diag(res1) <- rep(1,n)
+        }
+        else{
+          for (i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
+          
+          for(i in 1:n) {
+            for(j in (i:n)[-1]) {
+              res1[i,j]  <- kernel(x[[i]],x[[j]])
+            }
+          }
+          res1 <- res1 + t(res1)
+          diag(res1) <- resdiag
         }
       }
-    }
-    else{
-      for(i in 1:n) {
-        for(j in 1:m) {
-          res1[i,j] <- kernel(x[[i]],y[[j]])
+      
+      if (!is.null(y)){
+        m <- length(y)
+        res1 <- matrix(0,n,m)
+        resdiag1 <- rep(0,m)
+        if(normalized == TRUE){     
+          for(i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
+          
+          for(i in 1:m)
+            resdiag1[i] <- kernel(y[[i]],y[[i]])
+          
+          for(i in 1:n) {
+            for(j in 1:m) {
+              res1[i,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+            }
+          }
+        }
+        else{
+          for(i in 1:n) {
+            for(j in 1:m) {
+              res1[i,j] <- kernel(x[[i]],y[[j]])
+            }
+          }
         }
       }
+      return(as.kernelMatrix(res1))
     }
-  }
-  return(as.kernelMatrix(res1))
+  else {
+  
+      switch(kpar(kernel)$type,
+             "exponential" = 
+             sktype <- 2,
+             "constant" =
+             sktype <- 1,
+             "spectrum" =
+             sktype <- 3,
+             "boundrange" =
+             sktype <- 4)
+
+        if(sktype==3 &(any(nchar(x) < kpar(kernel)$length)|any(nchar(x) < kpar(kernel)$length)))
+          stop("spectral kernel does not accept strings shorter than the length parameter")
+     
+        if(is(x,"list"))
+          x <- unlist(x)
+        if(is(y,"list"))
+          y <- unlist(y)
+
+      
+      x <- paste(x,"\n",sep="")
+      if(!is.null(y))
+        y <- paste(y,"\n",sep="")
+        
+      if(is.null(y))
+          ret <- matrix(0, length(x),length(x))
+        else
+          ret <- matrix(0,length(x),length(y))
+
+          if(is.null(y)){
+            for(i in 1:length(x))
+              ret[i,i:length(x)] <- .Call("stringtv",as.character(x[i]),as.character(x[i:length(x)]),as.integer(length(x) - i + 1),as.integer(nchar(x[i])),as.integer(nchar(x[i:length(x)])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+            ret <- ret + t(ret)
+            diag(ret) <- diag(ret)/2
+          }
+          else
+            for(i in 1:length(x))
+              ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+
+        if(normalized == TRUE){
+          if(is.null(y))
+            ret <- t((1/sqrt(diag(ret)))*t(ret*(1/sqrt(diag(ret)))))
+           else{
+             norm1 <- rep(0,length(x))
+             norm2 <- rep(0,length(y))
+             for( i in 1:length(x))
+               norm1[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+             for( i in 1:length(y))
+               norm2[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+             ret <- t((1/sqrt(norm2))*t(ret*(1/sqrt(norm1))))
+           }
+        }
+    }
+  return(as.kernelMatrix(ret))
 }
+
 setMethod("kernelMatrix",signature(kernel="stringkernel"),kernelMatrix.stringkernel)
 
 
@@ -1065,33 +1229,33 @@ kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
       	x <- t(x)
       if(nblocks > 0)
         {
-          re <- matrix(0, n, blocksize)
+          re <- matrix(0, dim(z)[1], blocksize)
           for(i in 1:nblocks)
             {
               upperl = upperl + blocksize
               
-              for (i in lowerl:upperl)
+              for (j in lowerl:upperl)
                 {	
-                  dr <-  x + x[ , i]	
-                  dp <-  x * x[ , i]
-                  dm <-  pmin(x,x[,i])
-                  re[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+                  dr <-  x + x[ , j]	
+                  dp <-  x * x[ , j]
+                  dm <-  pmin(x,x[,j])
+                  re[,j-(i-1)*blocksize] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
                 }
-              res[lowerl:upperl,] <- re%*%z[lowerl:upperl]
+              res[lowerl:upperl,] <- crossprod(re,z)
               lowerl <- upperl + 1
             }
         }
       if(lowerl <= n){
         a <- matrix(0,m,n-lowerl+1)
-        re <- matrix(0,n,n-lowerl+1)
-        for(i in lowerl:(n-lowerl+1))
+        re <- matrix(0,dim(z)[1],n-lowerl+1)
+        for(j in lowerl:(n-lowerl+1))
           {
-            dr <- x + x[ , i]	
-            dp <- x * x[ , i]
-            dm <-  pmin(x,x[,i])
-            re[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+            dr <- x + x[ , j]	
+            dp <- x * x[ , j]
+            dm <-  pmin(x,x[,j])
+            re[,j-nblocks*blocksize] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
           }
-        res[lowerl:n,] <- re%*%z[lowerl:n]
+        res[lowerl:n,] <- crossprod(re,z)
       }
     }
   if(is(y,"matrix"))
@@ -1107,7 +1271,7 @@ kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 	y <- t(y)
       if(nblocks > 0)
         {
-          re <- matrix(0, n, blocksize)
+          re <- matrix(0, dim(z)[1], blocksize)
           for(i in 1:nblocks)
             {
               upperl = upperl + blocksize
@@ -1117,24 +1281,24 @@ kernelMult.splinekernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 		dr <- y + x[ , j]	
 		dp <- y * x[ , j]
 		dm <- pmin(y,x[,j])
-		re[j,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+		re[,j-(i-1)*blocksize] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
            	}
-              res[lowerl:upperl] <- re %*%z[lowerl:upperl,]
+              res[lowerl:upperl] <- crossprod(re, z)
               lowerl <- upperl + 1
             }
         }
       if(lowerl <= n)
         {
-          b <- matrix(0, dim(x)[2], n2-lowerl+1)
-          re <- matrix(0, n, n2-lowerl+1)
+          b <- matrix(0, dim(x)[2], n-lowerl+1)
+          re <- matrix(0, dim(z)[1], n-lowerl+1)
           for(j in lowerl:(n-lowerl+1))
             {
         	dr <- y + x[, j]	
 		dp <- y * x[, j]
 		dm <-  pmin(y,x[,j])
-		re[j,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
+		re[,j-nblocks*blocksize] <- apply((1 + dp + dp*dm - (dr/2)*dm^2 + (dm^3)/3),2, prod) 
               }
-       	  res[lowerl:n] <-  + re%*%z[lowerl:n2]
+       	  res[lowerl:n] <-  crossprod(re, z)
         }
     }
   return(res)
@@ -1292,136 +1456,311 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
 {
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   normalized = kpar(kernel)$normalized
-  if(normalized == TRUE)
-    kernel <- stringdot(length = kpar(kernel)$length, type = kpar(kernel)$type, lambda = kpar(kernel)$lambda, normalized = FALSE)
-
+      
   n <- length(x)
   res1 <- matrix(rep(0,n*n), ncol = n)
   resdiag <- rep(0,n)
-    
-  ## y is null 
-  if(is.null(y)){
-    if(normalized == TRUE){
-      z <- as.matrix(z)
-      if(dim(z)[1]!= n) stop("z rows must be equal to x length")
-      dz <- dim(z)[2]
-      vres <- matrix(0,n,dz)
-      ## calculate diagonal elements first, and use them to normalize
-      for (i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-    
-      for(i in 1:n) {
-        for(j in (i:n)[-1]) {
-          res1[i,j]  <- kernel(x[[i]],x[[j]])/sqrt(resdiag[i]*resdiag[j])
-        }
-      }
-      res1 <- res1 + t(res1)
-      diag(res1) <- rep(1,n)
-      vres  <- res1 %*% z
-    }
-    else{
-      z <- as.matrix(z)
-      
-      if(dim(z)[1]!= n) stop("z rows must be equal to x length")
-      dz <- dim(z)[2]
-      vres <- matrix(0,n,dz)
-      ## calculate diagonal elements first, and use them to normalize
-      for (i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-    
-      for(i in 1:n) {
-        for(j in (i:n)[-1]) {
-          res1[i,j]  <- kernel(x[[i]],x[[j]])
-        }
-      }
-      res1 <- res1 + t(res1)
-      diag(res1) <- resdiag
-      vres  <- res1 %*% z
-    }
-  }
   
-  if (!is.null(y)){
-    if(normalized == TRUE){
-      nblocks <- floor(n/blocksize)
-      lowerl <- 1
-      upperl <- 0
-      m <- length(y)
-      z <- as.matrix(z)
-      if(dim(z)[1]!= m) stop("z rows must be equal to y length")
-      resdiag1 <- rep(0,m)
-      dz <- dim(z)[2]
-      vres <- matrix(0,n,dz)
+  if(is(x,"list"))
+    x <- sapply(x,paste,collapse="")
+  
+  if(is(y,"list"))
+    y <- sapply(y,paste,collapse="")
+
+  
+  if (kpar(kernel)$type == "sequence" |kpar(kernel)$type == "string"|kpar(kernel)$type == "fullstring")
+    {
+      if(normalized == TRUE)
+        kernel <- stringdot(length = kpar(kernel)$length, type = kpar(kernel)$type, lambda = kpar(kernel)$lambda, normalized = FALSE)
       
-      for(i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-      
-      for(i in 1:m)
-        resdiag1[i] <- kernel(y[[i]],y[[i]])
-      
-      if (nblocks > 0){
-        res1 <- matrix(0,blocksize,m)
-        for(k in 1:nblocks){
-          upperl <- upperl + blocksize
-          for(i in lowerl:(upperl)) {
-            for(j in 1:m) {
-              res1[i - (k-1)*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
-            }
-          }
-          vres[lowerl:upperl,] <- res1 %*% z
-          lowerl <- upperl +1
-        }
-      }
-      if(lowerl <= n)
-        {
-          res1 <- matrix(0,n-lowerl+1,m)
-          for(i in lowerl:n) {
-            for(j in 1:m) {
-              res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
-            }
-          }
-          vres[lowerl:n,] <- res1  %*% z
-        }
-    }
-    else
-      {
-        nblocks <- floor(n/blocksize)
-        lowerl <- 1
-        upperl <- 0
-        m <- length(y)
-        z <- as.matrix(z)
-        if(dim(z)[1]!= m) stop("z rows must be equal to y length")
-        dz <- dim(z)[2]
-        vres <- matrix(0,n,dz)
-        
-        if (nblocks > 0){
-          res1 <- matrix(0,blocksize,m)
+      ## y is null 
+      if(is.null(y)){
+        if(normalized == TRUE){
+          z <- as.matrix(z)
+          if(dim(z)[1]!= n) stop("z rows must be equal to x length")
+          dz <- dim(z)[2]
+          vres <- matrix(0,n,dz)
+          ## calculate diagonal elements first, and use them to normalize
+          for (i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
           
-          for(k in 1:nblocks){
-            
-            upperl <- upperl + blocksize
-            
-            for(i in lowerl:(upperl)) {
-              for(j in 1:m) {
-                res1[i - (k-1)*blocksize, j] <- kernel(x[[i]],y[[j]])
-              }
+          for(i in 1:n) {
+            for(j in (i:n)[-1]) {
+              res1[i,j]  <- kernel(x[[i]],x[[j]])/sqrt(resdiag[i]*resdiag[j])
             }
-            vres[lowerl:upperl,] <- res1 %*% z
-            lowerl <- upperl +1
           }
+          res1 <- res1 + t(res1)
+          diag(res1) <- rep(1,n)
+          vres  <- res1 %*% z
         }
-        if(lowerl <= n)
+        else{
+          z <- as.matrix(z)
+          
+          if(dim(z)[1]!= n) stop("z rows must be equal to x length")
+          dz <- dim(z)[2]
+          vres <- matrix(0,n,dz)
+          ## calculate diagonal elements first, and use them to normalize
+          for (i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
+          
+          for(i in 1:n) {
+            for(j in (i:n)[-1]) {
+              res1[i,j]  <- kernel(x[[i]],x[[j]])
+            }
+          }
+          res1 <- res1 + t(res1)
+          diag(res1) <- resdiag
+          vres  <- res1 %*% z
+        }
+      }
+      
+      if (!is.null(y)){
+        if(normalized == TRUE){
+          nblocks <- floor(n/blocksize)
+          lowerl <- 1
+          upperl <- 0
+          m <- length(y)
+          z <- as.matrix(z)
+          if(dim(z)[1]!= m) stop("z rows must be equal to y length")
+          resdiag1 <- rep(0,m)
+          dz <- dim(z)[2]
+          vres <- matrix(0,n,dz)
+          
+          for(i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
+          
+          for(i in 1:m)
+            resdiag1[i] <- kernel(y[[i]],y[[i]])
+          
+          if (nblocks > 0){
+            res1 <- matrix(0,blocksize,m)
+            for(k in 1:nblocks){
+              upperl <- upperl + blocksize
+              for(i in lowerl:(upperl)) {
+                for(j in 1:m) {
+                  res1[i - (k-1)*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+                }
+              }
+              vres[lowerl:upperl,] <- res1 %*% z
+              lowerl <- upperl +1
+            }
+          }
+          if(lowerl <= n)
+            {
+              res1 <- matrix(0,n-lowerl+1,m)
+              for(i in lowerl:n) {
+                for(j in 1:m) {
+                  res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])/sqrt(resdiag[i]*resdiag1[j])
+                }
+              }
+              vres[lowerl:n,] <- res1  %*% z
+            }
+        }
+        else
           {
-            res1 <- matrix(0,n-lowerl+1,m)
-            for(i in lowerl:n) {
-              for(j in 1:m) {
-                res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])
+            nblocks <- floor(n/blocksize)
+            lowerl <- 1
+            upperl <- 0
+            m <- length(y)
+            z <- as.matrix(z)
+            if(dim(z)[1]!= m) stop("z rows must be equal to y length")
+            dz <- dim(z)[2]
+            vres <- matrix(0,n,dz)
+            
+            if (nblocks > 0){
+              res1 <- matrix(0,blocksize,m)
+              
+              for(k in 1:nblocks){
+                
+                upperl <- upperl + blocksize
+                
+                for(i in lowerl:(upperl)) {
+                  for(j in 1:m) {
+                    res1[i - (k-1)*blocksize, j] <- kernel(x[[i]],y[[j]])
+                  }
+                }
+                vres[lowerl:upperl,] <- res1 %*% z
+                lowerl <- upperl +1
               }
             }
-            vres[lowerl:n,] <- res1  %*% z
+            if(lowerl <= n)
+              {
+                res1 <- matrix(0,n-lowerl+1,m)
+                for(i in lowerl:n) {
+                  for(j in 1:m) {
+                    res1[i - nblocks*blocksize,j] <- kernel(x[[i]],y[[j]])
+                  }
+                }
+                vres[lowerl:n,] <- res1  %*% z
+              }
           }
       }
-  }
+    }
+  else
+    {
+      switch(kpar(kernel)$type,
+             "exponential" = 
+             sktype <- 2,
+             "constant" =
+             sktype <- 1,
+             "spectrum" =
+             sktype <- 3,
+             "boundrange" =
+             sktype <- 4)
+
+      if(sktype==3 &(any(nchar(x) < kpar(kernel)$length)|any(nchar(x) < kpar(kernel)$length)))
+        stop("spectral kernel does not accept strings shorter than the length parameter")
+
+      
+      x <- paste(x,"\n",sep="")
+      if(!is.null(y))
+        y <- paste(y,"\n",sep="")
+    
+      
+      ## y is null 
+      if(is.null(y)){
+        if(normalized == TRUE){
+          nblocks <- floor(n/blocksize)
+          lowerl <- 1
+          upperl <- 0
+          z <- as.matrix(z)
+          if(dim(z)[1]!= n) stop("z rows must be equal to y length")
+          dz <- dim(z)[2]
+          vres <- matrix(0,n,dz)
+
+          for (i in 1:n)
+            resdiag[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+
+          if (nblocks > 0){
+            res1 <- matrix(0,blocksize,n)
+            for(k in 1:nblocks){
+              upperl <- upperl + blocksize
+              for(i in lowerl:(upperl)) {
+                res1[i - (k-1)*blocksize, ] <-  .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag)
+              }
+              vres[lowerl:upperl,] <- res1 %*% z
+              lowerl <- upperl +1
+            }
+          }
+          if(lowerl <= n)
+            {
+              res1 <- matrix(0,n-lowerl+1,n)
+              for(i in lowerl:n) {
+                res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag)
+              }
+              vres[lowerl:n,] <- res1  %*% z
+            }
+        }
+        else
+          {
+            nblocks <- floor(n/blocksize)
+            lowerl <- 1
+            upperl <- 0
+            z <- as.matrix(z)
+            if(dim(z)[1]!= n) stop("z rows must be equal to y length")
+            dz <- dim(z)[2]
+            vres <- matrix(0,n,dz)
+            
+            if (nblocks > 0){
+              res1 <- matrix(0,blocksize,n)
+              for(k in 1:nblocks){
+                upperl <- upperl + blocksize
+                for(i in lowerl:(upperl)) {
+                  res1[i - (k-1)*blocksize, ] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                }
+                vres[lowerl:upperl,] <- res1 %*% z
+                lowerl <- upperl +1
+              }
+            }
+            if(lowerl <= n)
+              {
+                res1 <- matrix(0,n-lowerl+1,n)
+                for(i in lowerl:n) {
+                  res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                }
+                vres[lowerl:n,] <- res1  %*% z
+              }
+          }
+      }
+      
+      if (!is.null(y)){
+        if(normalized == TRUE){
+          nblocks <- floor(n/blocksize)
+          lowerl <- 1
+          upperl <- 0
+          m <- length(y)
+          z <- as.matrix(z)
+          if(dim(z)[1]!= m) stop("z rows must be equal to y length")
+          resdiag1 <- rep(0,m)
+          dz <- dim(z)[2]
+          vres <- matrix(0,n,dz)
+          
+          for(i in 1:n)
+            resdiag[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+
+          
+          for(i in 1:m)
+            resdiag1[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+          
+          if (nblocks > 0){
+            res1 <- matrix(0,blocksize,m)
+            for(k in 1:nblocks){
+              upperl <- upperl + blocksize
+              for(i in lowerl:(upperl)) {
+                res1[i - (k-1)*blocksize, ] <-  .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag1)
+              }
+              vres[lowerl:upperl,] <- res1 %*% z
+              lowerl <- upperl +1
+            }
+          }
+          if(lowerl <= n)
+            {
+              res1 <- matrix(0,n-lowerl+1,m)
+              for(i in lowerl:n) {
+                res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag1)
+              }
+              vres[lowerl:n,] <- res1  %*% z
+            }
+        }
+        else
+          {
+            nblocks <- floor(n/blocksize)
+            lowerl <- 1
+            upperl <- 0
+            m <- length(y)
+            z <- as.matrix(z)
+            if(dim(z)[1]!= m) stop("z rows must be equal to y length")
+            dz <- dim(z)[2]
+            vres <- matrix(0,n,dz)
+            
+            if (nblocks > 0){
+              res1 <- matrix(0,blocksize,m)
+              
+              for(k in 1:nblocks){
+                
+                upperl <- upperl + blocksize
+                
+                for(i in lowerl:(upperl)) {
+                  res1[i - (k-1)*blocksize, ] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+               
+                }
+                vres[lowerl:upperl,] <- res1 %*% z
+                lowerl <- upperl +1
+              }
+            }
+            if(lowerl <= n)
+              {
+                res1 <- matrix(0,n-lowerl+1,m)
+                for(i in lowerl:n) {
+                  res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                  }
+                vres[lowerl:n,] <- res1  %*% z
+              }
+          }
+      }
+    }
   return(vres)
+  
 }
 setMethod("kernelMult",signature(kernel="stringkernel"),kernelMult.stringkernel)
 
@@ -1437,6 +1776,7 @@ kernelPol <- function(kernel, x, y=NULL, z, k=NULL)
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must ba a matrix or a vector")
   n <- nrow(x)
   z <- as.matrix(z)
+
 
   if(!dim(z)[1]==n)
     stop("z must have the length equal to x colums")
@@ -1684,44 +2024,25 @@ kernelPol.splinekernel <- function(kernel, x, y=NULL, z, k=NULL)
   sigma <- kpar(kernel)$sigma
   degree <- kpar(kernel)$degree
   n <- dim(x)[1]
-  z <- as.matrix(z)
-  if(!dim(z)[1]==n)
+  z <- as.vector(z)
+  if(!(length(z)==n))
     stop("z must have the length equal to x colums")
   if (is.null(y))
     {
-      if(is(z,"matrix")&&!dim(z)[1]==n)
-       stop("z must have size equal to x colums")
-      a <- matrix(0, dim(x)[2], n)
-      res <- matrix(0,n,n)
-      for (i in 1:n)
-        {
-        dr <- 	x + x[, i]	
-	dp <-   x * x[, i]
-	dm <-   pmin(x,x[,i])
-	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
-        }
-      return(z*res*z)
+      
+      res <- kernelMatrix(kernel,x)
+      return(unclass(z*t(res*z)))
     }
   if (is(y,"matrix"))
     {
       if(is.null(k)) stop("k not specified!")
       m <- dim(y)[1]
-      if(!dim(k)[1]==m)
-        stop("k must have equal rows to y")
-      k <- as.matrix(k)
-      if(!dim(x)[2]==dim(y)[2])
-        stop("matrixes must have the same number of columns")
+      k <- as.vector(k)
+      if(!(length(k)==m))
+        stop("k must have length equal to rows of y")
 
-      b <- matrix(0, dim(x)[2],m)
-      res <- matrix(0, dim(x)[1],m)
-      for( i in 1:n)
-        {
-	dr <- 	y + x[,i]	
-	dp <-   y * x[,i]
-	dm <-   pmin(y,x[,i])
-	res[i,] <- apply((1 + dp + dp*dm - (dp/2)*dm^2 + (dm^3)/3),2, prod) 
-        }
-      return(k*res*z)
+      res <- kernelMatrix(kernel,x,y)
+      return(unclass(k*t(res*z)))
     }
 }
 setMethod("kernelPol",signature(kernel="splinekernel"),kernelPol.splinekernel)
@@ -1740,29 +2061,30 @@ kernelPol.polykernel <- function(kernel, x, y=NULL, z, k=NULL)
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
+
+  if(is(z,"matrix"))
+    {
+      z <- as.vector(z)
+    }
+  m <- length(z)
   
-  z <- as.matrix(z)
-  if(!dim(z)[1]==n)
+  if(!(m==n))
     stop("z must have the length equal to x colums")
   if (is.null(y))
     {
-      if(is(z,"matrix")&&!dim(z)[1]==n)
-       stop("z must have size equal to x colums")
-      for (i in 1:n)
-        res <- z*(((scale*crossprod(t(x))+offset)^degree)*z)
+      res <- z*t(((scale*crossprod(t(x))+offset)^degree)*z)
       return(res)
     }
   if (is(y,"matrix"))
     {
       if(is.null(k)) stop("k not specified!")
       m <- dim(y)[1]
-      k <- as.matrix(k)
-      if(!dim(k)[1]==m)
-        stop("k must have equal rows to y")
+      k <- as.vector(k)
+      if(!(length(k)==m))
+        stop("k must have length equal to rows of y")
       if(!dim(x)[2]==dim(y)[2])
         stop("matrixes must have the same number of columns")
-      for( i in 1:m)#2*sigma or sigma
-        res<- k*(((scale*x%*%t(y) + offset)^degree)*z)
+      res<- k*t(((scale*x%*%t(y) + offset)^degree)*z)
       return(res)
     }
 }
@@ -1781,28 +2103,29 @@ kernelPol.tanhkernel <- function(kernel, x, y=NULL, z, k=NULL)
   scale <- kpar(kernel)$scale
   offset <- kpar(kernel)$offset
   n <- dim(x)[1]
-  z <- as.matrix(z)
-  if(!dim(z)[1]==n)
+  if(is(z,"matrix"))
+    {
+      z <- as.vector(z)
+    }
+  m <- length(z)
+
+  if(!(m==n))
     stop("z must have the length equal to x colums")
   if (is.null(y))
     {
-      if(is(z,"matrix")&&!dim(z)[1]==n)
-       stop("z must have size equal to x colums")
-      for (i in 1:n)
-        res <- z*(tanh(scale*crossprod(t(x))+offset)*z)
+      res <- z*t(tanh(scale*crossprod(t(x))+offset)*z)
       return(res)
     }
   if (is(y,"matrix"))
     {
       if(is.null(k)) stop("k not specified!")
       m <- dim(y)[1]
-      k <- as.matrix(k)
-      if(!dim(k)[1]==m)
-        stop("k must have equal rows to y")
+      k <- as.vector(k)
+      if(!(length(k)==m))
+        stop("k must have length equal rows to y")
       if(!dim(x)[2]==dim(y)[2])
-        stop("matrixes must have the same number of columns")
-      for( i in 1:m)#2*sigma or sigma
-        res<- k*(tanh(scale*x%*%t(y) + offset)*z)
+        stop("matrixes x, y must have the same number of columns")
+      res<- k*t(tanh(scale*x%*%t(y) + offset)*z)
       return(res)
     }
 }
@@ -1815,32 +2138,34 @@ kernelPol.vanillakernel <- function(kernel, x, y=NULL, z, k=NULL)
   if(!is(z,"matrix")&&!is(z,"vector")) stop("z must be a matrix or a vector")
   if(!is(k,"matrix")&&!is(k,"vector")&&!is.null(k)) stop("k must be a matrix or a vector")
   n <- dim(x)[1]
-  z <- as.matrix(z)
+  if(is(z,"matrix"))
+    {
+      z <- as.vector(z)
+      m <- length(z)
+    }
+      
   if(is(x,"vector"))
     x <- as.matrix(x)
   if(is(y,"vector"))
     y <- as.matrix(y)
-  if(!dim(z)[1]==n)
+  if(!(m==n))
     stop("z must have the length equal to x colums")
   if (is.null(y))
     {
-      if(is(z,"matrix")&&!dim(z)[1]==n)
-       stop("z must have size equal to x colums")
-      for (i in 1:n)
-        res <- z*(crossprod(t(x))*z)
+        res <- z*t(crossprod(t(x))*z)
       return(res)
     }
   if (is(y,"matrix"))
     {
       if(is.null(k)) stop("k not specified!")
       m <- dim(y)[1]
-      k <- as.matrix(k)
-      if(!dim(k)[1]==m)
-        stop("k must have equal rows to y")
+      k <- as.vector(k)
+      if(!length(k)==m)
+        stop("k must have length equal rows to y")
       if(!dim(x)[2]==dim(y)[2])
-        stop("matrixes must have the same number of columns")
+        stop("matrixes x, y must have the same number of columns")
       for( i in 1:m)
-        res<- k*(x%*%t(y)*z)
+        res<- k*t(x%*%t(y)*z)
       return(res)
     }
 }
@@ -1852,69 +2177,136 @@ kernelPol.stringkernel <- function(kernel, x, y=NULL ,z ,k=NULL)
   res1 <- matrix(rep(0,n*n), ncol = n)
   resdiag <- rep(0,n)
 
+  if(is(x,"list"))
+    x <- sapply(x,paste,collapse="")
+  
+  if(is(y,"list"))
+    y <- sapply(y,paste,collapse="")
+
+  
   normalized = kpar(kernel)$normalized
   if(normalized == TRUE)
     kernel <- stringdot(length = kpar(kernel)$length, type = kpar(kernel)$type, lambda = kpar(kernel)$lambda, normalized = FALSE)
   
   z <- as.matrix(z)
   ## y is null 
-  if(is.null(y)){
-    if(normalized == TRUE){
-      ## calculate diagonal elements first, and use them to normalize
-      for (i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
+  if (kpar(kernel)$type == "sequence" |kpar(kernel)$type == "string"|kpar(kernel)$type == "fullstring")
+    {
+
+      if(is.null(y)){
+        if(normalized == TRUE){
+          ## calculate diagonal elements first, and use them to normalize
+          for (i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
       
-      for(i in 1:n) {
-        for(j in (i:n)[-1]) {
-          res1[i,j]  <- (z[i,]*kernel(x[[i]],x[[j]])*z[j,])/sqrt(resdiag[i]*resdiag[j])
+          for(i in 1:n) {
+            for(j in (i:n)[-1]) {
+              res1[i,j]  <- (z[i,]*kernel(x[[i]],x[[j]])*z[j,])/sqrt(resdiag[i]*resdiag[j])
+            }
+          }
+          res1 <- res1 + t(res1)
+          diag(res1) <- z^2
         }
+        else
+          {
+            for (i in 1:n)
+              resdiag[i] <- kernel(x[[i]],x[[i]])
+            
+            for(i in 1:n) {
+              for(j in (i:n)[-1]) {
+                res1[i,j]  <- (z[i,]*kernel(x[[i]],x[[j]])*z[j,])
+              }
+            }
+            res1 <- res1 + t(res1)
+            diag(res1) <- resdiag * z^2
+          }
       }
-      res1 <- res1 + t(res1)
-      diag(res1) <- z^2
-    }
-    else
-      {
-        for (i in 1:n)
-          resdiag[i] <- kernel(x[[i]],x[[i]])
-        
-        for(i in 1:n) {
-          for(j in (i:n)[-1]) {
-            res1[i,j]  <- (z[i,]*kernel(x[[i]],x[[j]])*z[j,])
+      
+      if (!is.null(y)){
+        if(normalized == TRUE){
+          m <- length(y)
+          res1 <- matrix(0,n,m)
+          resdiag1 <- rep(0,m)
+          
+          k <- as.matrix(k)
+          for(i in 1:n)
+            resdiag[i] <- kernel(x[[i]],x[[i]])
+          
+          for(i in 1:m)
+            resdiag1[i] <- kernel(y[[i]],y[[i]])
+          
+          for(i in 1:n) {
+            for(j in 1:m) {
+              res1[i,j] <- (z[i,]*kernel(x[[i]],y[[j]])*k[j,])/sqrt(resdiag[i]*resdiag1[j])
+            }
           }
         }
-        res1 <- res1 + t(res1)
-        diag(res1) <- resdiag * z^2
       }
-  }
-  
-  if (!is.null(y)){
-    if(normalized == TRUE){
-      m <- length(y)
-      res1 <- matrix(0,n,m)
-      resdiag1 <- rep(0,m)
-
-      k <- as.matrix(k)
-      for(i in 1:n)
-        resdiag[i] <- kernel(x[[i]],x[[i]])
-      
-      for(i in 1:m)
-        resdiag1[i] <- kernel(y[[i]],y[[i]])
-                           
-      for(i in 1:n) {
-        for(j in 1:m) {
-          res1[i,j] <- (z[i,]*kernel(x[[i]],y[[j]])*k[j,])/sqrt(resdiag[i]*resdiag1[j])
+      else{
+        m <- length(y)
+        res1 <- matrix(0,n,m)
+        k <- as.matrix(k)
+        
+        for(i in 1:n) {
+          for(j in 1:m) {
+            res1[i,j] <- (z[i,]*kernel(x[[i]],y[[j]])*k[j,])
+          }
         }
       }
     }
-  }
-  else{
-    m <- length(y)
-    res1 <- matrix(0,n,m)
-    k <- as.matrix(k)
-        
-    for(i in 1:n) {
-      for(j in 1:m) {
-        res1[i,j] <- (z[i,]*kernel(x[[i]],y[[j]])*k[j,])
+  else {
+    
+    switch(kpar(kernel)$type,
+           "exponential" = 
+           sktype <- 2,
+           "constant" =
+           sktype <- 1,
+           "spectrum" =
+           sktype <- 3,
+           "boundrange" =
+           sktype <- 4)
+    
+    
+    if(is(x,"list"))
+      x <- unlist(x)
+    if(is(y,"list"))
+      y <- unlist(y)
+
+    
+    x <- paste(x,"\n",seq="")
+    if(!is.null(y))
+      y <- paste(y,"\n",seq="")  
+
+
+    if(is.null(y))
+      ret <- matrix(0, length(x),length(x))
+    else
+      ret <- matrix(0,length(x),length(y))
+    
+    if(is.null(y)){
+      for( i in 1:length(x))
+        ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+      res1 <- k*ret*k
+    }
+    else{
+      for( i in 1:length(x))
+        ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+      res1 <- k*ret*z
+    }
+    if(normalized == TRUE){
+      if(is.null(y)){
+        ret <- t((1/sqrt(diag(ret)))*t(ret*(1/sqrt(diag(ret)))))
+        res1 <- k*ret*k
+      }
+      else{
+        norm1 <- rep(0,length(x))
+        norm2 <- rep(0,length(y))
+        for( i in 1:length(x))
+          norm1[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+        for( i in 1:length(y))
+          norm2[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+        ret <- t((1/sqrt(norm2))*t(ret*(1/sqrt(norm1))))
+        res1 <- k*ret*z 
       }
     }
   }

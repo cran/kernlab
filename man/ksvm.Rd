@@ -385,6 +385,11 @@ gene <- ksvm(Class~.,data=promotergene,kernel=k,C=10,cross=5)
 gene
 
 
+#### Use text with string kernels
+data(reuters)
+is(reuters)
+tsv <- ksvm(reuters,rlabels,kernel="stringdot",kpar=list(length=5),cross=3,C=10)
+tsv
 
 
 ## regression

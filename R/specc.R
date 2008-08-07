@@ -334,11 +334,11 @@ setMethod("specc",signature(x="kernelMatrix"),function(x, centers, nystrom.red =
     res <- kmeans(yi, centers, iterations)
   }
   
-  cent <- matrix(unlist(lapply(1:nc,ll<- function(l){colMeans(x[which(res$cluster==l),])})),ncol=dim(x)[2], byrow=TRUE)
+  ## cent <- matrix(unlist(lapply(1:nc,ll<- function(l){colMeans(x[which(res$cluster==l),])})),ncol=dim(x)[2], byrow=TRUE)
   
-  withss <- unlist(lapply(1:nc,ll<- function(l){sum((x[which(res$cluster==l),] - cent[l,])^2)}))
+##  withss <- unlist(lapply(1:nc,ll<- function(l){sum((x[which(res$cluster==l),] - cent[l,])^2)}))
   
-  return(new("specc", .Data=res$cluster, size = res$size, centers=NULL, withinss=withss, kernelf= "Kernel Matrix used as input."))
+  return(new("specc", .Data=res$cluster, size = res$size, centers = matrix(0), withinss = c(0), kernelf= "Kernel Matrix used as input."))
 
 })
 
@@ -351,15 +351,17 @@ function(object){
    cat(object@.Data,"\n","\n")
   show(kernelf(object))
   cat("\n")
-  cat(paste("Centers: ","\n"))
-  show(centers(object))
-  cat("\n")
+  if(!any(is.na(centers(object)))){
+    cat(paste("Centers: ","\n"))
+    show(centers(object))
+    cat("\n")}
   cat(paste("Cluster size: ","\n"))
   show(size(object))
   cat("\n")
-  cat(paste("Within-cluster sum of squares: ", "\n"))
-  show(withinss(object))
-  cat("\n")
+  if(!is.logical(withinss(object))){
+    cat(paste("Within-cluster sum of squares: ", "\n"))
+    show(withinss(object))
+    cat("\n")}
 })
 
 

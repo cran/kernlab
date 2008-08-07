@@ -1,5 +1,6 @@
 \name{as.kernelMatrix}
 \docType{methods}
+\alias{kernelMatrix-class}
 \alias{as.kernelMatrix}
 \alias{as.kernelMatrix-methods}
 \alias{as.kernelMatrix,matrix-method}

@@ -67,7 +67,7 @@ setMethod("kkmeans",signature(x="matrix"),function(x, centers, kernel
   if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
-      kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
+      kpar <- list(sigma=sigest(x,scaled=FALSE)[2])
    cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
    
   }

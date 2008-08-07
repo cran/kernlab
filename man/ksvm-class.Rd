@@ -10,6 +10,7 @@
 \alias{param}
 \alias{b}
 \alias{obj}
+\alias{nSV}
 \alias{coef,vm-method}
 \alias{SVindex,ksvm-method}
 \alias{alpha,ksvm-method}
@@ -30,6 +31,8 @@
 \alias{ymatrix,ksvm-method}
 \alias{b,ksvm-method}
 \alias{obj,ksvm-method}
+\alias{nSV,ksvm-method}
+
 
 \title{Class "ksvm" }
 \description{An S4 class containing the output (model) of the
@@ -87,7 +90,7 @@
     \item{\code{SVindex}:}{Object of class \code{"vector"} containing
       the indexes of the support vectors}
     \item{\code{nSV}:}{Object of class \code{"numeric"} containing the
-      number of suppport vector machines }
+      number of suppport vectors }
       \item{\code{obj}:}{Object of class \code{vector} containg the value of the objective function. When using 
       one-against-one in multiclass classification this is a vector.}
     \item{\code{error}:}{Object of class \code{"numeric"} containing the

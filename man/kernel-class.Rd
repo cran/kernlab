@@ -9,6 +9,8 @@
 \alias{laplacekernel-class}
 \alias{splinekernel-class}
 \alias{stringkernel-class}
+\alias{fourierkernel-class}
+\alias{kfunction-class}
 
 \alias{kernel-class}
 \alias{kpar,kernel-method}

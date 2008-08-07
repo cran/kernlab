@@ -8,9 +8,10 @@
 \alias{laplacedot}
 \alias{besseldot}
 \alias{anovadot}
+\alias{fourierdot}
 \alias{splinedot}
-\alias{stringdot}
 \alias{kpar}
+\alias{kfunction}
 \alias{show,kernel-method}
 \title{Kernel Functions}
 \description{
@@ -27,7 +28,7 @@
   The Spline kernel \eqn{ \prod_{d=1}^D 1 + x_i x_j + x_i x_j min(x_i,
     x_j)  - \frac{x_i + x_j}{2} min(x_i,x_j)^2 +
     \frac{min(x_i,x_j)^3}{3}} \\
-  The String kernel.
+  The String kernels (see \code{stringdot}.
 }
 \usage{
 rbfdot(sigma = 1)
@@ -45,8 +46,6 @@ besseldot(sigma = 1, order = 1, degree = 1)
 anovadot(sigma = 1, degree = 1)
 
 splinedot()
-
-stringdot(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
 }
 
 \arguments{
@@ -60,12 +59,6 @@ stringdot(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
   \item{offset}{The offset used in a polynomial or hyperbolic tangent
     kernel}
   \item{order}{The order of the Bessel function to be used as a kernel}
-
-  \item{length}{The length of the substrings considered}
-  \item{lambda}{The decay factor}
-  \item{type}{Type of string kernel, currently \code{sequence},
-    \code{string}, \code{fullstring}}
-  \item{normalized}{normalize string kernel values, (default: \code{TRUE})}
 }
 \details{
   The kernel generating functions are used to initialize a kernel
@@ -80,7 +73,7 @@ stringdot(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
   any other function implementing a dot product of class \code{kernel} can also be used as a kernel
   argument. This allows the user to use, test and develop special kernels
   for a given data set or algorithm.
-
+  For details on the string kernels see \code{stringdot}.
   }
 \value{
  Return an S4 object of class \code{kernel} which extents the
@@ -109,7 +102,7 @@ stringdot(length = 4, lambda = 0.5, type = "sequence", normalized = TRUE)
 
 
 
-\seealso{ \code{\link{kernelMatrix} }, \code{\link{kernelMult}}, \code{\link{kernelPol}}}
+\seealso{\code{stringdot}, \code{\link{kernelMatrix} }, \code{\link{kernelMult}}, \code{\link{kernelPol}}}
 \examples{
 rbfkernel <- rbfdot(sigma = 0.1)
 rbfkernel

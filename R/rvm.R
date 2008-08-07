@@ -110,13 +110,7 @@ function (x,
   else
     type(ret) <- "regression"
 
-
-  if(is.character(kpar))
-    if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot" || kernel== "anovadot"|| kernel=="splinedot") &&  kpar=="automatic" )
-      {
-        cat (" Setting default kernel parameters ","\n")
-        kpar <- list()
-      }
+  
   
   
   
@@ -145,21 +139,46 @@ function (x,
   type(ret) <- match.arg(type,c("classification", "regression"))
 
   
+
+    if(is.character(kernel)){
+    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot","matrix"))
+
+    if(kernel == "matrix")
+      if(dim(x)[1]==dim(x)[2])
+        return(ksvm(as.kernelMatrix(x), y = y, type = type, C = C, nu = nu, epsilon  = epsilon, prob.model = prob.model, class.weights = class.weights, cross = cross, fit = fit, cache = cache, tol = tol, shrinking = shrinking, ...))
+      else
+        stop(" kernel matrix not square!")
+    
+    if(is.character(kpar))
+      if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot" || kernel== "anovadot"|| kernel=="splinedot") &&  kpar=="automatic" )
+        {
+          cat (" Setting default kernel parameters ","\n")
+          kpar <- list()
+        }
+  }
+
+  
   if (!is.function(kernel))
   if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
-      kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
+      kpar <- list(sigma=sigest(x,scaled=FALSE)[2])
    cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
+   
   }
-
   if(!is(kernel,"kernel"))
     {
       if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
       kernel <- do.call(kernel, kpar)
     }
+
   if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
 
+
+
+  
+
+  
   if(length(alpha) == m)
     thetavec <- 1/alpha
   else
@@ -172,7 +191,8 @@ function (x,
   
   if (type(ret) == "regression")
     {
-      K <- kernelMatrix(kernel, x)
+      K <- kernelMatrix(kernel, x) 
+      diag(K) <- diag(K)+ 10e-7
       Kml <- crossprod(K, y)
             
       for (i in 1:iterations) {

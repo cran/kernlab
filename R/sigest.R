@@ -3,7 +3,7 @@
 
 setGeneric("sigest", function(x, ...) standardGeneric("sigest"))
 setMethod("sigest",signature(x="formula"),
-function (x, data=NULL, frac = 0.5, na.action = na.omit, scaled = TRUE){
+function (x, data=NULL, frac = 0.8, na.action = na.omit, scaled = TRUE){
   call <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
@@ -54,17 +54,20 @@ function (x,
                 x[,scaled] <- xtmp
               }
             }
-    
+  
             m <- dim(x)[1]
             n <- floor(frac*m)
-            index <- sample(1:m, n, replace = FALSE)
-            index2 <- sample(1:m, n, replace = FALSE)
+            index <- sample(1:m, n, replace = TRUE)
+            index2 <- sample(1:m, n, replace = TRUE)
             temp <- x[index,, drop=FALSE] - x[index2,,drop=FALSE]
             dist <- rowSums(temp^2)
-            ds <- sort(dist[dist!=0])
-            sl <- ds[ceiling(0.1*length(ds))]
-            su <- ds[ceiling(0.9*length(ds))]
-            srange <- c(1/su,1/sl)
-            names(srange) <- NULL
+            srange <- 1/quantile(dist[dist!=0],probs=c(0.9,0.5,0.1))
+
+            ## ds <- sort(dist[dist!=0])
+            ## sl <- ds[ceiling(0.2*length(ds))]
+            ## su <- ds[ceiling(0.8*length(ds))]
+            ## srange <- c(1/su,1/median(ds), 1/sl)
+            ##   names(srange) <- NULL
+
             return(srange)
           })
