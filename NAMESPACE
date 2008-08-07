@@ -16,6 +16,7 @@ export(
        "as.kernelMatrix",
 	
        ## High level functions 
+       "kmmd",
        "kpca",
        "kcca",
        "kha",
@@ -28,12 +29,15 @@ export(
        "csi",
        "lssvm",
        "kqr",
+       
        ## Utility functions
        "ipop",
        "inchol",
        "couple",
        "sigest",
+       
        ## Accessor functions
+       
        ## VM
        "type",
        "prior",
@@ -50,11 +54,11 @@ export(
        "error",
        "cross",
        "SVindex",
+	"nSV",
        "RVindex",
        "prob.model",
        "b",
        "obj",
-       ## "margin",
 
        ## kpca
        "rotated",
@@ -70,8 +74,8 @@ export(
        "kcor",
        "xcoef",
        "ycoef",
-       "xvar",
-       "yvar",
+      ## "xvar",
+      ## "yvar",
        
        ## specc
        "size",
@@ -104,19 +108,27 @@ export(
        "R",
        "Q",
        "truegain",
-       "predgain")
+       "predgain",
+       
+       ## kmmd
+       "H0",
+       "AsympH0",
+       "Radbound",
+       "Asymbound",
+       "mmdstats"
+       )
 
-import("methods")
 importFrom("stats", "coef", "fitted", "na.omit", "predict", "terms")
 importFrom("graphics","plot")
 
 exportMethods("coef", "fitted", "plot", "predict", "show")
 
-exportClasses("ksvm", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
+exportClasses("ksvm", "kmmd", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
               "kcca", "kernel", "rbfkernel", "laplacekernel",
-              "besselkernel", "tanhkernel", "polykernel",
+              "besselkernel", "tanhkernel", "polykernel","fourierkernel",
               "vanillakernel", "anovakernel", "splinekernel",
               "stringkernel", "specc", "ranking", "inchol", "onlearn",
-              "kfa", "csi","kqr")
+              "kfa", "csi","kqr",
+              "kernelMatrix","kfunction")
 
 useDynLib("kernlab")

@@ -50,7 +50,8 @@ of \eqn{\|x -x'\|^2}. Basicly any value in between those two bounds will
 produce good results.
 }
 \value{
-  Returns a vector of length 2 defining the range (upper bound and lower bound) of
+  Returns a vector of length 3 defining the range (0.1 quantile, median
+  and 0.9 quantile) of
   the sigma hyperparameter. 
   }
 \references{ B. Caputo, K. Sim, F. Furesjo, A. Smola, \cr
@@ -70,7 +71,7 @@ data(promotergene)
 srange <- sigest(Class~.,data = promotergene)
 srange
 
-s <- sum(srange)/2
+s <- srange[2]
 s
 ## create test and training set
 ind <- sample(1:dim(promotergene)[1],20)

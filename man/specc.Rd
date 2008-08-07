@@ -59,7 +59,7 @@ of an affinity matrix.
   }
 
   \item{kpar}{a character string or the list of hyper-parameters (kernel parameters).
-    The default character string \code{"automatic"} uses a heuristic the determine a
+    The default character string \code{"automatic"} uses a heuristic to determine a
     suitable value for the width parameter of the RBF kernel.
     The second option \code{"local"} (local scaling) uses a more advanced heuristic
      and sets a width parameter for every point in the data set. This is

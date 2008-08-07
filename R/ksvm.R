@@ -1,4 +1,3 @@
-
 ## Support Vector Machines
 ## author : alexandros karatzoglou
 ## updated : 08.02.06
@@ -6,7 +5,6 @@
 setGeneric("ksvm", function(x, ...) standardGeneric("ksvm"))
 setMethod("ksvm",signature(x="formula"),
 function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
-    
   cl <- match.call()
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame())))
@@ -67,12 +65,14 @@ function (x,
           ,subset 
          ,na.action = na.omit)
 { 
-  sparse  <- inherits(x, "matrix.csr")
-  if (sparse) {
-    if (!require(SparseM))
-      stop("Need SparseM package for handling of sparse structures!")
-  }
-
+  ## Comment out sparse code, future impl. will be based on "Matrix"
+  ##  sparse  <- inherits(x, "matrix.csr")
+  ##  if (sparse) {
+  ##    if (!require(SparseM))
+  ##      stop("Need SparseM package for handling of sparse structures!")
+  ##  }
+  sparse <- FALSE
+  
   if(is.character(kernel)){
     kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot","matrix"))
 
@@ -115,12 +115,12 @@ function (x,
                                 "eps-bsvr",
                                 "nu-svr"))
 
-  ## scaling, subsetting, and NA handling
-  if (sparse) {
-    scale <- rep(FALSE, ncol(x))
-    if(!is.null(y)) na.fail(y)
-    x <- t(t(x)) ## make shure that col-indices are sorted
-  }
+  ## ## scaling, subsetting, and NA handling
+  ##  if (sparse) {
+  ##    scale <- rep(FALSE, ncol(x))
+  ##    if(!is.null(y)) na.fail(y)
+  ##    x <- t(t(x)) ## make shure that col-indices are sorted
+  ##  }
 
   x.scale <- y.scale <- NULL
   ## scaling
@@ -153,7 +153,7 @@ function (x,
   if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
-      kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
+      kpar <- list(sigma=sigest(x,scaled=FALSE)[2])
    cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
    
   }
@@ -173,7 +173,7 @@ function (x,
     if ((type(ret) != "one-svc") && ym != m) stop("x and y don't match.")
 
   if(nu > 1|| nu <0) stop("nu must be between 0 an 1.")
-  
+   
   weightlabels <- NULL
   nweights <- 0
   weight <- 0
@@ -186,8 +186,6 @@ function (x,
       lev(ret) <- levels (y)
       y <- as.integer (y)
       if (!is.null(class.weights)) {
-        if (is.null(names (class.weights)))
-          stop ("Weights have to be specified along with their according level names !")
         weightlabels <- match (names(class.weights),lev(ret))
         if (any(is.na(weightlabels)))
           stop ("At least one level name is missing or misspelled.")
@@ -261,22 +259,16 @@ function (x,
 
 ## C classification
   if(type(ret) == "C-svc"){
+
     indexes <- lapply(sort(unique(y)), function(kk) which(y == kk))
     for (i in 1:(nclass(ret)-1)) {
       jj <- i+1
       for(j in jj:nclass(ret)) {
         p <- p+1
-        ##prepare data
+        ## prepare the data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        if(sparse)
-          xd <- as.matrix.csr(0,(li+lj),dim(x)[2])
-        else
-          xd <- matrix(0,(li+lj),dim(x)[2])
-        xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
-
+      
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -304,17 +296,17 @@ function (x,
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
 
         if(ktype==4)
-          K <- kernelMatrix(kernel,xd)
+          K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
                
         resv <- .Call("smo_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
+                      as.integer(li+lj),
+                      as.integer(ncol(x)),
                       as.double(yd),
                       as.double(K),
                       
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), ##linear term
@@ -344,7 +336,7 @@ function (x,
         ## store SV indexes from current problem for later use in predict
         alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind,,drop=FALSE][svind, ,drop=FALSE])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][reind,,drop=FALSE][svind, ,drop=FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -370,13 +362,7 @@ if(type(ret) == "nu-svc"){
        ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-         if(sparse)
-          xd <- as.matrix.csr(0,(li+lj),dim(x)[2])
-        else
-          xd <- matrix(0,(li+lj),dim(x)[2])
-        xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
+
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -403,16 +389,16 @@ if(type(ret) == "nu-svc"){
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0)
 
         if(ktype==4)
-             K <- kernelMatrix(kernel,xd)
+             K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
         
         resv <- .Call("smo_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
+                      as.integer(li+lj),
+                      as.integer(ncol(x)),
                       as.double(yd),
                       as.double(K),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), #linear term
@@ -439,7 +425,7 @@ if(type(ret) == "nu-svc"){
         ##store SV indexes from current problem for later use in predict
        	alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind,,drop=FALSE][svind,,drop=FALSE])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][reind,,drop=FALSE][svind,,drop=FALSE])
         ##save the indexes from all the SV in a vector (use unique!)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -468,13 +454,7 @@ if(type(ret) == "nu-svc"){
         ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        if(sparse)
-          xd <- as.matrix.csr(0,(li+lj),dim(x)[2])
-        else
-          xd <- matrix(0,(li+lj),dim(x)[2])
-        xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-        xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
+
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -501,16 +481,16 @@ if(type(ret) == "nu-svc"){
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
 
            if(ktype==4)
-             K <- kernelMatrix(kernel,xd)
+             K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
         
         resv <- .Call("tron_optim",
-                      as.double(t(xd)),
-                      as.integer(nrow(xd)),
-                      as.integer(ncol(xd)),
+                      as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
+                      as.integer(li+lj),
+                      as.integer(ncol(x)),
                       as.double(yd),
                       as.double(K),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       as.integer(2),
                       as.double(0), ##countc
@@ -541,7 +521,7 @@ if(type(ret) == "nu-svc"){
         ## store SV indexes from current problem for later use in predict
        	alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][svind])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind,,drop = FALSE][svind,,drop = FALSE])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][reind,,drop = FALSE][svind,,drop = FALSE])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -855,11 +835,13 @@ if(type(ret) =="kbb-svc")
     if(type(ret)=="one-svc")
       error(ret) <- sum(!fitted(ret))/m
     if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr"){
-      if (!is.null(scaling(ret)$y.scale))
+      if (!is.null(scaling(ret)$y.scale)){
         scal <- scaling(ret)$y.scale$"scaled:scale"
-      error(ret) <- drop((scal^2)*crossprod(fitted(ret) - y)/m)
-      if (!is.null(scaling(ret)$y.scale))
         fitted(ret) <- fitted(ret) * scaling(ret)$y.scale$"scaled:scale" + scaling(ret)$y.scale$"scaled:center"
+      }
+      else
+        scal <- 1
+      error(ret) <- drop((scal^2)*crossprod(fitted(ret) - y)/m)
     }
   }
 
@@ -881,20 +863,27 @@ if(type(ret) =="kbb-svc")
                 cret <- ksvm(x[cind,],y[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache)
               else
                 cret <- ksvm(x[cind,],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache)
-               cres <- predict(cret, x[vgr[[i]],])
+               cres <- predict(cret, x[vgr[[i]],,drop=FALSE])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
+          if(type(ret)=="one-svc")
+            {
+              cret <- ksvm(x[cind,],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
+              cres <- predict(cret, x[vgr[[i]],, drop=FALSE])
+              cerror <- (1 - sum(cres)/length(cres))/cross + cerror
+            }
+           
           if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
             {
               cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,kpar = NULL,C=C,nu=nu,epsilon=epsilon,tol=tol,scaled=FALSE, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
-              cres <- predict(cret, x[vgr[[i]],])
+              cres <- predict(cret, x[vgr[[i]],,drop=FALSE])
               if (!is.null(scaling(ret)$y.scale))
                 scal <- scaling(ret)$y.scale$"scaled:scale"
               else
                 scal <- 1
               cerror <- drop((scal^2)*crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
-         }
+        }
       cross(ret) <- cerror
     }
 
@@ -912,10 +901,6 @@ if(type(ret) =="kbb-svc")
               ##prepare data
               li <- length(indexes[[i]])
               lj <- length(indexes[[j]])
-              xd <- matrix(0,(li+lj),dim(x)[2])
-              xdi <- 1:(li+lj) <= li
-              xd[xdi,rep(TRUE,dim(x)[2])] <- x[indexes[[i]],]
-              xd[xdi == FALSE,rep(TRUE,dim(x)[2])] <- x[indexes[[j]],]
 
               if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
                 {
@@ -942,12 +927,12 @@ if(type(ret) =="kbb-svc")
                 {
                   cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
                   if(is.null(class.weights))
-                    cret <- ksvm(xd[cind,],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache, prob.model = FALSE)
+                    cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache, prob.model = FALSE)
                   else
-                    cret <- ksvm(xd[cind,],as.factor(lev(ret)[yd[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
+                    cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],as.factor(lev(ret)[yd[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
                                     
                   yres <- c(yres, yd[vgr[[k]]])
-                  pres <- rbind(pres, predict(cret, xd[vgr[[k]],],type="decision"))
+                  pres <- rbind(pres, predict(cret, x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][vgr[[k]],],type="decision"))
                 }
               prob.model(ret)[[p]] <- .probPlatt(pres,yres)
             }
@@ -1073,10 +1058,6 @@ function (x,
         ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        xdi <- 1:(li+lj) <= li
-        xd <- matrix(0,(li+lj),(li+lj))
-        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1111,10 +1092,10 @@ function (x,
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
                       as.double(yd),
-                      as.double(as.vector(xd)),
+                      as.double(as.vector(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE])),
                       
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), ##linear term
@@ -1169,10 +1150,11 @@ if(type(ret) == "nu-svc"){
        ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        xd <- matrix(0,(li+lj),(li+lj))
-        xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
+
+        ##xd <- matrix(0,(li+lj),(li+lj))
+        ##xdi <- 1:(li+lj) <= li
+        ##xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
+        ##xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1206,9 +1188,9 @@ if(type(ret) == "nu-svc"){
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
                       as.double(yd),
-                      as.double(xd),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.double(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), #linear term
@@ -1263,10 +1245,6 @@ if(type(ret) == "nu-svc"){
         ##prepare data
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
-        xd <- matrix(0,(li+lj),(li+lj))
-        xdi <- 1:(li+lj) <= li
-        xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-        xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
         
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
@@ -1300,9 +1278,9 @@ if(type(ret) == "nu-svc"){
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
                       as.double(yd),
-                      as.double(xd),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.double(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ia else 0),
+                      as.integer(if (sparse) x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE]@ja else 0),
                       as.integer(sparse),
                       as.integer(2),
                       as.double(0), ##countc
@@ -1659,6 +1637,12 @@ if(type(ret) =="kbb-svc")
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
               cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
+          if(type(ret)=="one-svc")
+            {
+              cret <- ksvm(as.kernelMatrix(x[cind,cind]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
+              cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+              cerror <- (1 - sum(cres)/length(cres))/cross + cerror
+            }
           if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
             {
               cret <- ksvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
@@ -1683,10 +1667,6 @@ if(type(ret) =="kbb-svc")
               ##prepare data
               li <- length(indexes[[i]])
               lj <- length(indexes[[j]])
-              xd <- matrix(0,(li+lj),(li+lj))
-              xdi <- 1:(li+lj) <= li
-              xd[xdi,rep(TRUE,li+lj)] <- x[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-              xd[xdi == FALSE,rep(TRUE,li+lj)] <- x[indexes[[j]],c(indexes[[i]],indexes[[j]])]
               
               if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
                 {
@@ -1714,11 +1694,11 @@ if(type(ret) =="kbb-svc")
                 {
                   cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
                   if(is.null(class.weights))
-                    cret <- ksvm(as.kernelMatrix(xd[cind,cind]),yd[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
+                    cret <- ksvm(as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind]),yd[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
                   else
-                    cret <- ksvm(as.kernelMatrix(xd[cind,cind]), as.factor(lev(ret)[yd[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
+                    cret <- ksvm(as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind]), as.factor(lev(ret)[yd[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
                   yres <- c(yres,yd[vgr[[k]]])
-                  pres <- rbind(pres,predict(cret, as.kernelMatrix(xd[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
+                  pres <- rbind(pres,predict(cret, as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
                 }
               prob.model(ret)[[p]] <- .probPlatt(pres,yres)
             }
@@ -1878,8 +1858,6 @@ function (x,
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
     
-        xd <- x[c(indexes[[i]],indexes[[j]])] 
-        
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -1906,7 +1884,7 @@ function (x,
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
         
-        K <- kernelMatrix(kernel,xd)
+        K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1) 
         resv <- .Call("smo_optim",
                       as.double(t(xdd)),
@@ -1915,8 +1893,8 @@ function (x,
                       as.double(yd),
                       as.double(K),
                       
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x@ia else 0),
+                      as.integer(if (sparse) x@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), ##linear term
@@ -1945,7 +1923,7 @@ function (x,
         ## store SV indexes from current problem for later use in predict
         alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][tmpres>0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind][tmpres > 0])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]])][reind][tmpres > 0])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -1971,8 +1949,6 @@ if(type(ret) == "nu-svc"){
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
 
-        xd <- x[c(indexes[[i]],indexes[[j]])] 
-        
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -1998,7 +1974,7 @@ if(type(ret) == "nu-svc"){
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0)
 
-        K <- kernelMatrix(kernel,xd)
+        K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1)
         resv <- .Call("smo_optim",
                       as.double(t(xdd)),
@@ -2006,8 +1982,8 @@ if(type(ret) == "nu-svc"){
                       as.integer(ncol(xdd)),
                       as.double(yd),
                       as.double(K),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x@ia else 0),
+                      as.integer(if (sparse) x@ja else 0),
                       as.integer(sparse),
                       
                       as.double(matrix(rep(-1,m))), #linear term
@@ -2032,7 +2008,7 @@ if(type(ret) == "nu-svc"){
         ##store SV indexes from current problem for later use in predict
         alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][tmpres!=0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind][tmpres != 0])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]])][reind][tmpres != 0])
         ##save the indexes from all the SV in a vector (use unique!)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -2061,8 +2037,6 @@ if(type(ret) == "nu-svc"){
         li <- length(indexes[[i]])
         lj <- length(indexes[[j]])
 
-         xd <- x[c(indexes[[i]],indexes[[j]])] 
-        
         if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
           {
             yd <- c(rep(-1,li),rep(1,lj))
@@ -2088,7 +2062,7 @@ if(type(ret) == "nu-svc"){
         prior0 <- md - prior1
         prior(ret)[[p]] <- list(prior1 = prior1, prior0 = prior0) 
 
-        K <- kernelMatrix(kernel,xd)
+        K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1) 
 
         resv <- .Call("tron_optim",
@@ -2097,8 +2071,8 @@ if(type(ret) == "nu-svc"){
                       as.integer(ncol(xdd)),
                       as.double(yd),
                       as.double(K),
-                      as.integer(if (sparse) xd@ia else 0),
-                      as.integer(if (sparse) xd@ja else 0),
+                      as.integer(if (sparse) x@ia else 0),
+                      as.integer(if (sparse) x@ja else 0),
                       as.integer(sparse),
                       as.integer(2),
                       as.double(0), ##countc
@@ -2128,7 +2102,7 @@ if(type(ret) == "nu-svc"){
         ## store SV indexes from current problem for later use in predict
         alphaindex(ret)[p] <- list(c(indexes[[i]],indexes[[j]])[reind][resv[-(li+lj+1)][reind] > 0])
         ## store Support Vectors
-        xmatrix(ret)[p] <- list(xd[reind][resv[-(li+lj+1)][reind] > 0])
+        xmatrix(ret)[p] <- list(x[c(indexes[[i]],indexes[[j]])][reind][resv[-(li+lj+1)][reind] > 0])
         ## save the indexes from all the SV in a vector (use unique?)
         svindex <- c(svindex,alphaindex(ret)[[p]])
         ## store betas in a vector 
@@ -2474,6 +2448,13 @@ if(type(ret) =="kbb-svc")
                   cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
                   cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
                 }
+              if(type(ret)=="one-svc")
+                {
+                  cret <- ksvm(as.kernelMatrix(K[cind,cind]), type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache)
+                  cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind,drop = FALSE][,SVindex(cret),drop=FALSE]))
+                  cerror <- (1 - sum(cres)/length(cres))/cross + cerror
+            }
+
               if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr")
                 {
                   cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C,nu=nu,epsilon=epsilon,tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
@@ -2496,10 +2477,6 @@ if(type(ret) =="kbb-svc")
                   ##prepare data
                   li <- length(indexes[[i]])
                   lj <- length(indexes[[j]])
-                  xd <- matrix(0,(li+lj),dim(K)[2])
-                  xdi <- 1:(li+lj) <= li
-                  xd[xdi,rep(TRUE,li+lj)] <- K[indexes[[i]],c(indexes[[i]],indexes[[j]])]
-                  xd[xdi == FALSE,rep(TRUE,li+lj)] <- K[indexes[[j]],c(indexes[[i]],indexes[[j]])]
                   
                   if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
                     {
@@ -2526,9 +2503,9 @@ if(type(ret) =="kbb-svc")
                   for(k in 1:3)
                     {
                       cind <- unsplit(vgr[-k],factor(rep((1:3)[-k],unlist(lapply(vgr[-k],length)))))
-                      cret <- ksvm(as.kernelMatrix(as.kernelMatrix(K[cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
+                      cret <- ksvm(as.kernelMatrix(as.kernelMatrix(K[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind])), yd[cind], type = type(ret),  C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model=FALSE)
                       yres <- c(yres,yd[vgr[[k]]])
-                      pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
+                      pres <- rbind(pres,predict(cret, as.kernelMatrix(K[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
                       
                     }
                   prob.model(ret)[[p]] <- .probPlatt(pres,yres)
@@ -2542,7 +2519,8 @@ if(type(ret) =="kbb-svc")
               {
                 cind <- unsplit(vgr[-i],factor(rep((1:3)[-i],unlist(lapply(vgr[-i],length)))))
                 cret <- ksvm(as.kernelMatrix(K[cind,cind]),y[cind],type=type(ret), C=C, nu=nu, epsilon=epsilon, tol=tol, cross = 0, fit = FALSE, cache = cache, prob.model = FALSE)
-                cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind, drop = FALSE][,SVindex(cret), drop = FALSE]))
+
+               cres <- predict(cret, as.kernelMatrix(K[vgr[[i]], cind, drop = FALSE][,SVindex(cret), drop = FALSE]))
                 pres <- rbind(pres,predict(cret, as.kernelMatrix(K[vgr[[i]],cind , drop = FALSE][,SVindex(cret) ,drop = FALSE]),type="decision"))
               }
             pres[abs(pres) > (5*sd(pres))] <- 0
@@ -2593,9 +2571,7 @@ if(type(ret) =="kbb-svc")
                 ##prepare data
                 li <- length(indexes[[i]])
                 lj <- length(indexes[[j]])
-                
-                xd <- x[c(indexes[[i]], indexes[[j]])]
-                
+                                
                 if(y[indexes[[i]][1]] < y[indexes[[j]]][1])
                   {
                     yd <- c(rep(-1,li),rep(1,lj))
@@ -2624,11 +2600,11 @@ if(type(ret) =="kbb-svc")
 
 
                 if(is.null(class.weights))
-                  cret <- ksvm(xd[cind],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
+                  cret <- ksvm(x[c(indexes[[i]], indexes[[j]])][cind],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
                 else
-                  cret <- ksvm(xd[cind],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
+                  cret <- ksvm(x[c(indexes[[i]], indexes[[j]])][cind],as.factor(lev(ret)[y[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
                     yres <- c(yres,yd[vgr[[k]]])
-                    pres <- rbind(pres,predict(cret, xd[vgr[[k]]],type="decision"))
+                    pres <- rbind(pres,predict(cret, x[c(indexes[[i]], indexes[[j]])][vgr[[k]]],type="decision"))
                   }
                 prob.model(ret)[[p]] <- .probPlatt(pres,yres)
               }
@@ -2984,7 +2960,7 @@ function(x, data = NULL, grid = 50, slice = list(), ...) {
     ymat <- ymatrix(x)
     ymean <- mean(unique(ymat))
 
-    filled.contour(xr, yr, matrix(as.numeric(preds), nr = length(xr), byrow = TRUE),
+    filled.contour(xr, yr, matrix(as.numeric(preds), nrow = length(xr), byrow = TRUE),
                    col = mycols, levels = mylevels,
 		   plot.axes = {
                      axis(1)

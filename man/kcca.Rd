@@ -6,7 +6,8 @@
 Computes the canonical correlation analysis in feature space.
 }
 \usage{
-\S4method{kcca}{matrix}(x, y, kernel="rbfdot", kpar=list(sigma=0.1), ...)
+\S4method{kcca}{matrix}(x, y, kernel="rbfdot", kpar=list(sigma=0.1),
+gamma = 0.1, ncomps = 10, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -48,6 +49,10 @@ Computes the canonical correlation analysis in feature space.
     Hyper-parameters for user defined kernels can be passed through the
     kpar parameter as well.}
 
+  \item{gamma}{regularization parameter (default : 0.1)}
+
+  \item{ncomps}{number of canonical components (default : 10) }
+  
   \item{\dots}{adittional parameters for the \code{kpca} function}
 }
 \details{
@@ -66,8 +71,8 @@ Computes the canonical correlation analysis in feature space.
     feature space}
   \item{ycoef}{estimated coefficients for the \code{y} variables in the
     feature space}
-  \item{xvar}{The canonical variates for \code{x}}
-  \item{yvar}{The canonical variates for \code{y}}
+%%  \item{xvar}{The canonical variates for \code{x}}
+%%  \item{yvar}{The canonical variates for \code{y}}
     
 }
 \references{ Malte Kuss, Thore Graepel \cr 
@@ -78,6 +83,12 @@ Computes the canonical correlation analysis in feature space.
 
 \seealso{\code{\link{cancor}}, \code{\link{kpca}}, \code{\link{kfa}}, \code{\link{kha}}}
 \examples{
+
+## dummy data
+x <- matrix(rnorm(30),15)
+y <- matrix(rnorm(30),15)
+
+kcca(x,y,ncomps=2)
 
 }
 \keyword{multivariate}

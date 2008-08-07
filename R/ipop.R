@@ -143,7 +143,7 @@ function(c, H, A, b, l, u, r, sigf=7, maxiter=40, margin=0.05, bound=10, verb=0)
         gamma.q <- - q
         ## instrumentation
         x.dot.H.dot.x <-  crossprod(x, H.dot.x)
-        primal.infeasibility <- max(svd(rbind(rho, tau, alpha, nu))$d)/ b.plus.1
+        primal.infeasibility <- max(svd(rbind(rho, tau, matrix(alpha), nu))$d)/ b.plus.1
         dual.infeasibility <- max(svd(rbind(sigma,t(t(beta))))$d) / c.plus.1
         primal.obj <- crossprod(c,x) + 0.5 * x.dot.H.dot.x
         dual.obj <- crossprod(b,y) - 0.5 * x.dot.H.dot.x + crossprod(l, z) - crossprod(u,s) - crossprod(r,q)

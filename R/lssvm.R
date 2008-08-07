@@ -56,6 +56,7 @@ function (x,
           tol       = 0.0001,
           rank      = floor(dim(x)[1]/3),
           delta      = 40,
+          ##          prob.model = FALSE, 
           cross     = 0,
           fit       = TRUE,
           ...,
@@ -77,7 +78,6 @@ function (x,
   
   if (is.null(type)) type(ret) <- if (is.factor(y)) "classification" else "regression"
   else type(ret) <- type
-
   
   ## scaling, subsetting, and NA handling
   x.scale <- y.scale <- NULL
@@ -102,33 +102,33 @@ function (x,
   ncols <- ncol(x)
   m <- nrows <- nrow(x)
 
-  if(is.character(kernel)){
-    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot","stringdot"))
 
-    
+    if(is.character(kernel)){
+    kernel <- match.arg(kernel,c("rbfdot","polydot","tanhdot","vanilladot","laplacedot","besseldot","anovadot","splinedot","matrix"))
+
     if(kernel == "matrix")
       if(dim(x)[1]==dim(x)[2])
-        return(lssvm(as.kernelMatrix(x), y = y, type = type, tau = tau ,  rank =rank , delta = delta, cross = cross, fit = fit, tol = tol, ...))
+        return(ksvm(as.kernelMatrix(x), y = y, type = type, C = C, nu = nu, epsilon  = epsilon, prob.model = prob.model, class.weights = class.weights, cross = cross, fit = fit, cache = cache, tol = tol, shrinking = shrinking, ...))
       else
         stop(" kernel matrix not square!")
-
     
     if(is.character(kpar))
-      if((kernel == "tanhdot" || kernel == "vanilladot" || kernel =="polydot"|| kernel == "besseldot" || kernel== "anovadot"|| kernel=="splinedot") &&  kpar=="automatic" )
+      if((kernel == "tanhdot" || kernel == "vanilladot" || kernel == "polydot"|| kernel == "besseldot" || kernel== "anovadot"|| kernel=="splinedot") &&  kpar=="automatic" )
         {
           cat (" Setting default kernel parameters ","\n")
           kpar <- list()
         }
   }
+
   
   if (!is.function(kernel))
-    if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
-      kp <- match.arg(kpar,"automatic")
-      if(kp=="automatic")
-        kpar <- list(sigma=sum(sigest(x,scaled=FALSE))/2)
-      cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
-      
-    }
+  if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
+    kp <- match.arg(kpar,"automatic")
+    if(kp=="automatic")
+      kpar <- list(sigma=sigest(x,scaled=FALSE)[2])
+   cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
+   
+  }
   if(!is(kernel,"kernel"))
     {
       if(is(kernel,"function")) kernel <- deparse(substitute(kernel))
@@ -136,6 +136,8 @@ function (x,
     }
 
   if(!is(kernel,"kernel")) stop("kernel must inherit from class `kernel'")
+
+
   
   if(type(ret)=="classification")
     {
@@ -204,6 +206,31 @@ function (x,
       b(ret) <- b
       ##store C  in return object
       param(ret)$tau <- tau
+
+      ## calculate class prob.
+  ##    if (prob.model& reduced== TRUE)
+  #      warning("Class Probapilities not supported for reduced model.)
+      
+ ##     if(prob.model & reduced == FALSE)
+ ##       {
+ ##         pos <- as.vector(ymat)==1
+ ##         neg <- as.vector(ymat)==-1
+ ##         ones <- rep(1,dim(x)[1])
+ ##         onesneg <- ones[pos] <- 0
+  ##        ones <- rep(1,dim(x)[1])
+  ##        onespos <- ones[neg] <- 0
+          ##Kpos <- kernelMult(kernel,x,x[pos,],rep(1,sum(pos)))
+          ##Kneg <- kernelMult(kernel,x,x[neg,],rep(1,sum(neg)))
+  ##        Kpos <- K[,pos]%*%rep(1,sum(pos))
+  ##        Kneg <- K[,neg]%*%rep(1,sum(neg))
+  ##        classmeans <- c(sum( Kpos * coef(ret)[pos] * as.vector(ymat)[pos]),sum( Kneg * coef(ret)[pos] * as.vector(ymat)[pos]))
+  ##        kneg <- K%*%onesneg
+  ##        kpos <- K%*%onespos
+  ##        M <- (diag(dim(x)[1])- (1/dim(x)[1])*rep(1,dim(x)[1])%*%t(rep(1,dim(x)[1])))
+  ##        kcentered <- M%*%solve(diag(dim(x)[1]) - tau*M%*%K%*%M)%*%M
+          
+  ##        prob.model(ret) <- list(Kpos=Kpos, Kneg=Kneg, kcentered=kcentered, classmeans=classmeans)
+   ##     }
     }
 
   if(type(ret)=="regression")
@@ -668,9 +695,8 @@ function (object, newdata, type = "response", coupler = "minpair")
             center = scaling(object)$x.scale$"scaled:center",
             scale  = scaling(object)$x.scale$"scaled:scale"
             )
- 
-  if (type == "decision" || type == "response")
-      if(is(newdata,"kernelMatrix"))
+
+  if(is(newdata,"kernelMatrix"))
         res <- newdata %*% coef(object) - b(object)
       else
         res <- t(t(kernelMult(kernelf(object), newdata,xmatrix(object), alpha(object))) + b(object))
@@ -684,8 +710,12 @@ function (object, newdata, type = "response", coupler = "minpair")
     return(res)
 
   if (type =="probabilities" && type(object)=="classification")
+    {
+      res - prob.model(object)$classmeans
+
+      
     return(res)
- 
+  }
 })
 
 #****************************************************************************************#
@@ -706,5 +736,10 @@ function(object){
   if(cross(object)!= -1)
     cat("Cross validation error :",round(cross(object),6),"\n")
 })
+
+##.partopro <- function(z,s,m){
+##return(2*pi*(1/sqrt((1/z)+s^2))*exp(-(m^2)/(2*((1/z)+s^2))))
+##}
+
 
 

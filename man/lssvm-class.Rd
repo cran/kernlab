@@ -15,6 +15,7 @@
 \alias{xmatrix,lssvm-method}
 \alias{ymatrix,lssvm-method}
 \alias{scaling,lssvm-method}
+\alias{nSV,lssvm-method}
 
 \title{Class "lssvm"}
 \description{The Gaussian Processes object }

@@ -632,7 +632,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 		{
 			counter = min(l,1000);
 			if(shrinking) do_shrinking();
-			info("."); info_flush();
+			//info("."); info_flush();
 		}
 
 		int i,j;
@@ -642,7 +642,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 			reconstruct_gradient();
 			// reset active set size and check
 			active_size = l;
-			info("*"); info_flush();
+			//	info("*"); info_flush();
 			if(select_working_set(i,j)!=0)
 				break;
 			else
@@ -821,7 +821,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 	si->upper_bound_p = Cp;
 	si->upper_bound_n = Cn;
 
-	info("\noptimization finished, #iter = %d\n",iter);
+	//	info("\noptimization finished, #iter = %d\n",iter);
 
 	delete[] p;
 	delete[] y;
@@ -3931,7 +3931,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
 
     s = svm_check_parameterb(&prob, &param);
     if (s) 
-      strcpy("%s",s);
+      printf("%s",s);
     else {
       double *weighted_C = Malloc(double, nr_class);
       memcpy(weighted_C, REAL(weightedc), nr_class*sizeof(double));
@@ -4231,7 +4231,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
     s = svm_check_parameter(&prob, &param);
     
     if (s) {
-      strcpy("%s",s);
+      printf("%s",s);
     } 
     else {
       solve_smo(&prob, &param, alpha2, &si, *REAL(cost), REAL(linear_term));

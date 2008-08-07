@@ -4,12 +4,16 @@
 ## updated  23.08.05 
 
 
-setClassUnion("listI", c("list","numeric","vector","integer"))
+setClass("kernel",representation("function",kpar="list"))
+setClass("kernelMatrix",representation("matrix"),prototype=structure(.Data=matrix()))
+
+setClassUnion("listI", c("list","numeric","vector","integer","matrix"))
 setClassUnion("output", c("matrix","factor","vector","logical","numeric","list","integer"))
 setClassUnion("input", c("matrix","list"))
 setClassUnion("kfunction", c("function","character"))
 setClassUnion("mpinput", c("matrix","data.frame","missing"))
 setClassUnion("lpinput", c("list","missing"))
+setClassUnion("kpinput", c("kernelMatrix","missing"))
 
 
 
@@ -348,9 +352,19 @@ setClass("lssvm", representation(param = "list",
                                 scaling = "ANY",
                                 coef = "ANY",
                                 alphaindex = "ANY",
+                             ##    prob.model = "list",
                                 b = "numeric",
                                  nSV = "numeric"
                                  ), contains="vm")
+
+
+
+##setMethod("prob.model", "lssvm", function(object) object@prob.model)
+##setGeneric("prob.model<-", function(x, value) standardGeneric("prob.model<-"))
+##setReplaceMethod("prob.model", "lssvm", function(x, value) {
+##  x@prob.model <- value
+##  x
+##})
 
 setMethod("param", "lssvm", function(object) object@param)
 setReplaceMethod("param", "lssvm", function(x, value) {
@@ -531,6 +545,85 @@ setReplaceMethod("rotated", "kpca", function(x, value) {
   x
 })
 
+## kernel maximum mean discrepancy
+
+setClass("kmmd", representation(H0="logical", AsympH0 ="logical", kernelf = "kfunction", Asymbound="numeric", Radbound="numeric", xmatrix="input", mmdstats="vector"))
+
+if(!isGeneric("mmdstats")){
+  if (is.function("mmdstats"))
+    fun <- mmdstats
+  else fun <- function(object) standardGeneric("mmdstats")
+  setGeneric("mmdstats", fun)
+}
+setMethod("mmdstats","kmmd", function(object) object@mmdstats)
+setGeneric("mmdstats<-", function(x, value) standardGeneric("mmdstats<-"))
+setReplaceMethod("mmdstats","kmmd", function(x, value){
+  x@mmdstats <- value
+  x
+})
+
+
+if(!isGeneric("Radbound")){
+  if (is.function("Radbound"))
+    fun <- Radbound
+  else fun <- function(object) standardGeneric("Radbound")
+  setGeneric("Radbound", fun)
+}
+
+setMethod("Radbound","kmmd", function(object) object@Radbound)
+setGeneric("Radbound<-", function(x, value) standardGeneric("Radbound<-"))
+setReplaceMethod("Radbound","kmmd", function(x, value){
+  x@Radbound <- value
+  x
+})
+
+
+if(!isGeneric("Asymbound")){
+  if (is.function("Asymbound"))
+    fun <- Asymbound
+  else fun <- function(object) standardGeneric("Asymbound")
+  setGeneric("Asymbound", fun)
+}
+setMethod("Asymbound","kmmd", function(object) object@Asymbound)
+setGeneric("Asymbound<-", function(x, value) standardGeneric("Asymbound<-"))
+setReplaceMethod("Asymbound","kmmd", function(x, value){
+  x@Asymbound <- value
+  x
+})
+
+if(!isGeneric("H0")){
+  if (is.function("H0"))
+    fun <- H0
+  else fun <- function(object) standardGeneric("H0")
+  setGeneric("H0", fun)
+}
+setMethod("H0","kmmd", function(object) object@H0)
+setGeneric("H0<-", function(x, value) standardGeneric("H0<-"))
+setReplaceMethod("H0","kmmd", function(x, value){
+  x@H0 <- value
+  x
+})
+
+
+if(!isGeneric("AsympH0")){
+  if (is.function("AsympH0"))
+    fun <- AsympH0
+  else fun <- function(object) standardGeneric("AsympH0")
+  setGeneric("AsympH0", fun)
+}
+setMethod("AsympH0","kmmd", function(object) object@AsympH0)
+setGeneric("AsympH0<-", function(x, value) standardGeneric("AsympH0<-"))
+setReplaceMethod("AsympH0","kmmd", function(x, value){
+  x@AsympH0 <- value
+  x
+})
+
+setMethod("kernelf","kmmd", function(object) object@kernelf)
+setReplaceMethod("kernelf","kmmd", function(x, value){
+  x@kernelf <- value
+  x
+})
+
 
 
 
@@ -581,9 +674,10 @@ setReplaceMethod("how", "ipop", function(x, value) {
 # Kernel Canonical Correlation Analysis
 setClass("kcca", representation(kcor = "vector",
                                 xcoef = "matrix",
-                                ycoef = "matrix",
-                                xvar = "matrix",
-                                yvar = "matrix"))
+                                ycoef = "matrix"
+                                ##xvar = "matrix",
+                                ##yvar = "matrix"
+                                ))
 
 
 if(!isGeneric("kcor")){
@@ -625,31 +719,31 @@ setReplaceMethod("ycoef", "kcca", function(x, value) {
   x
 })
 
-if(!isGeneric("xvar")){
-  if (is.function("xvar"))
-    fun <- xvar
-  else fun <- function(object) standardGeneric("xvar")
-  setGeneric("xvar", fun)
-}
-setMethod("xvar", "kcca", function(object) object@xvar)
-setGeneric("xvar<-", function(x, value) standardGeneric("xvar<-"))
-setReplaceMethod("xvar", "kcca", function(x, value) {
-  x@xvar <- value
-  x
-})
+##if(!isGeneric("xvar")){
+##  if (is.function("xvar"))
+##    fun <- xvar
+##  else fun <- function(object) standardGeneric("xvar")
+##  setGeneric("xvar", fun)
+##}
+##setMethod("xvar", "kcca", function(object) object@xvar)
+##setGeneric("xvar<-", function(x, value) standardGeneric("xvar<-"))
+##setReplaceMethod("xvar", "kcca", function(x, value) {
+##  x@xvar <- value
+##  x
+##})
 
-if(!isGeneric("yvar")){
-  if (is.function("yvar"))
-    fun <- yvar
-  else fun <- function(object) standardGeneric("yvar")
-  setGeneric("yvar", fun)
-}
-setMethod("yvar", "kcca", function(object) object@yvar)
-setGeneric("yvar<-", function(x, value) standardGeneric("yvar<-"))
-setReplaceMethod("yvar", "kcca", function(x, value) {
-  x@yvar <- value
-  x
-})
+##if(!isGeneric("yvar")){
+##  if (is.function("yvar"))
+##    fun <- yvar
+##  else fun <- function(object) standardGeneric("yvar")
+##  setGeneric("yvar", fun)
+##}
+##setMethod("yvar", "kcca", function(object) object@yvar)
+##setGeneric("yvar<-", function(x, value) standardGeneric("yvar<-"))
+##setReplaceMethod("yvar", "kcca", function(x, value) {
+##  x@yvar <- value
+##  x
+##})
 
 ## Gaussian Processes object
 setClass("gausspr",representation(tol = "numeric",
@@ -868,10 +962,6 @@ setReplaceMethod("predgain", "csi", function(x, value) {
   x
 })
 
-
-setClass("kernelMatrix",representation("matrix"),prototype=structure(.Data=matrix()))
-
-setClassUnion("kpinput", c("kernelMatrix","missing"))
 
 setClass("specc",representation("vector",
                                 centers="matrix",

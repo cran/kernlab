@@ -4,8 +4,8 @@
 \alias{kcor}
 \alias{xcoef}
 \alias{ycoef}
-\alias{yvar}
-\alias{xvar}
+%%\alias{yvar}
+%%\alias{xvar}
 \alias{kcor,kcca-method}
 \alias{xcoef,kcca-method}
 \alias{xvar,kcca-method}
@@ -23,10 +23,10 @@ Objects can be created by calls of the form \code{new("kcca", ...)}.
     \item{\code{kcor}:}{Object of class \code{"vector"} describing the correlations}
     \item{\code{xcoef}:}{Object of class \code{"matrix"} estimated coefficients for the \code{x} variables}
     \item{\code{ycoef}:}{Object of class \code{"matrix"} estimated coefficients for the \code{y} variables }
-    \item{\code{xvar}:}{Object of class \code{"matrix"} holds the
-      canonical variates for \code{x}}
-    \item{\code{yvar}:}{Object of class \code{"matrix"} holds the
-      canonical variates for \code{y}}
+  %%  \item{\code{xvar}:}{Object of class \code{"matrix"} holds the
+  %%    canonical variates for \code{x}}
+  %%  \item{\code{yvar}:}{Object of class \code{"matrix"} holds the
+  %%    canonical variates for \code{y}}
   }
 }
 \section{Methods}{
@@ -34,10 +34,10 @@ Objects can be created by calls of the form \code{new("kcca", ...)}.
     \item{kcor}{\code{signature(object = "kcca")}: returns the correlations}
     \item{xcoef}{\code{signature(object = "kcca")}: returns the estimated coefficients for the \code{x} variables}
     \item{ycoef}{\code{signature(object = "kcca")}: returns the estimated coefficients for the \code{y} variables }
-    \item{xvar}{\code{signature(object = "kcca")}: returns the canonical
-    variates for \code{x}}
-    \item{yvar}{\code{signature(object = "kcca")}: returns the canonical
-    variates for \code{y}}
+  %%  \item{xvar}{\code{signature(object = "kcca")}: returns the canonical
+  %%  variates for \code{x}}
+   %% \item{yvar}{\code{signature(object = "kcca")}: returns the canonical
+  %%  variates for \code{y}}
   }
 }
 
@@ -50,6 +50,12 @@ Objects can be created by calls of the form \code{new("kcca", ...)}.
   \code{\link{kpca-class}} 
 }
 \examples{
+
+## dummy data
+x <- matrix(rnorm(30),15)
+y <- matrix(rnorm(30),15)
+
+kcca(x,y,ncomps=2)
 
 }
 \keyword{classes}
