@@ -142,7 +142,7 @@ if(is.character(kernel)){
   if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
-      kpar <- list(sigma=sigest(x,scaled=FALSE)[2])
+      kpar <- list(sigma=mean(sigest(x,scaled=FALSE)[c(1,3)]))
    cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
    
   }
