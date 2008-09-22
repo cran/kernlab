@@ -8,7 +8,7 @@ setClass("kernel",representation("function",kpar="list"))
 setClass("kernelMatrix",representation("matrix"),prototype=structure(.Data=matrix()))
 
 setClassUnion("listI", c("list","numeric","vector","integer","matrix"))
-setClassUnion("output", c("matrix","factor","vector","logical","numeric","list","integer"))
+setClassUnion("output", c("matrix","factor","vector","logical","numeric","list","integer","NULL"))
 setClassUnion("input", c("matrix","list"))
 setClassUnion("kfunction", c("function","character"))
 setClassUnion("mpinput", c("matrix","data.frame","missing"))

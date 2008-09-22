@@ -76,7 +76,7 @@ setMethod("kmmd", signature(x = "matrix"),
 
 
 setMethod("kmmd",signature(x="list"),
-               function(x, y, kernel="rbfdot",kpar="automatic", alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 150, frac = 1,  ...)
+               function(x, y, kernel="stringdot",kpar=list(type="spectrum",length=4), alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 150, frac = 1,  ...)
   {
     
   if(!is(kernel,"kernel"))
@@ -90,10 +90,9 @@ setMethod("kmmd",signature(x="list"),
   Kyy <- kernelMatrix(kernel,y)
   Kxy <- kernelMatrix(kernel,x,y)
   
-  ret <- kmmd(x=Kxx,y = Kxx,Kxy=Kxy, alpha=alpha, asymptotic= asymptotic, replace = replace, ntimes = ntimes, frac= frac)
+  ret <- kmmd(x=Kxx,y = Kyy,Kxy=Kxy, alpha=alpha, asymptotic= asymptotic, replace = replace, ntimes = ntimes, frac= frac)
 
   kernelf(ret) <- kernel
-  kpar(ret) <- kpar
     
   return(ret)
 
@@ -107,6 +106,7 @@ setMethod("kmmd",signature(x="kernelMatrix"), function (x, y, Kxy, alpha = 0.05,
             resmmd <- .submmd(x, y, Kxy, alpha) 
             H0(res) <- (resmmd$mmd1 > resmmd$D1) 
             Radbound(res) <- resmmd$D1
+            Asymbound(res) <- 0
             mmdstats(res)[1] <- resmmd$mmd1
             mmdstats(res)[2] <- resmmd$mmd3
             
@@ -116,6 +116,7 @@ setMethod("kmmd",signature(x="kernelMatrix"), function (x, y, Kxy, alpha = 0.05,
               AsympH0(res) <- (resmmd$mmd1 > boundA) 
               Asymbound(res) <- boundA
             }
+            kernelf(res) <- " Kernel matrix used as input."
             return(res)
            
           })
@@ -166,7 +167,7 @@ setMethod("kmmd",signature(x="kernelMatrix"), function (x, y, Kxy, alpha = 0.05,
   dg <- diag(Kxy) # up to M only
   hu <- hu - colSums(Kxy[1:M,1:M]) - colSums(t(Kxy[1:M,1:M])) + 2*dg # one sided sum
 
-  mmd1 <- sqrt(sumKxx/(m*m) + sumKyy/(n*n) - 2/m/n* sumKxy)
+  mmd1 <- sqrt(max(0,sumKxx/(m*m) + sumKyy/(n*n) - 2/m/n* sumKxy))
   mmd3 <- sum(hu)/M/(M-1)
   D1 <- 2*sqrt(RM/M)+sqrt(log(1/alpha)*4*RM/M)
   
@@ -250,7 +251,8 @@ setMethod("show","kmmd",
 function(object){
  
   cat("Kernel Maximum Mean Discrepancy object of class \"kmmd\"","\n","\n")
-  show(kernelf(object))
+
+    show(kernelf(object))
 
   if(is.logical(object@H0)){
     cat("\n")

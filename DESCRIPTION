@@ -1,7 +1,7 @@
 Package: kernlab
-Version: 0.9-7
-Date: 2008-08-07
-Title: Kernel Methods Lab
+Version: 0.9-8
+Date: 2008-09-22
+Title: Kernel-based Machine Learning Lab
 Author: Alexandros Karatzoglou, Alex Smola, Kurt Hornik 
 Maintainer: Alexandros Karatzoglou <alexis@ci.tuwien.ac.at>
 Description: Kernel-based machine learning methods for classification, regression, 
@@ -11,4 +11,4 @@ Description: Kernel-based machine learning methods for classification, regressio
 Depends: R (>= 2.1.0), methods
 LazyLoad: Yes
 License: GPL-2
-Packaged: Thu Aug  7 16:59:04 2008; alexis
+Packaged: Mon Sep 22 14:41:26 2008; alexis
