@@ -260,7 +260,7 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(2),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(2),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(2),as.double(lambda))))
                 
               }
           },
@@ -282,7 +282,7 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(1),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(1),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(1),as.double(lambda))))
               }
           },
           
@@ -309,7 +309,7 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(n),as.integer(n),as.integer(3),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(m),as.integer(m),as.integer(3),as.double(length)))
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(n),as.integer(n),as.integer(3),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(m),as.integer(m),as.integer(3),as.double(length))))
                 
               }
           },
@@ -330,7 +330,7 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(4),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))
+                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(4),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(4),as.double(lambda))))
                 
               }
           },
@@ -846,7 +846,7 @@ kernelMult <- function(kernel, x, y=NULL, z, blocksize = 128)
   if(is.null(y))
     {
       ## check if z,x match
-      z <- as.matrix(Z)
+      z <- as.matrix(z)
       if(is.null(y)&&!dim(z)[1]==n)
         stop("z columns/length do not match x columns")
       

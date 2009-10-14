@@ -8,7 +8,8 @@ setMethod("kcca", signature(x = "matrix"),
             x <- as.matrix(x)
             y <- as.matrix(y)
 
-            if(!(ncol(x)==ncol(y))) stop("Number of colums in x, y matrixes is not equall")
+            if(!(nrow(x)==nrow(y)))
+                stop("Number of rows in x, y matrixes is not equal")
             if(!is(kernel,"kernel"))
               {
                 if(is(kernel,"function")) kernel <- deparse(substitute(kernel))

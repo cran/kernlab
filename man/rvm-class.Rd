@@ -28,7 +28,7 @@ or by calling the \code{rvm} function.
   \describe{
 
     \item{\code{tol}:}{Object of class \code{"numeric"} contains
-      tolerance of termination critiria used.}
+      tolerance of termination criteria used.}
     \item{\code{kernelf}:}{Object of class \code{"kfunction"} contains
       the kernel function used }
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
@@ -45,13 +45,15 @@ or by calling the \code{rvm} function.
     \item{\code{ymatrix}:}{Object of class \code{"output"} contains the
       response matrix}
     \item{\code{fitted}:}{Object of class \code{"output"} with the fitted
-      values, (predict on trianing set).}
+      values, (predict on training set).}
     \item{\code{lev}:}{Object of class \code{"vector"} contains the
       levels of the response (in classification)}
     \item{\code{nclass}:}{Object of class \code{"numeric"} contains the
       number of classes (in classification)}
     \item{\code{alpha}:}{Object of class \code{"listI"} containing the the
     resulting alpha vector}
+     \item{\code{coef}:}{Object of class \code{"ANY"} containing the the
+    resulting model parameters}
     \item{\code{nvar}:}{Object of class \code{"numeric"} containing the
       calculated variance (in case of regression)}
     \item{\code{mlike}:}{Object of class \code{"numeric"} containing the
@@ -61,7 +63,7 @@ or by calling the \code{rvm} function.
     \item{\code{nRV}:}{Object of class \code{"numeric"} containing the
       number of relevance vectors}
     \item{\code{cross}:}{Object of class \code{"numeric"} containing the
-      relusting cross validation error }
+      resulting cross validation error }
     \item{\code{error}:}{Object of class \code{"numeric"} containing the
     training error}
     \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
@@ -88,12 +90,12 @@ or by calling the \code{rvm} function.
     \item{lev}{\code{signature(object = "rvm")}: returns the levels of
       the response (in classification)}
     \item{mlike}{\code{signature(object = "rvm")}: returns the estimated
-    maiximum likelihood}
+      maximum likelihood}
     \item{nvar}{\code{signature(object = "rvm")}: returns the calculated
     variance (in regression)}
     \item{type}{\code{signature(object = "rvm")}: returns the type of problem}
     \item{xmatrix}{\code{signature(object = "rvm")}: returns the data
-      mmatrix used during computation}
+      matrix used during computation}
     \item{ymatrix}{\code{signature(object = "rvm")}: returns the used response }
   }
 }

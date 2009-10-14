@@ -62,9 +62,9 @@
     \item{\code{xmatrix}:}{Object of class \code{"input"} (\code{"list"}
       for multiclass problems 
       or \code{"matrix"} for binary classification and regression
-      problems) containing the support vectors caclulated from
+      problems) containing the support vectors calculated from
       the data matrix used during computations (possibly scaled and
-      whithout NA). In the case of multi-class classification each list
+      without NA). In the case of multi-class classification each list
       entry contains the support vectors from each binary classification
     problem from the one-against-one method.}
     \item{\code{ymatrix}:}{Object of class \code{"output"}
@@ -73,7 +73,7 @@
     \item{\code{fitted}:}{Object of class \code{"output"} with the fitted values,
       predictions using the training set.}
     \item{\code{lev}:}{Object of class \code{"vector"} with the levels of the
-      response (in the case of classifiaction)}
+      response (in the case of classification)}
     \item{\code{prob.model}:}{Object of class \code{"list"} with the
       class prob. model}
     \item{\code{prior}:}{Object of class \code{"list"} with the
@@ -90,8 +90,8 @@
     \item{\code{SVindex}:}{Object of class \code{"vector"} containing
       the indexes of the support vectors}
     \item{\code{nSV}:}{Object of class \code{"numeric"} containing the
-      number of suppport vectors }
-      \item{\code{obj}:}{Object of class \code{vector} containg the value of the objective function. When using 
+      number of support vectors }
+      \item{\code{obj}:}{Object of class \code{vector} containing the value of the objective function. When using 
       one-against-one in multiclass classification this is a vector.}
     \item{\code{error}:}{Object of class \code{"numeric"} containing the
     training error}

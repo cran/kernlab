@@ -112,7 +112,7 @@ The data can be passed to the \code{specc} function in a \code{matrix} or a
 kernel matrix of class \code{kernelMatrix} or as a list of character
 vectors where a string kernel has to be used.}
 \value{
- An S4 object of class \code{specc} wich extends the class \code{vector}
+ An S4 object of class \code{specc} which extends the class \code{vector}
  containing integers indicating the cluster to which
  each point is allocated. The following slots contain useful information
  

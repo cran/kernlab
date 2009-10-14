@@ -67,7 +67,7 @@ Data Format
 \tab 43 \tab \code{MKOOPKLA} \tab Purchasing power class  \cr
 \tab 44 \tab \code{PWAPART} \tab Contribution private third party insurance  \cr
 \tab 45 \tab \code{PWABEDR} \tab Contribution third party insurance (firms)  \cr
-\tab 46 \tab \code{PWALAND} \tab Contribution third party insurane (agriculture) \cr
+\tab 46 \tab \code{PWALAND} \tab Contribution third party insurance (agriculture) \cr
 \tab 47 \tab \code{PPERSAUT} \tab Contribution car policies          \cr
 \tab 48 \tab \code{PBESAUT} \tab Contribution delivery van policies  \cr
 \tab 49 \tab \code{PMOTSCO} \tab Contribution motorcycle/scooter policies   \cr
@@ -88,7 +88,7 @@ Data Format
 \tab 64 \tab \code{PBYSTAND} \tab Contribution social security insurance policies  \cr
 \tab 65 \tab \code{AWAPART} \tab Number of private third party insurance 1 - 12   \cr
 \tab 66 \tab \code{AWABEDR} \tab Number of third party insurance (firms) ...   \cr
-\tab 67 \tab \code{AWALAND} \tab Number of third party insurane (agriculture)  \cr
+\tab 67 \tab \code{AWALAND} \tab Number of third party insurance (agriculture)  \cr
 \tab 68 \tab \code{APERSAUT} \tab Number of car policies          \cr
 \tab 69 \tab \code{ABESAUT} \tab Number of delivery van policies   \cr
 \tab 70 \tab \code{AMOTSCO} \tab Number of motorcycle/scooter policies  \cr

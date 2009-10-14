@@ -53,7 +53,7 @@ inchol(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001,
   
   \item{tol}{algorithm stops when remaining pivots bring less accuracy
     then \code{tol} (default: 0.001)}
-  \item{maxiter}{maximum number of iterations and colums in \eqn{Z}}
+  \item{maxiter}{maximum number of iterations and columns in \eqn{Z}}
   \item{blocksize}{add this many columns to matrix per iteration}
   \item{verbose}{print info on algorithm convergence}
 }
@@ -73,7 +73,8 @@ inchol(x, kernel="rbfdot", kpar=list(sigma=0.1), tol = 0.001,
 
   slots can be accessed either by \code{object@slot}
 or by accessor functions with the same name (e.g., \code{pivots(object))}}
-\references{ \item
+
+\references{
       Francis R. Bach, Michael I. Jordan\cr
       \emph{Kernel Independent Component Analysis}\cr
       Journal of Machine Learning Research  3, 1-48\cr
@@ -84,7 +85,7 @@ or by accessor functions with the same name (e.g., \code{pivots(object))}}
   S.V.N. (Vishy) Vishwanathan and Alex Smola)\cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
 
-\seealso{code{\link{csi}}, code{\link{inchol-class}}, \code{\link{chol}}}
+\seealso{\code{\link{csi}}, \code{\link{inchol-class}}, \code{\link{chol}}}
 \examples{
 
 data(iris)

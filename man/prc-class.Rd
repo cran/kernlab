@@ -22,7 +22,7 @@
       principal component vectors }
 
     \item{\code{eig}:}{Object of class \code{"vector"} containing the
-      coresponding eigenvalues}
+      corresponding eigenvalues}
 
     \item{\code{kernelf}:}{Object of class \code{"kfunction"} containing
       the kernel function used}
@@ -36,7 +36,7 @@
     \item{\code{kcall}:}{Object of class \code{"ANY"} containing the
       function call }
 
-    \item{\code{n.action}:}{Object of class \code{"ANY"} containg the
+    \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
       action performed on NA }
   }
 }
@@ -54,7 +54,7 @@
     \item{pcv}{\code{signature(object = "prc")}: returns the principal
       component vectors }
 
-    \item{predict}{\code{signature(object = "prc")}: embeeds new data }
+    \item{predict}{\code{signature(object = "prc")}: embeds new data }
 
     \item{xmatrix}{\code{signature(object = "prc")}: returns the used
       data matrix }

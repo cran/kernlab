@@ -7,7 +7,7 @@
 
 \title{Kernel k-means}
 \description{
-  A weigthed kernel version of the famous k-means algorithm.
+  A weighted kernel version of the famous k-means algorithm.
 }
 \usage{
 

@@ -812,7 +812,7 @@ if(type(ret) =="kbb-svc")
       b(ret) <- -sum(alpha(ret))
       obj(ret) <-  resv[(m + 1)]
       param(ret)$epsilon <- epsilon
-      param(ert)$C <- C
+      param(ret)$C <- C
   }
 
   
@@ -2634,7 +2634,7 @@ if(type(ret) =="kbb-svc")
 
 setMethod("predict", signature(object = "ksvm"),
 function (object, newdata, type = "response", coupler = "minpair")
-{ 
+{
   type <- match.arg(type,c("response","probabilities","votes","decision"))
   if (missing(newdata) && type=="response" & !is.null(fitted(object)))
     return(fitted(object))

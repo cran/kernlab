@@ -65,7 +65,7 @@ or by calls to the function \code{inlearn}.
     \item{rho}{\code{signature(object = "onlearn")}: returns model parameter}
     \item{show}{\code{signature(object = "onlearn")}: show function}
     \item{type}{\code{signature(object = "onlearn")}: returns the type
-      of proplem}
+      of problem}
     \item{xmatrix}{\code{signature(object = "onlearn")}: returns the
       stored data points}
   }

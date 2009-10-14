@@ -21,7 +21,7 @@ component analysis.}
 }
 
 \arguments{
-  \item{x}{the data matrix indexed by row or a formula descibing the
+  \item{x}{the data matrix indexed by row or a formula describing the
     model, or a kernel Matrix of class \code{kernelMatrix}, or a list of character vectors} 
 \item{data}{an optional data frame containing the variables in
 	  the model (when using a formula).}

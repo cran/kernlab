@@ -19,18 +19,18 @@ Objects can be created by calls of the form \code{new("kha", ...)}.
     \item{\code{pcv}:}{Object of class \code{"matrix"} containing the
       principal component vectors }
     \item{\code{eig}:}{Object of class \code{"vector"} containing the
-      coresponding normalization values}
+      corresponding normalization values}
     \item{\code{eskm}:}{Object of class \code{"vector"} containing the
       kernel sum}
     \item{\code{kernelf}:}{Object of class \code{"kfunction"} containing
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} containing the
       kernel parameters used }
-    \item{\code{xmatrix}:}{Object of class \code{"matrix"} conatining
+    \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the data matrix used }
     \item{\code{kcall}:}{Object of class \code{"ANY"} containing the
       function call }
-    \item{\code{n.action}:}{Object of class \code{"ANY"} containg the
+    \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
       action performed on NA }
   }
 }
@@ -47,7 +47,7 @@ Objects can be created by calls of the form \code{new("kha", ...)}.
     \item{pcv}{\code{signature(object = "kha")}: returns the principal
       component vectors }
     \item{eskm}{\code{signature(object = "kha")}: returns the kernel sum}
-    \item{predict}{\code{signature(object = "kha")}: embeeds new data }
+    \item{predict}{\code{signature(object = "kha")}: embeds new data }
     \item{xmatrix}{\code{signature(object = "kha")}: returns the used
       data matrix }
   }

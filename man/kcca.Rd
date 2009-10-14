@@ -53,7 +53,7 @@ gamma = 0.1, ncomps = 10, ...)
 
   \item{ncomps}{number of canonical components (default : 10) }
   
-  \item{\dots}{adittional parameters for the \code{kpca} function}
+  \item{\dots}{additional parameters for the \code{kpca} function}
 }
 \details{
   The kernel version of canonical correlation analysis.
@@ -65,7 +65,7 @@ gamma = 0.1, ncomps = 10, ...)
   correlation is maximized.
 }
 \value{
-  An S4 object containg the following slots:
+  An S4 object containing the following slots:
   \item{kcor}{Correlation coefficients in feature space}
   \item{xcoef}{estimated coefficients for the \code{x} variables in the
     feature space}
