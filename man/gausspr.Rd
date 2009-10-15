@@ -29,7 +29,7 @@
 \arguments{
 \item{x}{a symbolic description of the model to be fit or a matrix or
   vector when a formula interface is not used. 
-  When not using a formula x is a matrix or vector containg the variables in the model} 
+  When not using a formula x is a matrix or vector containing the variables in the model} 
 	   
   \item{data}{an optional data frame containing the variables in the model.
           By default the variables are taken from the environment which
@@ -117,7 +117,7 @@
   the covariance
 is a function \eqn{C(x,x')} which expresses the expected covariance between the
 value of the function \eqn{y} at the points \eqn{x} and \eqn{x'}.
-The actual function \eqn{y(x)} in any data modelling problem is assumed to be
+The actual function \eqn{y(x)} in any data modeling problem is assumed to be
 a single sample from this Gaussian distribution.
 Laplace approximation is used for the parameter estimation in gaussian
 processes for classification.\cr

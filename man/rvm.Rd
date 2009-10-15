@@ -38,7 +38,7 @@ na.action = na.omit)
 \arguments{
 
   \item{x}{a symbolic description of the model to be fit.
-    When not using a formula x can be a matrix or vector containg the training
+    When not using a formula x can be a matrix or vector containing the training
     data or a kernel matrix of class \code{kernelMatrix} of the training data
     or a list of character vectors (for use with the string
     kernel). Note, that the intercept is always excluded, whether
@@ -121,7 +121,7 @@ na.action = na.omit)
   \item{iterations}{Number of iterations allowed (default: 100)} 
   \item{tol}{tolerance of termination criterion}
   \item{minmaxdiff}{termination criteria. Stop when max difference is
-    equall to this parameter (default:1e-3) }
+    equal to this parameter (default:1e-3) }
   \item{verbosity}{print information on algorithm convergence (default
     = FALSE)}
   \item{fit}{indicates whether the fitted values should be computed and
@@ -162,7 +162,6 @@ na.action = na.omit)
   ...
 }
 \references{
- \item
       Tipping, M. E.\cr
       \emph{Sparse Bayesian learning and the relevance vector machine}\cr
       Journal of Machine Learning Research  1, 211-244\cr

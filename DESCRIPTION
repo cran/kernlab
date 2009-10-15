@@ -1,14 +1,17 @@
 Package: kernlab
-Version: 0.9-8
-Date: 2008-09-22
+Version: 0.9-9
+Date: 2009-10-14
 Title: Kernel-based Machine Learning Lab
-Author: Alexandros Karatzoglou, Alex Smola, Kurt Hornik 
+Author: Alexandros Karatzoglou, Alex Smola, Kurt Hornik
 Maintainer: Alexandros Karatzoglou <alexis@ci.tuwien.ac.at>
-Description: Kernel-based machine learning methods for classification, regression, 
-             clustering, novelty detection, quantile regression and dimensionality reduction. 
-             Among other methods kernlab includes Support Vector Machines, 
-             Spectral Clustering, Kernel PCA and a QP solver.
+Description: Kernel-based machine learning methods for classification,
+        regression, clustering, novelty detection, quantile regression
+        and dimensionality reduction. Among other methods kernlab
+        includes Support Vector Machines, Spectral Clustering, Kernel
+        PCA and a QP solver.
 Depends: R (>= 2.1.0), methods
 LazyLoad: Yes
 License: GPL-2
-Packaged: Mon Sep 22 14:41:26 2008; alexis
+Packaged: 2009-10-14 18:04:01 UTC; alexis
+Repository: CRAN
+Date/Publication: 2009-10-15 10:51:15

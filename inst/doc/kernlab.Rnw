@@ -708,7 +708,7 @@ trick'' in methods minimizing the regularized risk.
 
 For regression estimation we assume that rather than observing $t(x_i)$
 we observe $y_i = t(x_i) + \xi_i$ where $\xi_i$ is assumed to be
-independed Gaussian distributed noise with zero mean.  The posterior
+independent Gaussian distributed noise with zero mean.  The posterior
 distribution is given by
 \begin{equation}
   p(\mathbf{y}\mid \mathbf{t}) =
@@ -797,7 +797,7 @@ plot(ran, cex=c[ranked[,3]]/40)
 \subsection{Online learning with kernels}
 
 The \code{onlearn} function in \pkg{kernlab} implements the online kernel algorithms 
-for classification, novelty detection and regression descibed in \citep{kernlab:Kivinen:2004}.
+for classification, novelty detection and regression described in \citep{kernlab:Kivinen:2004}.
 In batch learning, it is typically assumed that all the examples are immediately 
 available and are drawn independently from some distribution $P$. One natural measure 
 of quality for some $f$ in that case is the expected risk 
@@ -952,11 +952,11 @@ Whilst KPCA leads to very good results there are nevertheless some issues to be 
 First the computational complexity of the standard version of KPCA, the algorithm scales
 $O(m^3)$ and secondly the resulting feature extractors are given as a dense expansion in terms
 of the of the training patterns. 
-Sparse solutions are often achieven in supervised learning settings by using an $l_1$ penalty on the 
+Sparse solutions are often achieved in supervised learning settings by using an $l_1$ penalty on the 
 expansion coefficients. An algorithm can be derived using the same approach in feature extraction 
 requiring only $n$ basis functions to compute the first $n$ feature.
-Kernel feature analysis \citep{kernlab:Olvi:2000} is computationaly simple and scales approximately
- one order of magnitute better on large data sets than standard KPCA.    
+Kernel feature analysis \citep{kernlab:Olvi:2000} is computationally simple and scales approximately
+ one order of magnitude better on large data sets than standard KPCA.    
 Choosing $\Omega [f] = \sum_{i=1}^m |\alpha_i |$ 
 this yields 
 \begin{equation}
@@ -969,7 +969,7 @@ This setting leads to the first ``principal vector'' in the $l_1$ context
 \end{equation}
 
 Subsequent ``principal vectors'' can be defined by enforcing optimality with respect to the remaining 
-orthogonal subspaces. Due to the $l_1$ constrain the solution has the favorable property of beeing 
+orthogonal subspaces. Due to the $l_1$ constrain the solution has the favorable property of being 
 sparse in terms of the coefficients $\alpha_i$.
 
 The function \code{kfa} in \pkg{kernlab} implements Kernel Feature Analysis by using a projection 

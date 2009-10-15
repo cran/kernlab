@@ -42,7 +42,7 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
 
 \arguments{
   \item{x}{a symbolic description of the model to be fit.  When not
-    using a formula x can be a matrix or vector containg the training
+    using a formula x can be a matrix or vector containing the training
     data 
     or a kernel matrix of class \code{kernelMatrix} of the training data
     or a list of character vectors (for use with the string
@@ -237,8 +237,8 @@ cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
   For multiclass-classification with \eqn{k} classes, \eqn{k > 2}, \code{ksvm} uses the
   `one-against-one'-approach, in which \eqn{k(k-1)/2} binary classifiers are
   trained; the appropriate class is found by a voting scheme,
-  The \code{spoc-svc} and the {kbb-svc} formulations deal with the
-  multiclass-classification problems by solving a single quadratic problem involing all the classes.\cr
+  The \code{spoc-svc} and the \code{kbb-svc} formulations deal with the
+  multiclass-classification problems by solving a single quadratic problem involving all the classes.\cr
   If the predictor variables include factors, the formula interface must be used to get a
   correct model matrix. \cr
   In classification when \code{prob.model} is \code{TRUE} a 3-fold cross validation is

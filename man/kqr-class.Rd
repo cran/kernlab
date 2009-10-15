@@ -26,6 +26,7 @@ Objects can be created by calls of the form \code{new("kqr", ...)}.
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
       kernel parameter used }
+    \item{\code{coef}:}{Object of class \code{"ANY"} containing the model parameters}
      \item{\code{param}:}{Object of class \code{"list"} contains the
       cost parameter C and tau parameter used }
     \item{\code{kcall}:}{Object of class \code{"list"} contains the used
@@ -40,7 +41,7 @@ Objects can be created by calls of the form \code{new("kqr", ...)}.
       fitted values  }
     \item{\code{alpha}:}{Object of class \code{"listI"} containing the
       computes alpha values }
-    \item{\code{b}:}{Object of class \code{"numeric"} containg the
+    \item{\code{b}:}{Object of class \code{"numeric"} containing the
       offset of the model.}
      \item{\code{scaling}}{Object of class \code{"ANY"} containing
       the scaling coefficients of the data (when case \code{scaled = TRUE} is used).}
@@ -50,6 +51,9 @@ Objects can be created by calls of the form \code{new("kqr", ...)}.
     cross validation error}
     \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
       action performed in NA }
+    \item{\code{nclass}:}{Inherited from class \code{vm}, not used in kqr}
+    \item{\code{lev}:}{Inherited from class \code{vm}, not used in kqr}
+    \item{\code{type}:}{Inherited from class \code{vm}, not used in kqr}
   }
 }
 \section{Methods}{

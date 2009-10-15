@@ -25,8 +25,6 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
 }
 \section{Slots}{
   \describe{
-    \item{\code{tol}:}{Object of class \code{"numeric"} contains
-      tolerance of termination criteria}
     \item{\code{kernelf}:}{Object of class \code{"kfunction"} contains
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} contains the
@@ -37,6 +35,8 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
       function call }
     \item{\code{type}:}{Object of class \code{"character"} contains
       type of problem }
+ \item{\code{coef}:}{Object of class \code{"ANY"} contains
+      the model parameter }
     \item{\code{terms}:}{Object of class \code{"ANY"} contains the
       terms representation of the symbolic model used (when using a formula)}
     \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
@@ -45,6 +45,8 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
       response matrix}
     \item{\code{fitted}:}{Object of class \code{"output"} containing the
       fitted values  }
+\item{\code{b}:}{Object of class \code{"numeric"} containing the
+      offset }
     \item{\code{lev}:}{Object of class \code{"vector"} containing the
       levels of the response (in case of classification) }
         \item{\code{scaling}:}{Object of class \code{"ANY"} containing the
@@ -55,14 +57,14 @@ Objects can be created by calls of the form \code{new("lssvm", ...)}.
       computes alpha values }
     \item{\code{alphaindex}}{Object of class \code{"list"} containing
       the indexes for the alphas in various classes (in multi-class problems).}
-    \item{\code{nvar}:}{Object of class \code{"numeric"} containing the
-      computed variance}
     \item{\code{error}:}{Object of class \code{"numeric"} containing the
     training error}
     \item{\code{cross}:}{Object of class \code{"numeric"} containing the
     cross validation error}
     \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
       action performed in NA }
+    \item{\code{nSV}:}{Object of class \code{"numeric"} containing the
+      number of model parameters }
   }
 }
 \section{Methods}{

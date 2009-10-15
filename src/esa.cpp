@@ -886,7 +886,7 @@ ESA::ConstructSuflink()
 	std::pair<UInt32,UInt32> interval;    
 
 	//' Step 0: Push root onto queue. And define itself as its suflink.
-	q.push(std::make_pair(0,size-1)); 
+	q.push(std::make_pair((unsigned int)0,size-1)); 
 
 	UInt32 idx = 0; 
 	childtab.l_idx(0,size-1,idx);

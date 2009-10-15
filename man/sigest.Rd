@@ -46,7 +46,7 @@
 \code{sigest} estimates the range of values for the sigma parameter
 which would return good results when used with a Support Vector
 Machine (\code{ksvm}). The estimation is based upon the 0.1 and 0.9 quantile 
-of \eqn{\|x -x'\|^2}. Basicly any value in between those two bounds will
+of \eqn{\|x -x'\|^2}. Basically any value in between those two bounds will
 produce good results.
 }
 \value{

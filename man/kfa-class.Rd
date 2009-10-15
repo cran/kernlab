@@ -26,7 +26,7 @@ alpha values.
       the kernel function used}
     \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the selected features}
-    \item{\code{kcall}:}{Object of class \code{"call"} containig the
+    \item{\code{kcall}:}{Object of class \code{"call"} containing the
       \code{kfa} function call}
     \item{\code{terms}:}{Object of class \code{"ANY"} containing the
       formula terms}

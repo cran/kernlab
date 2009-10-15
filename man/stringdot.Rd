@@ -38,11 +38,11 @@ stringdot(length = 4, lambda = 1.1, type = "spectrum", normalized = TRUE)
     matching substring gets longer. The kernel requires a decay factor \eqn{
       \lambda > 1}\cr
 
-    \code{string} essentialy identical to the spectrum kernel, only
+    \code{string} essentially identical to the spectrum kernel, only
     computed using a more conventional way.\cr
 
     \code{fullstring} essentially identical to the boundrange kernel
-    onlu computed in a more conventional way. \cr
+    only computed in a more conventional way. \cr
  }
   \item{normalized}{normalize string kernel values, (default: \code{TRUE})}
 }

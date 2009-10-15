@@ -18,8 +18,8 @@ Objects can be created by calls of the form \code{new("kmmd", ...)}.
   \describe{
     \item{\code{kernelf}:}{Object of class \code{"kfunction"} contains
       the kernel function used}
-    \item{\code{kpar}:}{Object of class \code{"list"} contains the
-      kernel parameter used }
+    \item{\code{xmatrix}:}{Object of class \code{"kernelMatrix"} containing the
+      data used }
     \item{H0}{Object of class \code{"logical"} contains value of : is H0 rejected (logical)}
     \item{\code{AsympH0}}{Object of class \code{"logical"} contains
       value : is H0 rejected according to the asymptotic bound (logical)}
@@ -34,10 +34,10 @@ Objects can be created by calls of the form \code{new("kmmd", ...)}.
       \item{kernelf}{\code{signature(object = "kmmd")}: returns the
       kernel function used}
     \item{H0}{\code{signature(object = "kmmd")}: returns the value of H0
-      beeing rejected}
+      being rejected}
      \item{AsympH0}{\code{signature(object = "kmmd")}: returns the value of H0
       being rejected according to the asymptotic bound}
-    \item{mmdstats}{\code{signature(object = "kmmd")}: returs the values
+    \item{mmdstats}{\code{signature(object = "kmmd")}: returns the values
       of the mmd statistics}
     \item{Radbound}{\code{signature(object = "kmmd")}: returns the
       value of the Rademacher bound}

@@ -18,8 +18,9 @@ Objects can be created by calls of the form \code{new("specc", ...)}.
 }
 \section{Slots}{
   \describe{
+    \item{\code{.Data}:}{Object of class \code{"vector"} containing the cluster assignments}
     \item{\code{centers}:}{Object of class \code{"matrix"} containing
-      the cluser centers}
+      the cluster centers}
     \item{\code{size}:}{Object of class \code{"vector"} containing the
       number of points in each  cluster}
     \item{\code{withinss}:}{Object of class \code{"vector"} containing

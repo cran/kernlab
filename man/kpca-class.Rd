@@ -20,18 +20,18 @@ Objects can be created by calls of the form \code{new("kpca", ...)}.
     \item{\code{pcv}:}{Object of class \code{"matrix"} containing the
       principal component vectors }
     \item{\code{eig}:}{Object of class \code{"vector"} containing the
-      coresponding eigenvalues}
+      corresponding eigenvalues}
     \item{\code{rotated}:}{Object of class \code{"matrix"} containing the
       projection of the data on the principal components}
     \item{\code{kernelf}:}{Object of class \code{"function"} containing
       the kernel function used}
     \item{\code{kpar}:}{Object of class \code{"list"} containing the
       kernel parameters used }
-    \item{\code{xmatrix}:}{Object of class \code{"matrix"} conatining
+    \item{\code{xmatrix}:}{Object of class \code{"matrix"} containing
       the data matrix used }
     \item{\code{kcall}:}{Object of class \code{"ANY"} containing the
       function call }
-    \item{\code{n.action}:}{Object of class \code{"ANY"} containg the
+    \item{\code{n.action}:}{Object of class \code{"ANY"} containing the
       action performed on NA }
   }
 }
@@ -46,7 +46,7 @@ Objects can be created by calls of the form \code{new("kpca", ...)}.
       kernel function}
     \item{pcv}{\code{signature(object = "kpca")}: returns the principal
       component vectors }
-    \item{predict}{\code{signature(object = "kpca")}: embeeds new data }
+    \item{predict}{\code{signature(object = "kpca")}: embeds new data }
     \item{rotated}{\code{signature(object = "kpca")}: returns the
       projected data}
     \item{xmatrix}{\code{signature(object = "kpca")}: returns the used

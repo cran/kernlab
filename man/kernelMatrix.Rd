@@ -56,7 +56,7 @@
       \sum_{i=1}^m z_i  k(x_i,x_j)}\cr
     \code{kernelFast} computes the kernel matrix, identical
     to \code{kernelMatrix}, except that it also requires the squared
-    norm of the first argument as additional input, usefull in iterative
+    norm of the first argument as additional input, useful in iterative
     kernel matrix calculations.
  }
 \usage{
@@ -105,7 +105,7 @@
       \item \code{splinedot} the Spline kernel 
     }  (see example.)
 
-    \code{kernelFast} is mainly used in situations where colums of the
+    \code{kernelFast} is mainly used in situations where columns of the
     kernel matrix are computed per invocation. In these cases,
     evaluating the norm of each row-entry over and over again would
     cause significant computational overhead.

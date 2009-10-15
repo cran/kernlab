@@ -18,7 +18,7 @@ component analysis.}
 
 \arguments{
   \item{x}{ The data matrix indexed by row
-    or a formula descibing the model. Note, that an
+    or a formula describing the model. Note, that an
           intercept is always included, whether given in the formula or
           not.} 
 	\item{data}{an optional data frame containing the variables in
@@ -80,7 +80,7 @@ component analysis.}
 
 
 \details{The original form of KPCA can only be used on small data sets
-  since it requieres the estimation of the eigenvectors of a full kernel
+  since it requires the estimation of the eigenvectors of a full kernel
   matrix. The Kernel Hebbian Algorithm iteratively estimates the Kernel
   Principal Components with only linear order memory complexity.
   (see ref. for more details)

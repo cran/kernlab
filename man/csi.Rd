@@ -18,10 +18,10 @@ centering = TRUE, kappa = 0.99 ,delta = 40 ,tol = 1e-5)
 \arguments{
   \item{x}{The data matrix indexed by row}
 
-  \item{y}{the classification labels or regression repsonses. In
+  \item{y}{the classification labels or regression responses. In
     classification y is a \eqn{m \times n} matrix where \eqn{m}
     the number of data and \eqn{n} the number of classes \eqn{y} and \eqn{y_i} is 1 if
-    the corresponting x belongs to class i.}
+    the corresponding x belongs to class i.}
   
   \item{kernel}{the kernel function used in training and predicting.
     This parameter can be set to any function, of class \code{kernel},
@@ -78,8 +78,8 @@ centering = TRUE, kappa = 0.99 ,delta = 40 ,tol = 1e-5)
   used to create memory efficient kernel-based algorithms without the
   need to compute and store a complete kernel matrix in memory. \cr
   \code{csi} uses the class labels, or regression responses to compute a
-  more apropriate aproximation for the problem at hand considering the
-  aditional information from the response variable. }
+  more appropriate approximation for the problem at hand considering the
+  additional information from the response variable. }
 
 \value{
   An S4 object of class "csi" which is an extension of the class
@@ -97,7 +97,7 @@ centering = TRUE, kappa = 0.99 ,delta = 40 ,tol = 1e-5)
   or by accessor functions with the same name
   (e.g., \code{pivots(object))}}
 
-\references{ \item
+\references{ 
       Francis R. Bach, Michael I. Jordan\cr
       \emph{Predictive low-rank decomposition for kernel methods.}\cr
       Proceedings of the Twenty-second International Conference on Machine Learning (ICML) 2005\cr

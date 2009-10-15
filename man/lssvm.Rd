@@ -50,7 +50,7 @@ fit = TRUE, ..., subset)
 	  
   \item{y}{a response vector with one label for each row/component of \code{x}. Can be either
     a factor (for classification tasks) or a numeric vector (for
-    classification or regression - currently nor suported -).}
+    classification or regression - currently nor supported -).}
 
    \item{scaled}{A logical vector indicating the variables to be
     scaled. If \code{scaled} is of length 1, the value is recycled as
@@ -142,7 +142,7 @@ currently not supported)\cr}
     \code{csi} (default 40)}
  
   \item{tol}{tolerance of termination criterion for the \code{csi}
-    function, lower tolerance leads to more preciese approximation but
+    function, lower tolerance leads to more precise approximation but
     may increase the training time and the decomposed matrix size (default: 0.0001)}
 
   \item{fit}{indicates whether the fitted values should be computed and
@@ -169,7 +169,7 @@ currently not supported)\cr}
   standard SVMs that lead to solving linear KKT systems.
   The algorithm is based on the minimization of a classical penalized
   least-squares cost function. The current implementation approximates
-  the kernel matrix by an incomplete Cholesky factorization optained by
+  the kernel matrix by an incomplete Cholesky factorization obtained by
   the \code{\link{csi}} function, thus the solution is an approximation
   to the exact solution of the lssvm optimization problem. The quality
   of the solution depends on the approximation and can be influenced by
@@ -188,7 +188,6 @@ currently not supported)\cr}
 }
 
   \references{
-     \item
      J. A. K. Suykens and  J. Vandewalle\cr
      \emph{Least Squares Support Vector Machine Classifiers}\cr
      Neural Processing Letters vol. 9, issue 3, June 1999\cr

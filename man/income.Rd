@@ -34,7 +34,7 @@ Customer Income Data from a marketing survey.
   }
 }
 \details{
-A total of N=9409 questionnaires containg 502 questions were 
+A total of N=9409 questionnaires containing 502 questions were 
 filled out by shopping mall customers in the San Francisco Bay area. 
 The dataset is an extract from this survey. It consists of 
 14 demographic attributes. The dataset is a mixture of nominal and

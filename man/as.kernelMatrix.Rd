@@ -15,7 +15,7 @@
 \S4method{as.kernelMatrix}{matrix}(x, center = FALSE)
 }
 \arguments{
-  \item{x}{matrix to be assinged the \code{kernelMatrix} class }
+  \item{x}{matrix to be assigned the \code{kernelMatrix} class }
   \item{center}{center the kernel matrix in feature space (default: FALSE) }
 }
 

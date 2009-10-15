@@ -56,7 +56,7 @@
       terms representation of the symbolic model used (when using a formula)}
 
     \item{\code{xmatrix}:}{Object of class \code{"input"} the data
-      matrix used during computations (support vectors) (possibly scaled and whithout NA)}
+      matrix used during computations (support vectors) (possibly scaled and without NA)}
 
     \item{\code{ymatrix}:}{Object of class \code{"output"} the response matrix/vector }
 
@@ -64,7 +64,7 @@
       predictions using the training set.}
 
     \item{\code{lev}:}{Object of class \code{"vector"} with the levels of the
-      response (in the case of classifiaction)}
+      response (in the case of classification)}
 
      \item{\code{nclass}:}{Object of class \code{"numeric"}  containing
       the number of classes (in the case of classification)}
