@@ -47,7 +47,11 @@
 //  #define Real    double
 
 typedef unsigned int UInt32;
+#if defined __GNUC__ && __GNUC__ >= 2
+__extension__ typedef unsigned long long UInt64;
+#else
 typedef unsigned long long UInt64;
+#endif
 typedef unsigned char Byte1;
 typedef unsigned short Byte2;
 typedef double Real;

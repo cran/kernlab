@@ -47,11 +47,8 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+#include <functional>
 
-#if defined(_WIN32)
-   #include <functional>
-#endif
 /**
  *  LCP array class
  */

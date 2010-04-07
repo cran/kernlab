@@ -83,9 +83,16 @@ LCP::compact(void){
 //   UInt32 idx_len = std::count_if(array.begin(), array.end(), 
 //                                  std::bind2nd(std::greater<int>(),254));
 
+
+#ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
+  UInt32 idx_len = 0;
+  std::count_if(array, array + _size, std::bind2nd(std::greater<int>(),254),
+		idx_len);
+#else
   UInt32 idx_len = std::count_if(array, array + _size, 
                                  std::bind2nd(std::greater<int>(),254));
- 
+#endif
+
   // Compact iff  idx_len/|array| > THRESHOLD
  
 	if((Real)idx_len/_size > THRESHOLD) {
@@ -179,8 +186,12 @@ LCP::operator [] (const UInt32 &idx) {
 
   //	_cache = std::equal_range(_beg, _end, idx).first;
 	_cache = std::lower_bound(_beg, _end, idx);
+#ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
+	_dist = 0;
+	std::distance(_beg, _cache, _dist);
+#else
 	_dist = std::distance(_beg, _cache);
-		
+#endif		
   //std::cout << "here" << std::endl;
 
 	// _cache = equal_range(_beg, _end, idx).first;
