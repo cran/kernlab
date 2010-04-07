@@ -44,6 +44,8 @@
 
 #include "expdecayweight.h"
 
+using namespace std;
+
 
 /**
  *  Exponential Decay weight function.
