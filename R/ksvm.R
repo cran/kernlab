@@ -823,11 +823,14 @@ if(type(ret) =="kbb-svc")
   nSV(ret)  <- length(unique(svindex))
   if(nSV(ret)==0)
     stop("No Support Vectors found. You may want to change your parameters")
+  
   fitted(ret)  <- if (fit)
     predict(ret, x) else NULL
 
+
   if(any(scaled))
     scaling(ret) <- list(scaled = scaled, x.scale = x.scale, y.scale = y.scale)
+
   
   if (fit){
     if(type(ret)=="C-svc"||type(ret)=="nu-svc"||type(ret)=="spoc-svc"||type(ret)=="kbb-svc"||type(ret)=="C-bsvc")
@@ -837,11 +840,12 @@ if(type(ret) =="kbb-svc")
     if(type(ret)=="eps-svr"||type(ret)=="nu-svr"||type(ret)=="eps-bsvr"){
       if (!is.null(scaling(ret)$y.scale)){
         scal <- scaling(ret)$y.scale$"scaled:scale"
-        fitted(ret) <- fitted(ret) * scaling(ret)$y.scale$"scaled:scale" + scaling(ret)$y.scale$"scaled:center"
+        fitted(ret) <- fitted(ret) # / scaling(ret)$y.scale$"scaled:scale" + scaling(ret)$y.scale$"scaled:center"
       }
       else
         scal <- 1
-      error(ret) <- drop((scal^2)*crossprod(fitted(ret) - y)/m)
+     
+      error(ret) <- drop(crossprod(fitted(ret) - y)/m)
     }
   }
 
