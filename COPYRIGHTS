@@ -9,10 +9,3 @@ the C++ code in src/ is
 
   Copyright (C) 2002 Alexandros Karatzoglou and Chi-Jen Lin
   the fast string kernel code is Copyright (C) Choon Hui Theo, SVN Vishwanathan and Alexandros Karatzoglou
- 
-All code is subject to the GNU General Public License, Version 2. See
-the file COPYING for the exact conditions under which you may
-redistribute it.
-
-
-

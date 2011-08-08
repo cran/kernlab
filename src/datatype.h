@@ -47,11 +47,20 @@
 //  #define Real    double
 
 typedef unsigned int UInt32;
+
+// Seems that even using __extension__ g++ 4.6 will complain that
+// ISO C++ 1998 does not support 'long long' ...
+/*
 #if defined __GNUC__ && __GNUC__ >= 2
 __extension__ typedef unsigned long long UInt64;
 #else
 typedef unsigned long long UInt64;
 #endif
+*/
+
+#include <stdint.h>
+typedef uint64_t UInt64;
+
 typedef unsigned char Byte1;
 typedef unsigned short Byte2;
 typedef double Real;
