@@ -125,7 +125,7 @@ c     **********
 	if (gnorm <= gtol*gnorm0)
 	{
 		/*
-		printf("CONVERGENCE: GTOL TEST SATISFIED\n");
+		//printf("CONVERGENCE: GTOL TEST SATISFIED\n");
 		*/
 		search = 0;
 	}
@@ -145,7 +145,7 @@ c     **********
 		if (ufv(n, x, &f) > maxfev)
 		{
 			/*
-			printf("ERROR: NFEV > MAXFEV\n");
+			//printf("ERROR: NFEV > MAXFEV\n");
 			*/
 			search = 0;
 			continue;
@@ -212,7 +212,7 @@ c     **********
 			if (gnorm <= gtol*gnorm0)
         		{
 				/*
-				printf("CONVERGENCE: GTOL = %g TEST SATISFIED\n", gnorm/gnorm0);
+				//printf("CONVERGENCE: GTOL = %g TEST SATISFIED\n", gnorm/gnorm0);
 				*/
 				search = 0;
 		                continue;
@@ -229,20 +229,20 @@ c     **********
 		/* Test for convergence */
 		if (f < fmin)
 		{
-			printf("WARNING: F .LT. FMIN\n");
+			//printf("WARNING: F .LT. FMIN\n");
 			search = 0; /* warning */
 			continue;
 		}
 		if (fabs(actred) <= fatol && prered <= fatol)
 		{
-			printf("CONVERGENCE: FATOL TEST SATISFIED\n");
+			//printf("CONVERGENCE: FATOL TEST SATISFIED\n");
 			search = 0;
 			continue;
 		}
 		if (fabs(actred) <= frtol*fabs(f) && prered <= frtol*fabs(f))
 		{
 			/*
-			printf("CONVERGENCE: FRTOL TEST SATISFIED\n");		
+			//printf("CONVERGENCE: FRTOL TEST SATISFIED\n");		
 			*/
 			search = 0;
 			continue;

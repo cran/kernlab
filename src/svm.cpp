@@ -39,7 +39,7 @@ void info(char *fmt,...)
 {
 	va_list ap;
 	va_start(ap,fmt);
-	vprintf(fmt,ap);
+	//vprintf(fmt,ap);
 	va_end(ap);
 }
 void info_flush()
@@ -3930,9 +3930,9 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
       prob.x = sparsify(REAL(x), *INTEGER(r), *INTEGER(c)); 
 
     s = svm_check_parameterb(&prob, &param);
-    if (s) 
-      printf("%s",s);
-    else {
+    //if (s) 
+      //printf("%s",s);
+    //else {
       double *weighted_C = Malloc(double, nr_class);
       memcpy(weighted_C, REAL(weightedc), nr_class*sizeof(double));
       
@@ -3952,7 +3952,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
 	}
 
       tron_run(&prob, &param, alpha2, weighted_C , &si, nr_class, count); 
-    }
+    //}
     
     /* clean up memory */
     if (param.nr_weight > 0) {
@@ -4230,12 +4230,12 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
 
     s = svm_check_parameter(&prob, &param);
     
-    if (s) {
-      printf("%s",s);
-    } 
-    else {
+    //if (s) {
+      //printf("%s",s);
+    //} 
+    //else {
       solve_smo(&prob, &param, alpha2, &si, *REAL(cost), REAL(linear_term));
-    }
+    //}
     
     PROTECT(alpha = allocVector(REALSXP, prob.l+2));
     

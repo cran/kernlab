@@ -21,7 +21,7 @@ double dcholfact(int n, double *A, double *L)
 		F77_CALL(dpotf2)("L", &n, L, &n, &indef);
 		if (indef != 0)
 		{
-			printf("A is not positive semi-definite\n");
+			//printf("A is not positive semi-definite\n");
 			lambda *= 2;
 		}
 		return lambda;

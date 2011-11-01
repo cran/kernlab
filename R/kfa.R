@@ -78,7 +78,7 @@ function(x, kernel="rbfdot", kpar=list(sigma=0.1), features = 0, subset = 59, no
       else
         projections <- K.cols *  (alphazero%*%t(rep(1,m))) 
       
-      Q <- sd(t(projections))
+      Q <- apply(projections, 1, sd) 
       Q.tmp <- rep(0,subset)
       Q.tmp[-idx] <- Q
       Qidx <- which.max(Q.tmp)
