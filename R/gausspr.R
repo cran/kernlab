@@ -52,6 +52,7 @@ function (x,
           kernel    = "rbfdot",
           kpar      = "automatic",
           var       = 1,
+          variance.model = FALSE,
           tol       = 0.0005,  
           cross     = 0,
           fit       = TRUE,
@@ -233,25 +234,35 @@ if(is.character(kernel)){
   if (type(ret) == "regression")
     {
       K <- kernelMatrix(kernel,x)
-
-      #alpha(ret) <- solve(K + diag (rep(var, length=m)), y)
-      alpha(ret) <- solve(K + diag(rep(var, length = m))) %*% y
+      if(variance.model)
+        {
+          sol <- solve(K + diag(rep(var, length = m)))
+          rm(K)
+          alpha(ret) <- sol%*%y
+        }
+      else
+        alpha(ret) <- solve(K + diag(rep(var, length = m))) %*% y
+      
     }
 
   kcall(ret) <- match.call()
   kernelf(ret) <- kernel
   xmatrix(ret) <- x
-
+  if(variance.model)
+      sol(ret) <- sol
+  
   fitted(ret)  <- if (fit)
     predict(ret, x) else NA
 
   if (fit){
     if(type(ret)=="classification")
       error(ret) <- 1 - .classAgreement(table(y,as.integer(fitted(ret))))
-    if(type(ret)=="regression")
+    if(type(ret)=="regression"){
       if (!is.null(scaling(ret)$y.scale))
-        fitted(ret) <- fitted(ret) * tmpsc$y.scale$"scaled:scale" + tmpsc$y.scale$"scaled:center"  
+        fitted(ret) <- fitted(ret) * tmpsc$y.scale$"scaled:scale" + tmpsc$y.scale$"scaled:center"
+      
     error(ret) <- drop(crossprod(fitted(ret) - y)/m)
+    }
   }
   if(any(scaled))
     scaling(ret) <- tmpsc
@@ -294,7 +305,7 @@ setMethod("predict", signature(object = "gausspr"),
 function (object, newdata, type = "response", coupler = "minpair")
 {
   sc <- 0
-  type <- match.arg(type,c("response","probabilities","votes"))
+  type <- match.arg(type,c("response","probabilities","votes", "variance"))
   if (missing(newdata) && type!="response")
     return(fitted(object))
   else if(missing(newdata))
@@ -374,11 +385,21 @@ function (object, newdata, type = "response", coupler = "minpair")
   
   if(type(object) == "regression")
     {
+      if (type == "variance")
+        { 
+          Ktest <- kernelMatrix(kernelf(object),xmatrix(object), newdata)
+          predres <- diag(kernelMatrix(kernelf(object),newdata) - t(Ktest)  %*% sol(object) %*% Ktest)
+        }
+      else
+        {
+      
       predres <- kernelMult(kernelf(object),newdata,xmatrix(object),as.matrix(alpha(object)))
 
       if (!is.null(scaling(object)$y.scale))
         predres <- predres * scaling(object)$y.scale$"scaled:scale" + scaling(object)$y.scale$"scaled:center"
     }
+      
+   }
 
 
  if (is.character(lev(object)))

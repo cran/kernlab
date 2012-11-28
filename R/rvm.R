@@ -145,7 +145,18 @@ function (x,
 
     if(kernel == "matrix")
       if(dim(x)[1]==dim(x)[2])
-        return(ksvm(as.kernelMatrix(x), y = y, type = type, C = C, nu = nu, epsilon  = epsilon, prob.model = prob.model, class.weights = class.weights, cross = cross, fit = fit, cache = cache, tol = tol, shrinking = shrinking, ...))
+        return(rvm(as.kernelMatrix(x), y = y,type = type,
+              alpha     = alpha,
+          var = var,        # variance 
+          var.fix = var.fix,  # fixed variance?
+          iterations = iterations, # no. of iterations
+          verbosity = verbosity,
+          tol = tol,
+          minmaxdiff = minmaxdiff,
+          cross     = cross,
+          fit       = fit
+          ,subset 
+         ,na.action = na.omit, ...))
       else
         stop(" kernel matrix not square!")
     
@@ -305,7 +316,7 @@ function (x,
             }
           if(type(ret)=="regression")
             {
-              cret <- ksvm(x[cind,],y[cind],type=type(ret),kernel=kernel,C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
+              cret <- rvm(x[cind,],y[cind],type=type(ret),kernel=kernel,C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
@@ -497,7 +508,7 @@ function (x,
             }
           if(type(ret)=="regression")
             {
-              cret <- ksvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret),C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
+              cret <- rvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret),C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind][,RVindex(cret),drop=FALSE]))
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
             }

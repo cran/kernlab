@@ -323,8 +323,8 @@ data(spam)
 
 ## create test and training set
 index <- sample(1:dim(spam)[1])
-spamtrain <- spam[index[1:floor(2 * dim(spam)[1]/3)], ]
-spamtest <- spam[index[((2 * ceiling(dim(spam)[1]/3)) + 1):dim(spam)[1]], ]
+spamtrain <- spam[index[1:floor(dim(spam)[1]/2)], ]
+spamtest <- spam[index[((ceiling(dim(spam)[1]/2)) + 1):dim(spam)[1]], ]
 
 ## train a support vector machine
 filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3)
@@ -371,6 +371,14 @@ svp2 <- ksvm(K, y, type="C-svc")
 
 svp2
 
+# test data
+xtest <- rbind(matrix(rnorm(20),,2),matrix(rnorm(20,mean=3),,2))
+# test kernel matrix i.e. inner/kernel product of test data with Support Vectors
+
+Ktest <- as.kernelMatrix(crossprod(t(xtest),t(x[SVindex(svp2), ])))
+
+predict(svp2, Ktest)
+
 
 #### Use custom kernel 
 
@@ -380,7 +388,7 @@ class(k) <- "kernel"
 data(promotergene)
 
 ## train svm using custom kernel
-gene <- ksvm(Class~.,data=promotergene,kernel=k,C=10,cross=5)
+gene <- ksvm(Class~.,data=promotergene[c(1:20, 80:100),],kernel=k,C=5,cross=5)
 
 gene
 

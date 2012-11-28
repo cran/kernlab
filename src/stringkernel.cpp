@@ -81,7 +81,7 @@ StringKernel::StringKernel(ESA *esa_, int weightfn, Real param, int verb): esa(e
         break;
 
     default:
-        std::cout << "Invalid substring weighting function!" << std::endl;
+      int nothing = 0;
 
     }
 }
@@ -119,7 +119,7 @@ StringKernel::StringKernel(const UInt32 &size, SYMBOL *text, int weightfn, Real 
         break;
 
     default:
-        std::cout << "Invalid substring weighting function!" << std::endl;
+      int nothing = 0;
     }
 }
 

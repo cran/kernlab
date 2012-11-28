@@ -2141,8 +2141,8 @@ kernelPol.vanillakernel <- function(kernel, x, y=NULL, z, k=NULL)
   if(is(z,"matrix"))
     {
       z <- as.vector(z)
-      m <- length(z)
     }
+      m <- length(z)
       
   if(is(x,"vector"))
     x <- as.matrix(x)

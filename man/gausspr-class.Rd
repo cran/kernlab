@@ -49,6 +49,7 @@ Objects can be created by calls of the form \code{new("gausspr", ...)}.
     \item{\code{alphaindex}}{Object of class \code{"list"} containing
       the indexes for the alphas in various classes (in multi-class
       problems).}
+      \item{\code{sol}}{Object of class \code{"matrix"} containing the solution to the Gaussian Process formulation, it is used to compute the variance in regression problems.} 
      \item{\code{scaling}}{Object of class \code{"ANY"} containing
       the scaling coefficients of the data (when case \code{scaled = TRUE} is used).}
     \item{\code{nvar}:}{Object of class \code{"numeric"} containing the

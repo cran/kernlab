@@ -925,7 +925,7 @@ if(type(ret) =="kbb-svc")
                   }
                 }
               m <- li+lj
-              suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+              suppressWarnings(vgr <- split(c(sample(1:li,li),sample((li+1):(li+lj),lj)),1:3)) 
               pres <- yres <- NULL
               for(k in 1:3)
                 {
@@ -933,7 +933,7 @@ if(type(ret) =="kbb-svc")
                   if(is.null(class.weights))
                     cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache, prob.model = FALSE)
                   else
-                    cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],as.factor(lev(ret)[yd[cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
+                    cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],as.factor(lev(ret)[y[c(indexes[[i]],indexes[[j]])][cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
                                     
                   yres <- c(yres, yd[vgr[[k]]])
                   pres <- rbind(pres, predict(cret, x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][vgr[[k]],],type="decision"))
@@ -1691,7 +1691,7 @@ if(type(ret) =="kbb-svc")
                   }
                 }
               m <- li+lj
-              suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+             suppressWarnings(vgr <- split(c(sample(1:li,li),sample((li+1):(li+lj),lj)),1:3)) 
 
               pres <- yres <- NULL
               for(k in 1:3)
@@ -1700,7 +1700,7 @@ if(type(ret) =="kbb-svc")
                   if(is.null(class.weights))
                     cret <- ksvm(as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind]),yd[cind],type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE ,cache = cache, prob.model=FALSE)
                   else
-                    cret <- ksvm(as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind]), as.factor(lev(ret)[yd[cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
+                    cret <- ksvm(as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][cind,cind]), as.factor(lev(ret)[y[c(indexes[[i]],indexes[[j]])][cind]]),type = type(ret), C=C, nu=nu, tol=tol, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model=FALSE)
                   yres <- c(yres,yd[vgr[[k]]])
                   pres <- rbind(pres,predict(cret, as.kernelMatrix(x[c(indexes[[i]],indexes[[j]]),c(indexes[[i]],indexes[[j]]),drop=FALSE][vgr[[k]], cind,drop = FALSE][,SVindex(cret),drop = FALSE]),type="decision"))
                 }
@@ -2501,7 +2501,7 @@ if(type(ret) =="kbb-svc")
                       }
                     }
                   m <- li+lj
-                  suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+                 suppressWarnings(vgr <- split(c(sample(1:li,li),sample((li+1):(li+lj),lj)),1:3)) 
                   
                   pres <- yres <- NULL
                   for(k in 1:3)
@@ -2595,7 +2595,7 @@ if(type(ret) =="kbb-svc")
                     }
                   }
                 m <- li+lj
-                suppressWarnings(vgr <- split(sample(1:m,m),1:3))
+                suppressWarnings(vgr <- split(c(sample(1:li,li),sample((li+1):(li+lj),lj)),1:3)) 
                 
                 pres <- yres <- NULL
                 for(k in 1:3)

@@ -72,7 +72,6 @@ enum verbosity {QUIET, INFO, DEBUG1};
 
 #define CHECKERROR(i)       {									           \
 	if((i) != NOERROR) {										           \
-		std::cout << "[CHECKERROR()]  Error! Code: " << (i) << std::endl;  \
 		exit(EXIT_FAILURE);					                               \
 	}								                                       \
 }
