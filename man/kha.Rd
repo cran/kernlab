@@ -110,9 +110,9 @@ all the slots of the object can be accessed by accessor functions.
 \examples{
 # another example using the iris
 data(iris)
-test <- sample(1:150,20)
+test <- sample(1:150,70)
 
-kpc <- kha(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2)
+kpc <- kha(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2, eta=0.001, maxiter=65)
 
 #print the principal component vectors
 pcv(kpc)

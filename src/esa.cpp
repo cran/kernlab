@@ -75,11 +75,6 @@ extern "C"
 
 #define MIN(x,y) (((x) < (y)) ? (x):(y))
 
-#define showtext(i,len) std::cout << "'";                      \
-                        for(UInt32 cnt=0; cnt<(len); cnt++)    \
-                          std::cout<<text[(i)+cnt];            \
-                        std::cout << "'" << std::endl;         
-
 
 ESA::ESA(const UInt32 & size_, SYMBOL *text_, int verb): 
   _verb(verb),
@@ -143,22 +138,7 @@ ESA::ESA(const UInt32 & size_, SYMBOL *text_, int verb):
 #endif
 	
 
-	// std::cout << "Came here 1" <<std::endl;
 	
-	if(_verb == DEBUG1){
-		for(UInt32 kk = 0; kk < size; kk++)
-			std::cout << "SA:["<< kk << "]:" << suftab[kk] << std::endl;
-	}
-
-	//	std::cout << "------------------------------" << std::endl;
-	
-	if(_verb == DEBUG1){
-    for(UInt32 kk = 0; kk < size; kk++)
-      std::cout << "SA:["<< kk << "]:" << &text[suftab[kk]] << std::endl;
-    }
-
-	//  std::cout << "Came here 2" <<std::endl;
-
 	//' Compute LCP array
 	if(!lcp_fac){
 		lcp_fac = new W_kasai_lcp();
@@ -172,14 +152,9 @@ ESA::ESA(const UInt32 & size_, SYMBOL *text_, int verb):
 	lcptab.compact();
 
 
-  if(_verb == DEBUG1)
-    std::cout<< "LCP Table : " << std::endl << lcptab << std::endl;
-
 	//' Construct Child Table
 	ConstructChildTable();
 
-	if(_verb == DEBUG1)
-    std::cout<< "Child Table : " << std::endl << childtab << std::endl;
 
 
 
@@ -193,11 +168,6 @@ ESA::ESA(const UInt32 & size_, SYMBOL *text_, int verb):
 	ConstructSuflink();
 	
 
-  if(_verb == DEBUG1){
-    for(UInt32 kk = 0; kk < size; kk++)
-      std::cout << "SL["<<kk<<"]: ("<<suflink[2*kk]<<","<<suflink[2*kk+1]<<")"<<std::endl;
-    std::cout << std::endl;
-  }	
 #else
 
 	//' Threshold for constructing bucket table

@@ -748,6 +748,7 @@ setReplaceMethod("ycoef", "kcca", function(x, value) {
 ## Gaussian Processes object
 setClass("gausspr",representation(tol = "numeric",
                                   scaling = "ANY",
+                                  sol = "matrix",
                                   alphaindex="list",
                                   nvar = "numeric"
                                   ),contains="vm")
@@ -759,6 +760,20 @@ setReplaceMethod("alphaindex","gausspr", function(x, value){
   x@alphaindex <- value
   x
 })
+
+if(!isGeneric("sol")){
+  if (is.function("sol"))
+    fun <- sol
+  else fun <- function(object) standardGeneric("sol")
+  setGeneric("sol", fun)
+}
+setMethod("sol","gausspr", function(object) object@sol)
+setGeneric("sol<-", function(x, value) standardGeneric("sol<-"))
+setReplaceMethod("sol","gausspr", function(x, value){
+  x@sol <- value
+  x
+})
+
 
 setMethod("scaling","gausspr", function(object) object@scaling)
 setReplaceMethod("scaling","gausspr", function(x, value){

@@ -21,7 +21,7 @@
 \S4method{gausspr}{vector}(x,...)
 
 \S4method{gausspr}{matrix}(x, y, scaled = TRUE, type= NULL, kernel="rbfdot", kpar="automatic",
-          var=1, tol=0.0005, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
+          var=1, variance.model = FALSE, tol=0.0005, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
 
 
 }
@@ -89,6 +89,9 @@
   \item{var}{the initial noise variance, (only for regression) (default
     : 0.001)}
 
+  \item{variance.model}{build model for variance estimation (only for regression) (default
+    : FALSE)}
+
   \item{tol}{tolerance of termination criterion (default: 0.001)}
 
   \item{fit}{indicates whether the fitted values should be computed and
@@ -124,6 +127,7 @@ processes for classification.\cr
 
 The predict function can return class probabilities for 
 classification problems by setting the \code{type} parameter to "probabilities".
+For regression setting the \code{type} parameter to "variance" returns the estimated variance at each predicted point.
 }
 \value{
 An S4 object of class "gausspr" containing the fitted model along with
@@ -169,6 +173,18 @@ foo
 ytest <- predict(foo, x)
 plot(x, y, type ="l")
 lines(x, ytest, col="red")
+
+
+#predict and variance
+x = c(-4, -3, -2, -1,  0, 0.5, 1, 2)
+y = c(-2,  0,  -0.5,1,  2, 1, 0, -1)
+plot(x,y)
+foo2 <- gausspr(x, y, variance.model = TRUE)
+xtest <- seq(-4,2,0.2)
+lines(xtest, predict(foo2, xtest))
+lines(xtest, predict(foo2, xtest)+2*sqrt(predict(foo2,xtest, type="variance")), col="red")
+lines(xtest, predict(foo2, xtest)-2*sqrt(predict(foo2,xtest, type="variance")), col="red")
+
 }
 \keyword{classif}
 \keyword{regression}
