@@ -42,9 +42,9 @@ setMethod("kcca", signature(x = "matrix"),
 
             ret <- new("kcca")
 
-            kcor(ret) <- as.real(ei$gvalues[1:ncomps])
-            xcoef(ret) <- matrix(as.real(ei$gvectors[1:n,1:ncomps]),n)
-            ycoef(ret) <- matrix(as.real(ei$gvectors[(n+1):(2*n),1:ncomps]),n)
+            kcor(ret) <- as.double(ei$gvalues[1:ncomps])
+            xcoef(ret) <- matrix(as.double(ei$gvectors[1:n,1:ncomps]),n)
+            ycoef(ret) <- matrix(as.double(ei$gvectors[(n+1):(2*n),1:ncomps]),n)
             ## xvar(ret) <- rotated(xpca) %*% cca$xcoef
             ## yvar(ret) <- rotated(ypca) %*% cca$ycoef
             return(ret)
