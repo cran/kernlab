@@ -23,20 +23,24 @@
 
 \S4method{ksvm}{vector}(x, ...)
 
-\S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL, kernel ="rbfdot", 
-     kpar = "automatic", C = 1, nu = 0.2, epsilon = 0.1, 
-     prob.model = FALSE, class.weights = NULL, cross = 0, fit = TRUE,
-     cache = 40, tol = 0.001, shrinking = TRUE, ..., 
+\S4method{ksvm}{matrix}(x, y = NULL, scaled = TRUE, type = NULL,
+     kernel ="rbfdot", kpar = "automatic",
+     C = 1, nu = 0.2, epsilon = 0.1, prob.model = FALSE,
+     class.weights = NULL, cross = 0, fit = TRUE, cache = 40,
+     tol = 0.001, shrinking = TRUE, ..., 
      subset, na.action = na.omit)
 
-\S4method{ksvm}{kernelMatrix}(x, y = NULL, type = NULL, C = 1,
-nu = 0.2, epsilon = 0.1, prob.model = FALSE, class.weights = NULL,
-cross = 0, fit = TRUE, cache = 40, tol = 0.001, shrinking = TRUE, ...)
+\S4method{ksvm}{kernelMatrix}(x, y = NULL, type = NULL,
+     C = 1, nu = 0.2, epsilon = 0.1, prob.model = FALSE,
+     class.weights = NULL, cross = 0, fit = TRUE, cache = 40,
+     tol = 0.001, shrinking = TRUE, ...)
 
-\S4method{ksvm}{list}(x, y = NULL, type = NULL, kernel = "stringdot",
-kpar = list(length = 4, lambda = 0.5), C = 1, nu = 0.2, epsilon = 0.1,
-prob.model = FALSE, class.weights = NULL, cross = 0, fit = TRUE,
-cache = 40, tol = 0.001, shrinking = TRUE, ... ,na.action = na.omit)
+\S4method{ksvm}{list}(x, y = NULL, type = NULL,
+     kernel = "stringdot", kpar = list(length = 4, lambda = 0.5),
+     C = 1, nu = 0.2, epsilon = 0.1, prob.model = FALSE,
+     class.weights = NULL, cross = 0, fit = TRUE, cache = 40,
+     tol = 0.001, shrinking = TRUE, ...,
+     na.action = na.omit)
 
 }
 
@@ -327,7 +331,8 @@ spamtrain <- spam[index[1:floor(dim(spam)[1]/2)], ]
 spamtest <- spam[index[((ceiling(dim(spam)[1]/2)) + 1):dim(spam)[1]], ]
 
 ## train a support vector machine
-filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar=list(sigma=0.05),C=5,cross=3)
+filter <- ksvm(type~.,data=spamtrain,kernel="rbfdot",
+               kpar=list(sigma=0.05),C=5,cross=3)
 filter
 
 ## predict mail type on the test set
@@ -345,7 +350,8 @@ rbf <- rbfdot(sigma=0.1)
 rbf
 
 ## train a bound constraint support vector machine
-irismodel <- ksvm(Species~.,data=iris,type="C-bsvc",kernel=rbf,C=10,prob.model=TRUE)
+irismodel <- ksvm(Species~.,data=iris,type="C-bsvc",
+                  kernel=rbf,C=10,prob.model=TRUE)
 
 irismodel
 
@@ -373,7 +379,8 @@ svp2
 
 # test data
 xtest <- rbind(matrix(rnorm(20),,2),matrix(rnorm(20,mean=3),,2))
-# test kernel matrix i.e. inner/kernel product of test data with Support Vectors
+# test kernel matrix i.e. inner/kernel product of test data with
+# Support Vectors
 
 Ktest <- as.kernelMatrix(crossprod(t(xtest),t(x[SVindex(svp2), ])))
 
@@ -388,7 +395,8 @@ class(k) <- "kernel"
 data(promotergene)
 
 ## train svm using custom kernel
-gene <- ksvm(Class~.,data=promotergene[c(1:20, 80:100),],kernel=k,C=5,cross=5)
+gene <- ksvm(Class~.,data=promotergene[c(1:20, 80:100),],kernel=k,
+             C=5,cross=5)
 
 gene
 
@@ -396,7 +404,8 @@ gene
 #### Use text with string kernels
 data(reuters)
 is(reuters)
-tsv <- ksvm(reuters,rlabels,kernel="stringdot",kpar=list(length=5),cross=3,C=10)
+tsv <- ksvm(reuters,rlabels,kernel="stringdot",
+            kpar=list(length=5),cross=3,C=10)
 tsv
 
 

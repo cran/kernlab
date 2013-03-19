@@ -112,13 +112,15 @@ all the slots of the object can be accessed by accessor functions.
 data(iris)
 test <- sample(1:150,70)
 
-kpc <- kha(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2, eta=0.001, maxiter=65)
+kpc <- kha(~.,data=iris[-test,-5],kernel="rbfdot",
+           kpar=list(sigma=0.2),features=2, eta=0.001, maxiter=65)
 
 #print the principal component vectors
 pcv(kpc)
 
 #plot the data projection on the components
-plot(predict(kpc,iris[,-5]),col=as.integer(iris[,5]),xlab="1st Principal Component",ylab="2nd Principal Component")
+plot(predict(kpc,iris[,-5]),col=as.integer(iris[,5]),
+     xlab="1st Principal Component",ylab="2nd Principal Component")
 
 }
 \keyword{cluster}

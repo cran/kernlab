@@ -109,7 +109,8 @@ ytest <- predict(qrm, x)
 lines(x, ytest, col="blue")
 
 # calculate 0.9 quantile
-qrm <- kqr(x, y, tau = 0.9, kernel = "rbfdot", kpar= list(sigma=10), C=0.15)
+qrm <- kqr(x, y, tau = 0.9, kernel = "rbfdot",
+           kpar = list(sigma = 10), C = 0.15)
 ytest <- predict(qrm, x)
 lines(x, ytest, col="red")
 

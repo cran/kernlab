@@ -17,13 +17,14 @@
 
 \S4method{kqr}{vector}(x,...)
 
-\S4method{kqr}{matrix}(x, y, scaled = TRUE, tau = 0.5, C = 0.1, kernel = "rbfdot", kpar = "automatic",
-          reduced = FALSE, rank = dim(x)[1]/6, fit = TRUE, cross = 0, na.action = na.omit)
+\S4method{kqr}{matrix}(x, y, scaled = TRUE, tau = 0.5, C = 0.1, kernel = "rbfdot",
+    kpar = "automatic", reduced = FALSE, rank = dim(x)[1]/6,
+    fit = TRUE, cross = 0, na.action = na.omit)
 
 \S4method{kqr}{kernelMatrix}(x, y, tau = 0.5, C = 0.1, fit = TRUE, cross = 0)
 
-\S4method{kqr}{list}(x, y, tau = 0.5, C = 0.1, kernel = "strigdot", kpar= list(length=4, C=0.5),
-         fit = TRUE, cross = 0)
+\S4method{kqr}{list}(x, y, tau = 0.5, C = 0.1, kernel = "strigdot",
+    kpar= list(length=4, C=0.5), fit = TRUE, cross = 0)
 }
 
 \arguments{
@@ -183,7 +184,8 @@ ytest <- predict(qrm, x)
 lines(x, ytest, col="blue")
 
 # calculate 0.9 quantile
-qrm <- kqr(x, y, tau = 0.9, kernel = "rbfdot", kpar= list(sigma=10), C=0.15)
+qrm <- kqr(x, y, tau = 0.9, kernel = "rbfdot",
+           kpar= list(sigma=10), C=0.15)
 ytest <- predict(qrm, x)
 lines(x, ytest, col="red")
 

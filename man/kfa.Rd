@@ -109,7 +109,8 @@ product (kernel function) with the rest of the patterns.
 \seealso{\code{\link{kpca}}, \code{\link{kfa-class}}}
 \examples{
 data(promotergene)
-f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",kpar=list(sigma=0.01))
+f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",
+         kpar=list(sigma=0.01))
 plot(predict(f,promotergene),col=as.numeric(promotergene[,1]))
 }
 \keyword{cluster}

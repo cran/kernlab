@@ -10,15 +10,17 @@
  given a query.
 }
 \usage{
-\S4method{ranking}{matrix}(x, y,  kernel ="rbfdot", kpar = list(sigma = 1),  
-        scale = FALSE, alpha = 0.99, iterations = 600, 
+\S4method{ranking}{matrix}(x, y,
+        kernel ="rbfdot", kpar = list(sigma = 1),
+        scale = FALSE, alpha = 0.99, iterations = 600,
         edgegraph = FALSE, convergence = FALSE ,...)
 
-\S4method{ranking}{kernelMatrix}(x, y, alpha = 0.99, iterations = 600,
-                convergence = FALSE,...)
+\S4method{ranking}{kernelMatrix}(x, y,
+        alpha = 0.99, iterations = 600, convergence = FALSE,...)
 
-\S4method{ranking}{list}(x, y, kernel = "stringdot", kpar =
-                 list(length = 4, lambda = 0.5), alpha = 0.99, iterations = 600, convergence = FALSE, ...)
+\S4method{ranking}{list}(x, y,
+        kernel = "stringdot", kpar = list(length = 4, lambda = 0.5),
+        alpha = 0.99, iterations = 600, convergence = FALSE, ...)
 
 }
 
@@ -117,7 +119,8 @@ data(spirals)
 ran <- spirals[rowSums(abs(spirals) < 0.55) == 2,]
 
 ## rank points according to similarity to the most upper left point  
-ranked <- ranking(ran, 54, kernel = "rbfdot", kpar = list(sigma = 100), edgegraph = TRUE)
+ranked <- ranking(ran, 54, kernel = "rbfdot",
+                  kpar = list(sigma = 100), edgegraph = TRUE)
 ranked[54, 2] <- max(ranked[-54, 2])
 c<-1:86
 op <- par(mfrow = c(1, 2),pty="s")

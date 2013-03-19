@@ -20,8 +20,9 @@
 
 \S4method{gausspr}{vector}(x,...)
 
-\S4method{gausspr}{matrix}(x, y, scaled = TRUE, type= NULL, kernel="rbfdot", kpar="automatic",
-          var=1, variance.model = FALSE, tol=0.0005, cross=0, fit=TRUE, ... , subset, na.action = na.omit)
+\S4method{gausspr}{matrix}(x, y, scaled = TRUE, type= NULL, kernel="rbfdot",
+          kpar="automatic", var=1, variance.model = FALSE, tol=0.0005,
+          cross=0, fit=TRUE, ... , subset, na.action = na.omit)
 
 
 }
@@ -182,8 +183,12 @@ plot(x,y)
 foo2 <- gausspr(x, y, variance.model = TRUE)
 xtest <- seq(-4,2,0.2)
 lines(xtest, predict(foo2, xtest))
-lines(xtest, predict(foo2, xtest)+2*sqrt(predict(foo2,xtest, type="variance")), col="red")
-lines(xtest, predict(foo2, xtest)-2*sqrt(predict(foo2,xtest, type="variance")), col="red")
+lines(xtest,
+      predict(foo2, xtest)+2*sqrt(predict(foo2,xtest, type="variance")),
+      col="red")
+lines(xtest,
+      predict(foo2, xtest)-2*sqrt(predict(foo2,xtest, type="variance")),
+      col="red")
 
 }
 \keyword{classif}

@@ -7,8 +7,8 @@
 }
 \usage{
 
-\S4method{inlearn}{numeric}(d, kernel = "rbfdot", kpar = list(sigma = 0.1), type = "novelty", 
-       buffersize = 1000)
+\S4method{inlearn}{numeric}(d, kernel = "rbfdot", kpar = list(sigma = 0.1),
+        type = "novelty", buffersize = 1000)
 }
 \arguments{
   \item{d}{the dimensionality of the data to be learned}
@@ -69,7 +69,8 @@ x <- rbind(matrix(rnorm(100),,2),matrix(rnorm(100)+3,,2))
 y <- matrix(c(rep(1,50),rep(-1,50)),,1)
 
 ## initialize onlearn object
-on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+on <- inlearn(2, kernel = "rbfdot", kpar = list(sigma = 0.2),
+              type = "classification")
 
 ## learn one data point at the time
 for(i in sample(1:100,100))

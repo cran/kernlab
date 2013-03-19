@@ -154,7 +154,8 @@
 data(promotergene)
 
 ## train a support vector machine
-gene <- ksvm(Class~.,data=promotergene,kernel="rbfdot",kpar=list(sigma=0.015),C=50,cross=4)
+gene <- ksvm(Class~.,data=promotergene,kernel="rbfdot",
+             kpar=list(sigma=0.015),C=50,cross=4)
 gene
 
 # the kernel  function

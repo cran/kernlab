@@ -14,15 +14,17 @@ of an affinity matrix.
 \usage{
 \S4method{specc}{formula}(x, data = NULL, na.action = na.omit, ...)
 
-\S4method{specc}{matrix}(x, centers, kernel = "rbfdot", kpar = "automatic", 
-       nystrom.red = FALSE, nystrom.sample = dim(x)[1]/6, iterations = 200,
-       mod.sample = 0.75, na.action = na.omit, ...)
+\S4method{specc}{matrix}(x, centers,
+      kernel = "rbfdot", kpar = "automatic", 
+      nystrom.red = FALSE, nystrom.sample = dim(x)[1]/6,
+      iterations = 200, mod.sample = 0.75, na.action = na.omit, ...)
 
 \S4method{specc}{kernelMatrix}(x, centers, nystrom.red = FALSE, iterations = 200, ...)
 
-\S4method{specc}{list}(x, centers, kernel = "stringdot", kpar = list(length=4, lambda=0.5),
-                       nystrom.red = FALSE, nystrom.sample = length(x)/6, iterations = 200,
-                       mod.sample =  0.75, na.action = na.omit, ...)
+\S4method{specc}{list}(x, centers,
+      kernel = "stringdot", kpar = list(length=4, lambda=0.5),
+      nystrom.red = FALSE, nystrom.sample = length(x)/6,
+      iterations = 200, mod.sample = 0.75, na.action = na.omit, ...)
 }
 
 \arguments{
