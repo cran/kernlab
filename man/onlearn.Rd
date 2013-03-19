@@ -57,7 +57,8 @@ x <- rbind(matrix(rnorm(100),,2),matrix(rnorm(100)+3,,2))
 y <- matrix(c(rep(1,50),rep(-1,50)),,1)
 
 ## initialize onlearn object
-on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),
+              type="classification")
 
 ind <- sample(1:100,100)
 ## learn one data point at the time

@@ -79,7 +79,8 @@ genetrain <- promotergene[-ind, ]
 genetest <- promotergene[ind, ]
 
 ## train a support vector machine
-gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",kpar=list(sigma=0.015),C=70,cross=4,prob.model=TRUE)
+gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",
+             kpar=list(sigma=0.015),C=70,cross=4,prob.model=TRUE)
 gene
 
 ## predict gene type probabilities on the test set

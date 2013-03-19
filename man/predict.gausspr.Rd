@@ -69,7 +69,8 @@ genetrain <- promotergene[-ind, ]
 genetest <- promotergene[ind, ]
 
 ## train a support vector machine
-gene <- gausspr(Class~.,data=genetrain,kernel="rbfdot",kpar=list(sigma=0.015))
+gene <- gausspr(Class~.,data=genetrain,kernel="rbfdot",
+                kpar=list(sigma=0.015))
 gene
 
 ## predict gene type probabilities on the test set

@@ -15,11 +15,15 @@
  a non-parametric distribution test.}
 \usage{
 
-\S4method{kmmd}{matrix}(x, y, kernel="rbfdot",kpar="automatic", alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 150, frac = 1,  ...)
+\S4method{kmmd}{matrix}(x, y, kernel="rbfdot",kpar="automatic", alpha = 0.05,
+     asymptotic = FALSE, replace = TRUE, ntimes = 150, frac = 1, ...)
 
-\S4method{kmmd}{kernelMatrix}(x, y, Kxy, alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 100, frac = 1,  ...)
+\S4method{kmmd}{kernelMatrix}(x, y, Kxy, alpha = 0.05,
+     asymptotic = FALSE, replace = TRUE, ntimes = 100, frac = 1, ...)
 
-\S4method{kmmd}{list}(x, y, kernel="stringdot", kpar=list(type="spectrum",length=4), alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 150, frac = 1,  ...)
+\S4method{kmmd}{list}(x, y, kernel="stringdot", 
+     kpar = list(type = "spectrum", length = 4), alpha = 0.05,
+     asymptotic = FALSE, replace = TRUE, ntimes = 150, frac = 1, ...)
 
 }
 

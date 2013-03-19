@@ -12,12 +12,13 @@ component analysis.}
 \usage{
 \S4method{kpca}{formula}(x, data = NULL, na.action, ...)
 
-\S4method{kpca}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1), features = 0, 
-    th = 1e-4, na.action = na.omit, ...)
+\S4method{kpca}{matrix}(x, kernel = "rbfdot", kpar = list(sigma = 0.1),
+    features = 0, th = 1e-4, na.action = na.omit, ...)
 
 \S4method{kpca}{kernelMatrix}(x, features = 0, th = 1e-4, ...)
 
-\S4method{kpca}{list}(x, kernel = "stringdot", kpar = list(length = 4, lambda = 0.5), features = 0, th = 1e-4, na.action = na.omit, ...)
+\S4method{kpca}{list}(x, kernel = "stringdot", kpar = list(length = 4, lambda = 0.5),
+    features = 0, th = 1e-4, na.action = na.omit, ...)
 }
 
 \arguments{
@@ -111,13 +112,15 @@ all the slots of the object can be accessed by accessor functions.
 data(iris)
 test <- sample(1:150,20)
 
-kpc <- kpca(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2)
+kpc <- kpca(~.,data=iris[-test,-5],kernel="rbfdot",
+            kpar=list(sigma=0.2),features=2)
 
 #print the principal component vectors
 pcv(kpc)
 
 #plot the data projection on the components
-plot(rotated(kpc),col=as.integer(iris[-test,5]),xlab="1st Principal Component",ylab="2nd Principal Component")
+plot(rotated(kpc),col=as.integer(iris[-test,5]),
+     xlab="1st Principal Component",ylab="2nd Principal Component")
 
 #embed remaining points 
 emb <- predict(kpc,iris[test,-5])

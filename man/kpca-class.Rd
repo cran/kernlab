@@ -65,7 +65,8 @@ Objects can be created by calls of the form \code{new("kpca", ...)}.
 data(iris)
 test <- sample(1:50,20)
 
-kpc <- kpca(~.,data=iris[-test,-5],kernel="rbfdot",kpar=list(sigma=0.2),features=2)
+kpc <- kpca(~.,data=iris[-test,-5],kernel="rbfdot",
+            kpar=list(sigma=0.2),features=2)
 
 #print the principal component vectors
 pcv(kpc)
