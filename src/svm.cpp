@@ -3522,11 +3522,12 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 
 
 
-extern "C" {
+
 
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+extern "C" {
 
   struct svm_node ** sparsify (double *x, int r, int c)
   {
