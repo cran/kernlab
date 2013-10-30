@@ -154,7 +154,7 @@ c     **********
 		goto return0;
 	}
 
-	for (*iters=1;*iters<=n;*iters++)
+	for (*iters=1;*iters<=n;(*iters)++)
 	{
 		
 		/* Compute z by solving L'*z = p. */
