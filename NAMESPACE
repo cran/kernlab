@@ -1,3 +1,9 @@
+useDynLib("kernlab")
+
+import("methods")
+importFrom("stats", "coef", "fitted", "na.omit", "predict", "terms")
+importFrom("graphics","plot")
+
 export(	
        ## kernel functions
        "rbfdot",
@@ -118,9 +124,6 @@ export(
        "mmdstats"
        )
 
-importFrom("stats", "coef", "fitted", "na.omit", "predict", "terms")
-importFrom("graphics","plot")
-
 exportMethods("coef", "fitted", "plot", "predict", "show")
 
 exportClasses("ksvm", "kmmd", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
@@ -131,4 +134,3 @@ exportClasses("ksvm", "kmmd", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
               "kfa", "csi","kqr",
               "kernelMatrix","kfunction")
 
-useDynLib("kernlab")

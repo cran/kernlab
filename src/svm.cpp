@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <cstdio>
 #include "svm.h"
 typedef float Qfloat;
 typedef signed char schar;
@@ -3522,12 +3523,11 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 
 
 
-
+extern "C" {
 
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-extern "C" {
 
   struct svm_node ** sparsify (double *x, int r, int c)
   {
