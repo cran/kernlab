@@ -1,8 +1,10 @@
 Package: kernlab
-Version: 0.9-18
+Version: 0.9-19
 Title: Kernel-based Machine Learning Lab
-Author: Alexandros Karatzoglou, Alex Smola, Kurt Hornik
-Maintainer: Alexandros Karatzoglou <alexis@ci.tuwien.ac.at>
+Authors@R: c(person("Alexandros", "Karatzoglou", role = c("aut", "cre"),
+                    email = "alexis@ci.tuwien.ac.at"),
+             person("Alex", "Smola", role = "aut"),
+             person("Kurt", "Hornik", role = "aut"))
 Description: Kernel-based machine learning methods for classification,
         regression, clustering, novelty detection, quantile regression
         and dimensionality reduction.  Among other methods kernlab
@@ -11,7 +13,11 @@ Description: Kernel-based machine learning methods for classification,
 Depends: R (>= 2.10), methods
 LazyLoad: Yes
 License: GPL-2
-Packaged: 2013-10-30 09:00:03 UTC; ripley
+Packaged: 2013-11-03 09:51:43 UTC; hornik
+Author: Alexandros Karatzoglou [aut, cre],
+  Alex Smola [aut],
+  Kurt Hornik [aut]
+Maintainer: Alexandros Karatzoglou <alexis@ci.tuwien.ac.at>
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-10-30 10:02:36
+Date/Publication: 2013-11-03 17:56:08
