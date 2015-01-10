@@ -1709,6 +1709,7 @@ public:
 	virtual void Solve(int l, const Kernel& Q, double *b_, schar *y_,
 	double *alpha_, double Cp, double Cn, double eps, SolutionInfo* si, 
 	int shrinking, int qpsize);
+  
 protected:
 	int active_size;
 	double *G;		// gradient of objective function
@@ -3982,9 +3983,13 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
 	for (i = 0; i <prob.l; i++) 
 	  REAL(alpha3)[i] = *(alpha2+i); 
       } 
-    REAL(alpha3)[prob.l] = si.obj; 
+    REAL(alpha3)[prob.l] = si.obj;
+    if(param.svm_type != 8 && param.svm_type != 7)
+       delete[] si.upper_bound;
     free(prob.x);
     free(prob.y);
+    if(param.svm_type != 7)
+     free(weighted_C);
     free(alpha2);
     return alpha3;
   }

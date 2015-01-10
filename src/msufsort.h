@@ -28,8 +28,8 @@
 
 //==================================================================//
 //																	//
-// MSufSort	Version 2.2												//
-//																	//
+//  v										//
+// MSufSort	Version 2.2																		//
 // Author: Michael A Maniscalco										//
 // Date: Nov. 3, 2005												//
 //																	//
@@ -98,9 +98,9 @@ private:
 	bool IsTandemRepeat2();
 
 	bool IsTandemRepeat();
-	
+
 	void PassTandemRepeat();
-	
+
 	bool IsSortedByInduction();
 
 	bool IsSortedByEnhancedInduction(unsigned int suffixIndex);
@@ -182,7 +182,7 @@ private:
 
 	// m_ISA:
 	// The address of the working space which, when the sort is
-	// completed, will contain the inverse suffix array for the 
+	// completed, will contain the inverse suffix array for the
 	// source string.
 	unsigned int *				m_ISA;
 
@@ -207,7 +207,7 @@ private:
 	unsigned int				m_currentSuffixIndex;
 
 	// m_firstSortedPosition:
-	// For use with enhanced induction sorting.  
+	// For use with enhanced induction sorting.
 	unsigned int				m_firstSortedPosition[0x10000];
 
 	unsigned int				m_firstSuffixByEnhancedInductionSort[0x10000];
@@ -259,11 +259,20 @@ private:
 
 
 
+//inline unsigned short MSufSort::Value16(unsigned int sourceIndex)
+//{
+//	return (sourceIndex < m_sourceLengthMinusOne) ? *(unsigned short *)(m_source + sourceIndex) : m_source[sourceIndex];
+//}
+
+// fix by Brian Ripley
 inline unsigned short MSufSort::Value16(unsigned int sourceIndex)
 {
-	return (sourceIndex < m_sourceLengthMinusOne) ? *(unsigned short *)(m_source + sourceIndex) : m_source[sourceIndex];
+   union {unsigned short u; unsigned char b[2];} u16;
+   u16.b[0] = m_source[sourceIndex];
+   u16.b[1] = (sourceIndex < m_sourceLengthMinusOne) ?
+	m_source[sourceIndex + 1] : 0;
+   return u16.u;
 }
-
 
 
 
@@ -798,7 +807,7 @@ inline void MSufSort::ProcessSuffixesSortedByInduction()
 
 		if (m_hasTandemRepeatSortedByInduction)
 		{
-			// During the last pass some suffixes which were sorted via induction were also 
+			// During the last pass some suffixes which were sorted via induction were also
 			// determined to be the terminal suffix in a tandem repeat.  So when we mark
 			// the suffixes as sorted (where were sorted via induction) we make chain together
 			// the preceding suffix in the tandem repeat (if there is one).
@@ -823,7 +832,7 @@ inline void MSufSort::ProcessSuffixesSortedByInduction()
 			}
 
 			// now process each suffix in the tandem repeat list making each as sorted.
-			// build a new list for tandem repeats which preceded each in the list until there are 
+			// build a new list for tandem repeats which preceded each in the list until there are
 			// no preceding tandem suffix for any suffix in the list.
 
 			while (firstTandemRepeatIndex != END_OF_CHAIN)
