@@ -188,9 +188,9 @@ setMethod("specc",signature(x="matrix"),function(x, centers, kernel = "rbfdot", 
     res <- kmeans(yi, centers, iterations)
   }
   
-  cent <- matrix(unlist(lapply(1:nc,ll<- function(l){colMeans(x[which(res$cluster==l),])})),ncol=dim(x)[2], byrow=TRUE)
+  cent <- do.call( 'rbind', lapply(seq_len(nc), function(l){colMeans(x[res$cluster==l,,drop=FALSE])}))
+  withss <- sapply(seq_len(nc), function(l){sum((x[res$cluster==l,,drop=FALSE] - cent[l,])^2)})
   
-  withss <- unlist(lapply(1:nc,ll<- function(l){sum((x[which(res$cluster==l),] - cent[l,])^2)}))
   names(res$cluster) <- rown
   return(new("specc", .Data=res$cluster, size = res$size, centers=cent, withinss=withss, kernelf= kernel))
  
