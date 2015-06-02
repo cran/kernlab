@@ -139,3 +139,17 @@ f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",kpar=list(sigma=0.013))
 plot(predict(f,promotergene),col=as.numeric(promotergene[,1]),xlab="1st Feature",ylab="2nd Feature")
 
 
+###################################################
+### code chunk number 14: olk
+###################################################
+## create toy data set
+x <- rbind(matrix(rnorm(90),,2),matrix(rnorm(90)+3,,2))
+y <- matrix(c(rep(1,45),rep(-1,45)),,1)
+
+## initialize onlearn object
+on <- initOLK(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+ind <- sample(1:90,90)
+## learn one data point at the time
+for(i in ind)
+on <- olk(on,x[i,],y[i],C=0.5,r=1e-4)
+sign(predict(on,x))

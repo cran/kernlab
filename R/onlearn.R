@@ -1,4 +1,4 @@
-## kernel based on-line learning algorithms for classification, novelty detection and regression. 
+## kernel based on-line learning algorithms for classification, novelty detection and regression.
 ##
 ## created 15.09.04 alexandros
 ## updated
@@ -15,7 +15,6 @@ setMethod("onlearn", signature(obj = "onlearn"),
             if(is.vector(x))
               x <- matrix(x,,length(x))  
             d <- dim(x)[2]
-            
          
             for (i in 1:dim(x)[1])
               {

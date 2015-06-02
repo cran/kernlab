@@ -1,4 +1,4 @@
-## OLK algorithms for classification, novelty detection and regression. 
+## OLK algorithms for classification, novelty detection and regression.
 ##
 ## derived from onlearn 2.6.15 Stephen Tridgell
 ## updated
@@ -15,19 +15,20 @@ setMethod("olk", signature(obj = "olk"),
     if(is.vector(x))
         x <- matrix(x,,length(x))
     d <- dim(x)[2]
-        
+
     for (i in 1:dim(x)[1])
     {
         # for all available examples
         xt <- x[i,,drop=FALSE]
         yt <- y[i]
+        ft <- fitolk(obj)
         if(type(obj)=="novelty")
         {
-            ft <- 1 + r - fitolk(obj)
-            if(ft > 0)
+            alphaNew <- 1 + r - ft
+            if(alphaNew > 0)
             {
-                if(ft > C)
-                    ft <- C
+                if(alphaNew > C)
+                    alphaNew <- C
                 alpha(obj) <- (1/(1+r)) * alpha(obj)
                 if(buffernotfull)
                     olkstop(obj) <- olkstop(obj) + 1
@@ -35,13 +36,13 @@ setMethod("olk", signature(obj = "olk"),
                     olkstop(obj) <- olkstop(obj)%%bufferolk(obj) + 1
                     olkstart(obj) <- olkstart(obj)%%bufferolk(obj) +1
                 }
-                alpha(obj)[olkstop(obj)] <- ft/(1+r)
+                alpha(obj)[olkstop(obj)] <- alphaNew/(1+r)
                 xmatrix(obj)[olkstop(obj),] <- xt
             }
 
             if(olkstart(obj) == 1 && olkstop(obj) < bufferolk(obj))
                 fitolk(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:olkstop(obj),],ncol=d),
-                                               matrix(alpha(obj)[1:olkstop(obj)],ncol=1))) 
+                                               matrix(alpha(obj)[1:olkstop(obj)],ncol=1)))
             else
                 fitolk(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)))
         }
@@ -53,12 +54,12 @@ setMethod("olk", signature(obj = "olk"),
                 if(pattern(obj) == yt)
                     yt <- 1
                 else yt <-  -1
-            
-            ft <- 1 + r - yt*fitolk(obj)
-            if (ft > 0)
+
+            alphaNew <- 1 + r - yt*ft
+            if (alphaNew > 0)
             {
-                if (ft > C)
-                    ft <- C
+                if (alphaNew > C)
+                    alphaNew <- C
                 alpha(obj) <- (1/(1+r)) * alpha(obj)
                 if(buffernotfull)
                     olkstop(obj) <- olkstop(obj) + 1
@@ -66,7 +67,7 @@ setMethod("olk", signature(obj = "olk"),
                     olkstop(obj) <- olkstop(obj)%%bufferolk(obj) + 1
                     olkstart(obj) <- olkstart(obj)%%bufferolk(obj) +1
                 }
-                alpha(obj)[olkstop(obj)] <- yt*ft/(1+r)
+                alpha(obj)[olkstop(obj)] <- yt*alphaNew/(1+r)
                 xmatrix(obj)[olkstop(obj),] <- xt
             }
 
@@ -75,12 +76,11 @@ setMethod("olk", signature(obj = "olk"),
                                                matrix(alpha(obj)[1:olkstop(obj)],ncol=1)))
             else
                 fitolk(obj) <-drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)))
-            
+
         }
 
         if(type(obj)=="regression")
         {
-            ft <- fitolk(obj)
             alpha1 <- ft - (1+r)*(yt + epsilon)
             alpha2 <- (1+r)*(yt - epsilon) - ft
             if(alpha1 > 0 || alpha2 > 0)
@@ -108,7 +108,7 @@ setMethod("olk", signature(obj = "olk"),
                 fitolk(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:olkstop(obj),],ncol=d),
                                                matrix(alpha(obj)[1:olkstop(obj)],ncol=1)))
             else
-                fitolk(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1))) 
+                fitolk(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)))
         }
     }
     return(obj)
@@ -133,7 +133,7 @@ setMethod("initOLK", signature(d = "numeric"),
     kernelf(obj) <- kernel
     olkstart(obj) <- 1
     olkstop(obj) <- 1
-    fitolk(obj) <- 0 
+    fitolk(obj) <- 0
     alpha(obj) <- rep(0, buffersize)
     bufferolk(obj) <- buffersize
     return(obj)
@@ -160,12 +160,12 @@ setMethod("predict",signature(object="olk"),
         x<- matrix(x,1)
 
     d <- dim(xmatrix(object))[2]
-    
+
     if(type(object)=="novelty")
     {
         if(olkstart(object) == 1 && olkstop(object) < bufferolk(object))
             res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:olkstop(object),],ncol= d),
-                                   matrix(alpha(object)[1:olkstop(object)],ncol=1)) - 1) 
+                                   matrix(alpha(object)[1:olkstop(object)],ncol=1)) - 1)
         else
             res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) - 1)
     }
@@ -177,20 +177,18 @@ setMethod("predict",signature(object="olk"),
                                    matrix(alpha(object)[1:olkstop(object)],ncol=1)))
         else
             res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1))
-        
     }
 
     if(type(object)=="regression")
     {
         if(olkstart(object) == 1 && olkstop(object) < bufferolk(object))
             res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:olkstop(object),],ncol=d),
-                                   matrix(alpha(object)[1:olkstop(object)],ncol=1))) 
+                                   matrix(alpha(object)[1:olkstop(object)],ncol=1)))
         else
-            res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1)) 
+            res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1))
     }
 
     return(res)
-    
 })
 
 
