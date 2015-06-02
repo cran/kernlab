@@ -3,9 +3,9 @@
 ## derived from onlearn 2.6.15 Stephen Tridgell
 ## updated
 
-setGeneric("olk",function(obj, x, y = NULL, olkC = 0.5, r = 1e-4, epsilon = 0.005) standardGeneric("olk"))
+setGeneric("olk",function(obj, x, y = NULL, C = 0.5, r = 1e-4, epsilon = 0.005) standardGeneric("olk"))
 setMethod("olk", signature(obj = "olk"),
-          function(obj , x, y = NULL, olkC = 0.5, r = 1e-4, epsilon = 0.005)
+          function(obj , x, y = NULL, C = 0.5, r = 1e-4, epsilon = 0.005)
 {
     if(olkstart(obj) == 1 && olkstop(obj) < bufferolk(obj))
         buffernotfull  <- TRUE
@@ -26,8 +26,8 @@ setMethod("olk", signature(obj = "olk"),
             ft <- 1 + r - fitolk(obj)
             if(ft > 0)
             {
-                if(ft > olkC)
-                    ft <- olkC
+                if(ft > C)
+                    ft <- C
                 alpha(obj) <- (1/(1+r)) * alpha(obj)
                 if(buffernotfull)
                     olkstop(obj) <- olkstop(obj) + 1
@@ -57,8 +57,8 @@ setMethod("olk", signature(obj = "olk"),
             ft <- 1 + r - yt*fitolk(obj)
             if (ft > 0)
             {
-                if (ft > olkC)
-                    ft <- olkC
+                if (ft > C)
+                    ft <- C
                 alpha(obj) <- (1/(1+r)) * alpha(obj)
                 if(buffernotfull)
                     olkstop(obj) <- olkstop(obj) + 1
@@ -89,10 +89,10 @@ setMethod("olk", signature(obj = "olk"),
                     alpha1 <- 0
                 if (alpha2 < 0)
                     alpha2 <- 0
-                if (alpha1 > olkC)
-                    alpha1 <- olkC
-                if (alpha2 > olkC)
-                    alpha2 <- olkC
+                if (alpha1 > C)
+                    alpha1 <- C
+                if (alpha2 > C)
+                    alpha2 <- C
                 alpha(obj) <- (1/(1+r)) * alpha(obj)
                 if(buffernotfull)
                     olkstop(obj) <- olkstop(obj) + 1
@@ -115,8 +115,8 @@ setMethod("olk", signature(obj = "olk"),
 })
 
 
-setGeneric("inlearn",function(d, kernel = "rbfdot", kpar = list(sigma=0.1), type = "novelty", buffersize = 1000) standardGeneric("inlearn"))
-setMethod("inlearn", signature(d = "numeric"),
+setGeneric("initOLK",function(d, kernel = "rbfdot", kpar = list(sigma=0.1), type = "novelty", buffersize = 1000) standardGeneric("initOLK"))
+setMethod("initOLK", signature(d = "numeric"),
           function(d ,kernel = "rbfdot", kpar = list(sigma=0.1), type = "novelty", buffersize = 1000)
 {
     obj <- new("olk")
