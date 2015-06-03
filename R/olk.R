@@ -1,6 +1,6 @@
 ## OLK algorithms for classification, novelty detection and regression.
 ##
-## derived from onlearn 2.6.15 Stephen Tridgell
+## created 2/6/15 Stephen Tridgell
 ## updated
 
 setGeneric("olk",function(obj, x, y = NULL, C = 0.5, r = 1e-4, epsilon = 0.005) standardGeneric("olk"))
@@ -16,6 +16,21 @@ setMethod("olk", signature(obj = "olk"),
         x <- matrix(x,,length(x))
     d <- dim(x)[2]
 
+    if (is.factor(y)) {
+      lev(obj) <- levels(y)
+      y <- as.integer (y)
+    }
+    else {
+      if ((type(obj) != "classification") && any(as.integer (y) != y))
+        stop ("dependent variable has to be of factor or integer type for classification mode.")
+
+      if (type(obj) != "regression")
+          lev(obj) <- sort(unique (y))
+    }
+    if (type(obj) == "classification") {
+        if (length(unique(y)) != 2)  stop ("Only two class classification is supported")
+        y <- (2*(y - 1) - 1)
+    }
     for (i in 1:dim(x)[1])
     {
         # for all available examples

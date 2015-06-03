@@ -1216,7 +1216,7 @@ setClass("olk", representation(
                                 alpha = "ANY",
                                 pattern ="ANY",
                                 type="character"
-                               ))
+                               ), contains = "vm")
 
 if(!isGeneric("fitolk")){
   if (is.function("fitolk"))
