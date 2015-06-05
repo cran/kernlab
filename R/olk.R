@@ -63,13 +63,6 @@ setMethod("olk", signature(obj = "olk"),
         }
         if(type(obj)=="classification")
         { 
-            if(is.null(pattern(obj)) && is.factor(y))
-                pattern(obj) <- yt
-            if(!is.null(pattern(obj)))
-                if(pattern(obj) == yt)
-                    yt <- 1
-                else yt <-  -1
-
             alphaNew <- 1 + r - yt*ft
             if (alphaNew > 0)
             {

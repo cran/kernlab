@@ -1,11 +1,11 @@
 ## kernel based on-line learning algorithms for classification, novelty detection and regression.
 ##
 ## created 15.09.04 alexandros
-## updated
+## updated 04.06.15 Stephen Tridgell
 
-setGeneric("onlearn",function(obj, x, y = NULL, nu = 0.2, lambda = 1e-4) standardGeneric("onlearn"))
+setGeneric("onlearn",function(obj, x, y = NULL, nu = 0.2, lambda = 0.99, eta = 0.001) standardGeneric("onlearn"))
 setMethod("onlearn", signature(obj = "onlearn"),
-          function(obj , x, y = NULL, nu = 0.2, lambda = 1e-4)
+          function(obj , x, y = NULL,  nu = 0.2, lambda = 0.99, eta = 0.001)
           {
             if(onstart(obj) == 1 && onstop(obj) < buffer(obj))
               buffernotfull  <- TRUE
@@ -23,26 +23,27 @@ setMethod("onlearn", signature(obj = "onlearn"),
             if(type(obj)=="novelty")
               {
                 phi <- fit(obj)
+
+                alpha(obj) <- (1 - eta) * alpha(obj)
+
                 if(phi < 0)
                   {
-                    alpha(obj) <- (1-lambda) * alpha(obj)
                     if(buffernotfull)
                       onstop(obj) <- onstop(obj) + 1
                     else{
                       onstop(obj) <- onstop(obj)%%buffer(obj) + 1
                       onstart(obj) <- onstart(obj)%%buffer(obj) +1
                     }
-                    alpha(obj)[onstop(obj)] <- lambda
+                    alpha(obj)[onstop(obj)] <- eta
                     xmatrix(obj)[onstop(obj),] <- xt
-                    rho(obj) <- rho(obj) + lambda*(nu-1)
+                    rho(obj) <- rho(obj) - eta*(1 - nu)
                   }
                 else
-                  rho(obj) <- rho(obj) + lambda*nu
-                
-                rho(obj) <- max(rho(obj), 0)
+                  rho(obj) <- rho(obj) - eta*nu  # sign error in Online Learning with Kernels
 
                 if(onstart(obj) == 1 && onstop(obj) < buffer(obj))
-                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:onstop(obj),],ncol=d), matrix(alpha(obj)[1:onstop(obj)],ncol=1)) - rho(obj)) 
+                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:onstop(obj),],ncol=d),
+                                              matrix(alpha(obj)[1:onstop(obj)],ncol=1)) - rho(obj))
                 else
                   fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)) - rho(obj))
               }
@@ -54,10 +55,10 @@ setMethod("onlearn", signature(obj = "onlearn"),
                   if(pattern(obj) == yt)
                     yt <- 1
                   else yt <-  -1
-                
+
                 phi <- fit(obj)
                 
-                alpha(obj) <- (1-lambda) * alpha(obj)
+                alpha(obj) <- (1 - eta) * alpha(obj)
 
                 if(yt*phi < rho(obj))
                   {
@@ -67,29 +68,30 @@ setMethod("onlearn", signature(obj = "onlearn"),
                       onstop(obj) <- onstop(obj)%%buffer(obj) + 1
                       onstart(obj) <- onstart(obj)%%buffer(obj) +1
                     }
-                    alpha(obj)[onstop(obj)] <- lambda*yt
-                    b(obj) <- b(obj) + lambda*yt
+                    alpha(obj)[onstop(obj)] <- eta*yt
+                    b(obj) <- b(obj)  + eta*yt
                     xmatrix(obj)[onstop(obj),] <- xt
-                    rho(obj) <- rho(obj) + lambda*(nu-1) ## (1-nu) ??
+                    rho(obj) <- rho(obj) - eta*(1 - nu)
                   }
                 else
-                  rho(obj) <- rho(obj) + lambda*nu
+                  rho(obj) <- rho(obj) + eta*nu  # sign error in Online Learning with Kernels
                 
-                rho(obj) <- max(rho(obj), 0)
-
                 if(onstart(obj) == 1 && onstop(obj) < buffer(obj))
-                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj)[1:onstop(obj),,drop=FALSE], matrix(alpha(obj)[1:onstop(obj)],ncol=1)) + b(obj))
+                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj)[1:onstop(obj),,drop=FALSE],
+                                              matrix(alpha(obj)[1:onstop(obj)],ncol=1)) + b(obj))
                 else
                   fit(obj) <-drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)) + b(obj))
           
               }
-
             if(type(obj)=="regression")
               {
-                alpha(obj) <- (1-lambda) * alpha(obj)
+                # Using epsilon insensitive loss function
+                # name rho is used instead of epsilon to have one variable across algorithms
                 phi <- fit(obj)
                 
-                if(abs(-phi) < rho(obj))
+                alpha(obj) <- (1 - eta*lambda) * alpha(obj)
+
+                if(abs(yt - phi) > rho(obj))
                   {
                     if(buffernotfull)
                       onstop(obj) <- onstop(obj) + 1
@@ -97,21 +99,21 @@ setMethod("onlearn", signature(obj = "onlearn"),
                       onstop(obj) <- onstop(obj)%%buffer(obj) + 1
                       onstart(obj) <- onstart(obj)%% buffer(obj) +1
                     }
-                    alpha(obj)[onstop(obj)] <- sign(yt-phi)*lambda
+                    alpha(obj)[onstop(obj)] <- sign(yt - phi)*eta
                     xmatrix(obj)[onstop(obj),] <- xt
-                    rho(obj) <- rho(obj) + lambda*(1-nu) ## (1-nu) ??
+                    rho(obj) <- rho(obj) + eta*(1 - nu)
                   }
-                else{
-                  rho(obj) <- rho(obj) - lambda*nu
-                  alpha(obj)[onstop(obj)] <- sign(yt-phi)/rho(obj)
-                }
-                if(onstart(obj) == 1 && onstop(obj) < buffer(obj))
-                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:onstop(obj),],ncol=d), matrix(alpha(obj)[1:onstop(obj)],ncol=1)) + b(obj)) 
                 else
-                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)) + b(obj)) 
+                    rho(obj) <- rho(obj) - eta*nu
+
+                if(onstart(obj) == 1 && onstop(obj) < buffer(obj))
+                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, matrix(xmatrix(obj)[1:onstop(obj),],ncol=d),
+                                              matrix(alpha(obj)[1:onstop(obj)],ncol=1)))
+                else
+                  fit(obj) <- drop(kernelMult(kernelf(obj), xt, xmatrix(obj), matrix(alpha(obj),ncol=1)))
               }
-          }
-            return(obj)
+              }
+          return(obj)
           })
 
 
@@ -138,6 +140,7 @@ setMethod("inlearn", signature(d = "numeric"),
             alpha(obj) <- rep(0, buffersize)
             rho(obj) <- 0
             buffer(obj) <- buffersize
+            pattern(obj) <- NULL
             return(obj)
           })
 
@@ -166,7 +169,8 @@ function(object, x)
     if(type(object)=="novelty")
       {
         if(onstart(object) == 1 && onstop(object) < buffer(object))
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol= d), matrix(alpha(object)[1:onstop(object)],ncol=1)) - rho(object)) 
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol= d),
+                                 matrix(alpha(object)[1:onstop(object)],ncol=1)) - rho(object))
         else
           res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) - rho(object))
       }
@@ -174,18 +178,20 @@ function(object, x)
     if(type(object)=="classification")
       {
         if(onstart(object) == 1 && onstop(object) < buffer(object))
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d), matrix(alpha(object)[1:onstop(object)],ncol=1)) + b(object))
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d),
+                                 matrix(alpha(object)[1:onstop(object)],ncol=1)))
         else
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) + b(object))
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1))
        
       }
 
     if(type(object)=="regression")
       {
         if(onstart(object) == 1 && onstop(object) < buffer(object))
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d), matrix(alpha(object)[1:onstop(object)],ncol=1)) + b(object)) 
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d),
+                                 matrix(alpha(object)[1:onstop(object)],ncol=1)))
         else
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) + b(object)) 
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1))
       }
 
     return(res)

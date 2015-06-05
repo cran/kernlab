@@ -1085,7 +1085,7 @@ setClass("onlearn", representation(
                                 b = "numeric",
                                 pattern ="ANY",
                                 type="character"
-                               ))
+                               ), contains = "vm")
 
 
 if(!isGeneric("fit")){
@@ -1298,19 +1298,6 @@ setReplaceMethod("alpha","olk", function(x, value){
 setMethod("type","olk", function(object) object@type)
 setReplaceMethod("type","olk", function(x, value){
   x@type <- value
-  x
-})
-
-if(!isGeneric("pattern")){
-  if (is.function("pattern"))
-    fun <- pattern
-  else fun <- function(object) standardGeneric("pattern")
-  setGeneric("pattern", fun)
-}
-setMethod("pattern", "olk", function(object) object@pattern)
-setGeneric("pattern<-", function(x, value) standardGeneric("pattern<-"))
-setReplaceMethod("pattern", "olk", function(x, value) {
-  x@pattern <- value
   x
 })
 
