@@ -15,7 +15,20 @@ setMethod("onlearn", signature(obj = "onlearn"),
             if(is.vector(x))
               x <- matrix(x,,length(x))  
             d <- dim(x)[2]
-         
+            if (is.factor(y)) {
+                lev(obj) <- levels(y)
+                y <- as.integer (y)
+            }
+            else {
+                if ((type(obj) != "classification") && any(as.integer (y) != y))
+                    stop ("dependent variable has to be of factor or integer type for classification mode.")
+                if (type(obj) != "regression")
+                    lev(obj) <- sort(unique (y))
+            }
+            if (type(obj) == "classification") {
+                if (length(unique(y)) != 2)  stop ("Only two class classification is supported")
+                y <- (2*(y - 1) - 1)
+            }
             for (i in 1:dim(x)[1])
               {
                 xt <- x[i,,drop=FALSE]
@@ -49,13 +62,6 @@ setMethod("onlearn", signature(obj = "onlearn"),
               }
             if(type(obj)=="classification")
               { 
-                if(is.null(pattern(obj)) && is.factor(y))
-                  pattern(obj) <- yt
-                if(!is.null(pattern(obj)))
-                  if(pattern(obj) == yt)
-                    yt <- 1
-                  else yt <-  -1
-
                 phi <- fit(obj)
                 
                 alpha(obj) <- (1 - eta) * alpha(obj)
@@ -140,7 +146,6 @@ setMethod("inlearn", signature(d = "numeric"),
             alpha(obj) <- rep(0, buffersize)
             rho(obj) <- 0
             buffer(obj) <- buffersize
-            pattern(obj) <- NULL
             return(obj)
           })
 

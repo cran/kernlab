@@ -1083,7 +1083,6 @@ setClass("onlearn", representation(
                                 alpha = "ANY",
                                 rho = "numeric",
                                 b = "numeric",
-                                pattern ="ANY",
                                 type="character"
                                ), contains = "vm")
 
@@ -1190,18 +1189,6 @@ setReplaceMethod("rho", "onlearn", function(x, value) {
   x
 })
 
-if(!isGeneric("pattern")){
-  if (is.function("pattern"))
-    fun <- pattern
-  else fun <- function(object) standardGeneric("pattern")
-  setGeneric("pattern", fun)
-}
-setMethod("pattern", "onlearn", function(object) object@pattern)
-setGeneric("pattern<-", function(x, value) standardGeneric("pattern<-"))
-setReplaceMethod("pattern", "onlearn", function(x, value) {
-  x@pattern <- value
-  x
-})
 
 # OLK from "Model-based Online Learning with Kernels"
 
