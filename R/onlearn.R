@@ -26,8 +26,11 @@ setMethod("onlearn", signature(obj = "onlearn"),
                     lev(obj) <- sort(unique (y))
             }
             if (type(obj) == "classification") {
-                if (length(unique(y)) != 2)  stop ("Only two class classification is supported")
-                y <- (2*(y - 1) - 1)
+                if (length(unique(y)) > 2)  stop ("Only two class classification is supported")
+                if (length(unique(y)) == 1 && !(max(y) == 1 || min(y) == -1))
+                    warning("y must be either 1 or -1")
+                else
+                    y <- (2*(y - 1) - 1)
             }
             for (i in 1:dim(x)[1])
               {

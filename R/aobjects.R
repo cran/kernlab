@@ -1201,7 +1201,6 @@ setClass("olk", representation(
                                 olkstart = "numeric",
                                 olkstop = "numeric",
                                 alpha = "ANY",
-                                pattern ="ANY",
                                 type="character"
                                ), contains = "vm")
 
