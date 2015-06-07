@@ -1083,9 +1083,8 @@ setClass("onlearn", representation(
                                 alpha = "ANY",
                                 rho = "numeric",
                                 b = "numeric",
-                                pattern ="ANY",
                                 type="character"
-                               ))
+                               ), contains = "vm")
 
 
 if(!isGeneric("fit")){
@@ -1190,21 +1189,103 @@ setReplaceMethod("rho", "onlearn", function(x, value) {
   x
 })
 
-if(!isGeneric("pattern")){
-  if (is.function("pattern"))
-    fun <- pattern
-  else fun <- function(object) standardGeneric("pattern")
-  setGeneric("pattern", fun)
+
+# OLK from "Model-based Online Learning with Kernels"
+
+setClass("olk", representation(
+                                kernelf = "kfunction",
+                                bufferolk = "numeric",
+                                kpar = "list",
+                                xmatrix = "matrix",
+                                fitolk = "numeric",
+                                olkstart = "numeric",
+                                olkstop = "numeric",
+                                alpha = "ANY",
+                                type="character"
+                               ), contains = "vm")
+
+if(!isGeneric("fitolk")){
+  if (is.function("fitolk"))
+    fun <- fitolk
+  else fun <- function(object) standardGeneric("fitolk")
+  setGeneric("fitolk", fun)
 }
-setMethod("pattern", "onlearn", function(object) object@pattern)
-setGeneric("pattern<-", function(x, value) standardGeneric("pattern<-"))
-setReplaceMethod("pattern", "onlearn", function(x, value) {
-  x@pattern <- value
+setMethod("fitolk","olk", function(object) object@fitolk)
+setGeneric("fitolk<-", function(x, value) standardGeneric("fitolk<-"))
+setReplaceMethod("fitolk","olk", function(x, value){
+  x@fitolk <- value
+  x
+})
+
+if(!isGeneric("olkstart")){
+  if (is.function("olkstart"))
+    fun <- olkstart
+  else fun <- function(object) standardGeneric("olkstart")
+  setGeneric("olkstart", fun)
+}
+setMethod("olkstart", "olk", function(object) object@olkstart)
+setGeneric("olkstart<-", function(x, value) standardGeneric("olkstart<-"))
+setReplaceMethod("olkstart", "olk", function(x, value) {
+  x@olkstart <- value
+  x
+})
+
+if(!isGeneric("olkstop")){
+  if (is.function("olkstop"))
+    fun <- olkstop
+  else fun <- function(object) standardGeneric("olkstop")
+  setGeneric("olkstop", fun)
+}
+setMethod("olkstop", "olk", function(object) object@olkstop)
+setGeneric("olkstop<-", function(x, value) standardGeneric("olkstop<-"))
+setReplaceMethod("olkstop", "olk", function(x, value) {
+  x@olkstop <- value
+  x
+})
+
+if(!isGeneric("bufferolk")){
+  if (is.function("bufferolk"))
+    fun <- bufferolk
+  else fun <- function(object) standardGeneric("bufferolk")
+  setGeneric("bufferolk", fun)
+}
+setMethod("bufferolk", "olk", function(object) object@bufferolk)
+setGeneric("bufferolk<-", function(x, value) standardGeneric("bufferolk<-"))
+setReplaceMethod("bufferolk", "olk", function(x, value) {
+  x@bufferolk <- value
+  x
+})
+
+setMethod("kernelf","olk", function(object) object@kernelf)
+setReplaceMethod("kernelf","olk", function(x, value){
+  x@kernelf <- value
+  x
+})
+
+setMethod("kpar","olk", function(object) object@kpar)
+setReplaceMethod("kpar","olk", function(x, value){
+  x@kpar <- value
+  x
+})
+
+setMethod("xmatrix","olk", function(object) object@xmatrix)
+setReplaceMethod("xmatrix","olk", function(x, value){
+  x@xmatrix <- value
   x
 })
 
 
+setMethod("alpha","olk", function(object) object@alpha)
+setReplaceMethod("alpha","olk", function(x, value){
+  x@alpha <- value
+  x
+})
 
+setMethod("type","olk", function(object) object@type)
+setReplaceMethod("type","olk", function(x, value){
+  x@type <- value
+  x
+})
 
 
 setClass("kfa",representation(alpha = "matrix",

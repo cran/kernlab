@@ -102,6 +102,11 @@ export(
        "buffer",
        "rho",
 
+       ## olk
+       "olk",
+       "initOLK",
+       "bufferolk",
+
        ## kfa
        "kfa",
 	
@@ -131,6 +136,6 @@ exportClasses("ksvm", "kmmd", "rvm", "ipop", "gausspr", "lssvm", "kpca", "kha",
               "besselkernel", "tanhkernel", "polykernel","fourierkernel",
               "vanillakernel", "anovakernel", "splinekernel",
               "stringkernel", "specc", "ranking", "inchol", "onlearn",
-              "kfa", "csi","kqr",
+              "olk", "kfa", "csi","kqr",
               "kernelMatrix","kfunction")
 

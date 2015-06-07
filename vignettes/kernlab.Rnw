@@ -4,13 +4,13 @@
 \newenvironment{smallverbatim}{\small\verbatim}{\endverbatim}
 \newenvironment{smallexample}{\begin{alltt}\small}{\end{alltt}}
 
-\SweaveOpts{engine=R,eps=FALSE}
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{kernlab - An S4 Package for Kernel Methods in R}
 %\VignetteDepends{kernlab}
 %\VignetteKeywords{kernel methods, support vector machines, quadratic programming, ranking, clustering, S4, R}
 %\VignettePackage{kernlab}
 
-<<preliminaries,echo=FALSE,results=hide>>=
+<<preliminaries,echo=FALSE,results='hide'>>=
 library(kernlab)
 options(width = 70)
 @
@@ -618,7 +618,8 @@ tindex <- sample(1:dim(promotergene)[1],5)
 genetrain <- promotergene[-tindex, ]
 genetest <- promotergene[tindex,]
 ## train a support vector machine
-gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",kpar="automatic",C=60,cross=3,prob.model=TRUE)
+gene <- ksvm(Class~.,data=genetrain,kernel="rbfdot",
+             kpar="automatic",C=60,cross=3,prob.model=TRUE)
 gene
 predict(gene, genetest)
 predict(gene, genetest, type="probabilities")
@@ -626,7 +627,7 @@ predict(gene, genetest, type="probabilities")
 
 \begin{figure}
 \centering
-<<fig=TRUE,echo=TRUE,width=10,height=10,results=hide>>=
+<<echo=TRUE,fig.width=10,fig.height=10,results='hide'>>=
 set.seed(123)
 x <- rbind(matrix(rnorm(120),,2),matrix(rnorm(120,mean=3),,2))
 y <- matrix(c(rep(1,60),rep(-1,60)))
@@ -683,7 +684,7 @@ ytest <- predict(rvmm, x)
 
 \begin{figure}
 \centering
-<<fig=TRUE,echo=FALSE,width=12,height=7>>=
+<<echo=FALSE,fig.width=12,fig.height=7>>=
 plot(x, y, cex=0.5)
 lines(x, ytest, col = "red")
 points(x[RVindex(rvmm)],y[RVindex(rvmm)],pch=21)
@@ -775,10 +776,11 @@ equivalent to ranking the data by their distance in the projected space.
 
 \begin{figure}
 \centering
-<<ranking,echo =TRUE,fig=TRUE,width=12,height=7>>=
+<<ranking,echo =TRUE,fig.width=12,fig.height=7>>=
 data(spirals)
 ran <- spirals[rowSums(abs(spirals) < 0.55) == 2,]
-ranked <- ranking(ran, 54, kernel = "rbfdot", kpar = list(sigma = 100), edgegraph = TRUE)
+ranked <- ranking(ran, 54, kernel = "rbfdot",
+                  kpar = list(sigma = 100), edgegraph = TRUE)
 ranked[54, 2] <- max(ranked[-54, 2])
 c<-1:86
 op <- par(mfrow = c(1, 2),pty="s")
@@ -851,11 +853,53 @@ x <- rbind(matrix(rnorm(90),,2),matrix(rnorm(90)+3,,2))
 y <- matrix(c(rep(1,45),rep(-1,45)),,1)
 
 ## initialize onlearn object
-on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=0.2),type="classification")
+on <- inlearn(2,kernel="rbfdot",kpar=list(sigma=1.8),type="classification")
 ind <- sample(1:90,90)
 ## learn one data point at the time
 for(i in ind)
-on <- onlearn(on,x[i,],y[i],nu=0.03,lambda=0.1)
+on <- onlearn(on,x[i,],y[i],nu=0.4,lambda=0.5,eta=0.001)
+sign(predict(on,x))
+@ 
+
+\subsection{Model Based Online learning with kernels}
+
+The \code{olk} function in \pkg{kernlab} implements the OLK algorithm 
+for classification, novelty detection and regression described in \citep{kernlab:li2013model}.
+OLK proposes to solve the following:
+\begin{equation}
+  \begin{array}{ll}
+    \min\limits_{f,\xi_{t+1}} & \frac{1}{2}\|f-f_t\|^2 + \frac{r}{2}\|f\|^2 + C\xi_{t+1} \\
+    s.t. & y_{t+1}f(x_{t+1}) \geq 1 - \xi_{t+1}, \xi_{t+1} \geq 0
+  \end{array}
+\end{equation}  
+The solution is the summation of the weighted kernel function as follows:
+\begin{equation}
+f(x_t) = \sum\limits \alpha_i k(x_i, x_t)
+\end{equation}
+Each of the three applications (classification, novelty detection and regression) have
+a different calculation for $\alpha$ available in \citep{kernlab:li2013model}. The parameter $C$
+is the soft margin similar to the SVM. $r$ is the forgetting rate where the weights will decay
+each time a example is added by $\alpha = \frac{\alpha}{1+r}$. This should typically be small
+around $10^{-3}$ or $10^{-4}$. epsilon is only used in regression. It is a error tolerance parameter.
+If the prediction for a given example is within epsilon of $y_{t+1}$ the example is not added to the
+dictionary of examples.
+
+The \code{olk} function implements the online learning algorithm for regression, classification and novelty 
+detection. The online nature of the algorithm requires the same approach as \code{onlearn}. An object 
+is used to store the state of the algorithm at each iteration $t$ this object is passed to the function as an 
+argument and is returned at each iteration $t+1$ containing the model parameter state at this step. 
+An empty object of class \code{olk} is initialized using the \code{initOLK} function. 
+<<olk, echo = TRUE>>=
+## create toy data set
+x <- rbind(matrix(rnorm(90),,2),matrix(rnorm(90)+3,,2))
+y <- matrix(c(rep(1,45),rep(-1,45)),,1)
+
+## initialize onlearn object
+on <- initOLK(2,kernel="rbfdot",kpar=list(sigma=2.5),type="classification")
+ind <- sample(1:90,90)
+## learn one data point at the time
+for(i in ind)
+on <- olk(on,x[i,],y[i], C = 0.25, r = 10^(-5), epsilon = 0)
 sign(predict(on,x))
 @ 
 
@@ -891,7 +935,7 @@ sigma values to find an optimal value for $\sigma$.
 
 \begin{figure}
 \centering
-<<fig=TRUE,echo=TRUE,width=7,height=7>>=
+<<echo=TRUE,fig.width=7,fig.height=7>>=
 data(spirals)
 sc <- specc(spirals, centers=2)
 plot(spirals, pch=(23 - 2*sc))
@@ -934,12 +978,14 @@ new coordinate system.
 
 \begin{figure}
 \centering
-<<kpca,echo =TRUE,fig=TRUE,width=7,height=7>>=
+<<kpca,echo =TRUE,fig.width=7,fig.height=7>>=
 data(spam)
 train <- sample(1:dim(spam)[1],400)
-kpc <- kpca(~.,data=spam[train,-58],kernel="rbfdot",kpar=list(sigma=0.001),features=2)
+kpc <- kpca(~.,data=spam[train,-58],kernel="rbfdot",
+            kpar=list(sigma=0.001),features=2)
 kpcv <- pcv(kpc)
-plot(rotated(kpc),col=as.integer(spam[train,58]),xlab="1st Principal Component",ylab="2nd Principal Component")
+plot(rotated(kpc),col=as.integer(spam[train,58]),
+     xlab="1st Principal Component",ylab="2nd Principal Component")
 @
 \caption{Projection of the spam data on two kernel principal components
   using an RBF kernel}
@@ -977,10 +1023,11 @@ pursuit technique on a sample of the data. Results are then returned in an \prog
 
 \begin{figure}
 \centering
-<<kfa, echo = TRUE,fig=TRUE,width=7,height=7>>=
+<<kfa, echo = TRUE,fig.width=7,fig.height=7>>=
 data(promotergene)
 f <- kfa(~.,data=promotergene,features=2,kernel="rbfdot",kpar=list(sigma=0.013))
-plot(predict(f,promotergene),col=as.numeric(promotergene[,1]),xlab="1st Feature",ylab="2nd Feature")
+plot(predict(f,promotergene),col=as.numeric(promotergene[,1]),
+     xlab="1st Feature",ylab="2nd Feature")
 @ 
 \caption{Projection of the spam data on two features using an RBF kernel}
 \label{fig:KFA}
