@@ -18,6 +18,8 @@ setMethod("onlearn", signature(obj = "onlearn"),
             if (is.factor(y)) {
                 lev(obj) <- levels(y)
                 y <- as.integer (y)
+                if (type(obj) == "classification" && length(lev(obj)) == 2)
+                    y <- (2*(y - 1) - 1)
             }
             else {
                 if ((type(obj) != "classification") && any(as.integer (y) != y))
@@ -29,8 +31,6 @@ setMethod("onlearn", signature(obj = "onlearn"),
                 if (length(unique(y)) > 2)  stop ("Only two class classification is supported")
                 if (length(unique(y)) == 1 && !(max(y) == 1 || min(y) == -1))
                     warning("y must be either 1 or -1")
-                else
-                    y <- (2*(y - 1) - 1)
             }
             for (i in 1:dim(x)[1])
               {
