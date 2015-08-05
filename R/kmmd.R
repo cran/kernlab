@@ -16,8 +16,8 @@ setMethod("kmmd", signature(x = "matrix"),
               
               if(kernel == "matrix")
                 if(dim(x)[1]==dim(x)[2])
-                  return(ksvm(as.kernelMatrix(x), y = y, type = type, C = C, nu = nu, epsilon  = epsilon, prob.model = prob.model, class.weights = class.weights, cross = cross, fit = fit, cache = cache, tol = tol, shrinking = shrinking, ...))
-                else
+                  return(kmmd(x= as.kernelMatrix(x), y = y, Kxy = as.kernelMatrix(x)%*%y, alpha = 0.05, asymptotic = FALSE,  replace = TRUE, ntimes = 100, frac = 1,  ...))
+                 else
                   stop(" kernel matrix not square!")
               
               if(is.character(kpar))

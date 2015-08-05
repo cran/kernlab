@@ -18,7 +18,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   Terms <- attr(m, "terms")
    attr(Terms, "intercept") <- 0    ## no intercept
   x <- model.matrix(Terms, m)
-  y <- model.extract(m, response)
+  y <- model.extract(m, "response")
   if (length(scaled) == 1)
     scaled <- rep(scaled, ncol(x))
   if (any(scaled)) {
@@ -154,8 +154,7 @@ function (x,
     kp <- match.arg(kpar,"automatic")
     if(kp=="automatic")
       kpar <- list(sigma=mean(sigest(x,scaled=FALSE)[c(1,3)]))
-   cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n")
-   
+   #cat("Using automatic sigma estimation (sigest) for RBF or laplace kernel","\n") 
   }
   if(!is(kernel,"kernel"))
     {
@@ -934,6 +933,7 @@ if(type(ret) =="kbb-svc")
                     cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],yd[cind],type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE ,cache = cache, prob.model = FALSE)
                   else
                     cret <- ksvm(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][cind,],as.factor(lev(ret)[y[c(indexes[[i]],indexes[[j]])][cind]]),type = type(ret),kernel=kernel,kpar = NULL, C=C, nu=nu, tol=tol, scaled=FALSE, cross = 0, fit = FALSE, class.weights = class.weights,cache = cache, prob.model = FALSE)
+                  
                                     
                   yres <- c(yres, yd[vgr[[k]]])
                   pres <- rbind(pres, predict(cret, x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE][vgr[[k]],],type="decision"))
@@ -2927,7 +2927,7 @@ function(x, data = NULL, grid = 50, slice = list(), ...) {
 
     if(is.data.frame(data) || !is.null(terms(x))){
       lis <- c(list(yr), list(xr), slice)
-      names(lis)[1:2] <- colnames(sub)
+      names(lis)[1:2] <- setdiff(colnames(sub),names(slice))
       new <- expand.grid(lis)[,labels(terms(x))]
     }
     else

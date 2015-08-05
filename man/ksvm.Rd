@@ -282,12 +282,12 @@
      J. Platt\cr
      \emph{Probabilistic outputs for support vector machines and comparison to regularized likelihood methods} \cr
      Advances in Large Margin Classifiers, A. Smola, P. Bartlett, B. Schoelkopf and D. Schuurmans, Eds. Cambridge, MA: MIT Press, 2000.\cr
-     \url{http://citeseer.nj.nec.com/platt99probabilistic.html}
+     \url{http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.41.1639}
      
     \item
     H.-T. Lin, C.-J. Lin and R. C. Weng\cr
     \emph{A note on Platt's probabilistic outputs for support vector machines}\cr
-    \url{http://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.ps}
+    \url{http://www.csie.ntu.edu.tw/~htlin/paper/doc/plattprob.pdf}
     
     \item
      C.-W. Hsu and C.-J. Lin \cr
@@ -299,7 +299,7 @@
      K. Crammer, Y. Singer\cr
      \emph{On the learnability and design of output codes for multiclass prolems}\cr
      Computational Learning Theory, 35-46, 2000.\cr
-     \url{http://www.cs.huji.ac.il/~kobics/publications/mlj01.ps.gz}
+     \url{http://webee.technion.ac.il/people/koby/publications/ecoc-mlj02.pdf}
 
      \item
      J. Weston, C. Watkins\cr

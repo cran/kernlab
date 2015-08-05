@@ -16,7 +16,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit){
   Terms <- attr(m, "terms")
   attr(Terms, "intercept") <- 0
   x <- model.matrix(Terms, m)
-  y <- model.extract(m, response)
+  y <- model.extract(m, "response")
    ret <- rvm(x, y, ...)
   kcall(ret) <- cl
   terms(ret) <- Terms
@@ -116,18 +116,10 @@ function (x,
   
  # in case of classification: transform factors into integers
   if (is.factor(y)) {
-    lev(ret) <- levels (y)
-    y <- as.integer (y)
-    if (!is.null(class.weights)) {
-      if (is.null(names (class.weights)))
-        stop ("Weights have to be specified along with their according level names !")
-      weightlabels <- match (names(class.weights),lev(ret))
-      if (any(is.na(weightlabels)))
-        stop ("At least one level name is missing or misspelled.")
-    }
-  } else {
+       stop("classification not supported with rvm, you can use ksvm(), lssvm() or gausspr()")    
+      } else {
     if (type(ret) == "classification" && any(as.integer (y) != y))
-        stop ("dependent variable has to be of factor or integer type for classification mode.")
+        stop ("classification not supported with rvm, you can use ksvm(), lssvm() or gausspr()")
     if(type(ret) == "classification")
       lev(ret) <- unique (y)
     }
@@ -316,7 +308,7 @@ function (x,
             }
           if(type(ret)=="regression")
             {
-              cret <- rvm(x[cind,],y[cind],type=type(ret),kernel=kernel,C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
+              cret <- rvm(x[cind,],y[cind],type=type(ret),kernel=kernel,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
               cres <- predict(cret, x[vgr[[i]],])
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m) + cerror
             }
@@ -362,15 +354,7 @@ function (x,
 
  # in case of classification: transform factors into integers
   if (is.factor(y)) {
-    lev(ret) <- levels (y)
-    y <- as.integer (y)
-    if (!is.null(class.weights)) {
-      if (is.null(names (class.weights)))
-        stop ("Weights have to be specified along with their according level names !")
-      weightlabels <- match (names(class.weights),lev(ret))
-      if (any(is.na(weightlabels)))
-        stop ("At least one level name is missing or misspelled.")
-    }
+    stop("Claasification is not implemented, you can use ksvm(), gausspr() or lssvm()")
   } else {
     if (type(ret) == "classification" && any(as.integer (y) != y))
         stop ("dependent variable has to be of factor or integer type for classification mode.")
@@ -508,7 +492,7 @@ function (x,
             }
           if(type(ret)=="regression")
             {
-              cret <- rvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret),C=C,nu=nu,epsilon=epsilon,tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
+              cret <- rvm(as.kernelMatrix(x[cind,cind]),y[cind],type=type(ret),tol=tol,alpha = alpha, var = var, var.fix=var.fix, cross = 0, fit = FALSE)
               cres <- predict(cret, as.kernelMatrix(x[vgr[[i]], cind][,RVindex(cret),drop=FALSE]))
               cerror <- drop(crossprod(cres - y[vgr[[i]]])/m)/cross + cerror
             }

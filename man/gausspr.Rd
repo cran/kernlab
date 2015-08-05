@@ -90,7 +90,7 @@
   \item{var}{the initial noise variance, (only for regression) (default
     : 0.001)}
 
-  \item{variance.model}{build model for variance estimation (only for regression) (default
+  \item{variance.model}{build model for variance or standard deviation estimation (only for regression) (default
     : FALSE)}
 
   \item{tol}{tolerance of termination criterion (default: 0.001)}
@@ -128,7 +128,7 @@ processes for classification.\cr
 
 The predict function can return class probabilities for 
 classification problems by setting the \code{type} parameter to "probabilities".
-For regression setting the \code{type} parameter to "variance" returns the estimated variance at each predicted point.
+For the regression setting the \code{type} parameter to "variance" or "sdeviation" returns the estimated variance or standard deviation at each predicted point.
 }
 \value{
 An S4 object of class "gausspr" containing the fitted model along with
@@ -184,10 +184,10 @@ foo2 <- gausspr(x, y, variance.model = TRUE)
 xtest <- seq(-4,2,0.2)
 lines(xtest, predict(foo2, xtest))
 lines(xtest,
-      predict(foo2, xtest)+2*sqrt(predict(foo2,xtest, type="variance")),
+      predict(foo2, xtest)+2*predict(foo2,xtest, type="sdeviation"),
       col="red")
 lines(xtest,
-      predict(foo2, xtest)-2*sqrt(predict(foo2,xtest, type="variance")),
+      predict(foo2, xtest)-2*predict(foo2,xtest, type="sdeviation"),
       col="red")
 
 }

@@ -127,7 +127,7 @@ vectors where a string kernel has to be used.}
   Andrew Y. Ng, Michael I. Jordan, Yair Weiss\cr
   \emph{On Spectral Clustering: Analysis and an Algorithm}\cr
   Neural Information Processing Symposium 2001\cr
-  \url{http://www.nips.cc/NIPS2001/papers/psgz/AA35.ps.gz}
+  \url{http://papers.nips.cc/paper/2092-on-spectral-clustering-analysis-and-an-algorithm.pdf}
 
 }
 \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}

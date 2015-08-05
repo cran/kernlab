@@ -1,8 +1,12 @@
 useDynLib("kernlab")
 
 import("methods")
-importFrom("stats", "coef", "fitted", "na.omit", "predict", "terms")
-importFrom("graphics","plot")
+importFrom("stats", "coef", "delete.response", "fitted", "kmeans",
+           "median", "model.extract", "model.matrix", "na.action",
+           "na.omit", "predict", "quantile", "rnorm", "runif", "sd",
+           "terms", "var") 
+importFrom("graphics", "axis", "filled.contour", "plot", "points", "title")
+importFrom("grDevices", "hcl")
 
 export(	
        ## kernel functions

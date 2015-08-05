@@ -169,7 +169,7 @@ function(object, x)
         if(onstart(object) == 1 && onstop(object) < buffer(object))
           res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol= d), matrix(alpha(object)[1:onstop(object)],ncol=1)) - rho(object)) 
         else
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) - rho(object))
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object),ncol=1)) - rho(object))
       }
 
     if(type(object)=="classification")
@@ -177,7 +177,7 @@ function(object, x)
         if(onstart(object) == 1 && onstop(object) < buffer(object))
           res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d), matrix(alpha(object)[1:onstop(object)],ncol=1)) + b(object))
         else
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) + b(object))
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object),ncol=1)) + b(object))
        
       }
 
@@ -186,7 +186,7 @@ function(object, x)
         if(onstart(object) == 1 && onstop(object) < buffer(object))
           res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object)[1:onstop(object),],ncol=d), matrix(alpha(object)[1:onstop(object)],ncol=1)) + b(object)) 
         else
-          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object)),ncol=1) + b(object)) 
+          res <- drop(kernelMult(kernelf(object), x, matrix(xmatrix(object),ncol=d), matrix(alpha(object),ncol=1)) + b(object)) 
       }
 
     return(res)

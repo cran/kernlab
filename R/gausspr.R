@@ -16,7 +16,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   Terms <- attr(m, "terms")
   attr(Terms, "intercept") <- 0
   x <- model.matrix(Terms, m)
-  y <- model.extract(m, response)
+  y <- model.extract(m, "response")
 
   if (length(scaled) == 1)
     scaled <- rep(scaled, ncol(x))
@@ -279,7 +279,7 @@ if(is.character(kernel)){
           cind <- unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           if(type(ret)=="classification")
             {
-              cret <- gausspr(x[cind,], y[cind], scaled = FALSE, type=type(ret),kernel=kernel,C=C,var = var, cross = 0, fit = FALSE)
+              cret <- gausspr(x[cind,], y[cind], scaled = FALSE, type=type(ret),kernel=kernel,var = var, cross = 0, fit = FALSE)
                cres <- predict(cret, x[vgr[[i]],])
             cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
             }
@@ -305,7 +305,7 @@ setMethod("predict", signature(object = "gausspr"),
 function (object, newdata, type = "response", coupler = "minpair")
 {
   sc <- 0
-  type <- match.arg(type,c("response","probabilities","votes", "variance"))
+  type <- match.arg(type,c("response","probabilities","votes", "variance", "sdeviation"))
   if (missing(newdata) && type!="response")
     return(fitted(object))
   else if(missing(newdata))
@@ -385,11 +385,16 @@ function (object, newdata, type = "response", coupler = "minpair")
   
   if(type(object) == "regression")
     {
-      if (type == "variance")
+      if (type == "variance"||type == "sdeviation")
         { 
           Ktest <- kernelMatrix(kernelf(object),xmatrix(object), newdata)
           predres <- diag(kernelMatrix(kernelf(object),newdata) - t(Ktest)  %*% sol(object) %*% Ktest)
+          if (type== "sdeviation")
+            predres <- sqrt(predres)
+          if (!is.null(scaling(object)$y.scale))
+           predres <- predres * scaling(object)$y.scale$"scaled:scale" + scaling(object)$y.scale$"scaled:center"
         }
+
       else
         {
       

@@ -18,7 +18,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   Terms <- attr(m, "terms")
    attr(Terms, "intercept") <- 0    ## no intercept
   x <- model.matrix(Terms, m)
-  y <- model.extract(m, response)
+  y <- model.extract(m, "response")
   if (length(scaled) == 1)
     scaled <- rep(scaled, ncol(x))
   if (any(scaled)) {
@@ -108,7 +108,14 @@ function (x,
 
     if(kernel == "matrix")
       if(dim(x)[1]==dim(x)[2])
-        return(ksvm(as.kernelMatrix(x), y = y, type = type, C = C, nu = nu, epsilon  = epsilon, prob.model = prob.model, class.weights = class.weights, cross = cross, fit = fit, cache = cache, tol = tol, shrinking = shrinking, ...))
+        return(lssvm(as.kernelMatrix(x), y = y,type = NULL,
+          tau       = 0.01,
+          tol       = 0.0001,
+          rank      = floor(dim(x)[1]/3),
+          delta      = 40,
+          cross     = 0,
+          fit       = TRUE,
+          ...))
       else
         stop(" kernel matrix not square!")
     
@@ -297,7 +304,7 @@ function (x,
         {
           cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           cret <- lssvm(x[cind,],y[cind],type = type(ret),kernel=kernel,kpar = NULL,reduced = reduced,
-      tau=tau,  tol=tol, rank = floor(rank/cross), delta = floor(delta/cross), scaled=FALSE, cross = 0, fit = FALSE ,cache = cache)
+      tau=tau,  tol=tol, rank = floor(rank/cross), delta = floor(delta/cross), scaled=FALSE, cross = 0, fit = FALSE)
           cres <- predict(cret, x[vgr[[i]],])
           cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
         }
@@ -397,7 +404,7 @@ function (x,
 
       ymat <- y
             
-      G <- csi(x, ymat, rank = rank ,kernel= kernel, delta = delta , tol = tol)
+      G <- csi(x, ymat, rank = rank , delta = delta , tol = tol)
       
       GtP <- t(G) - matrix(rowSums(t(G))/dim(G)[1],dim(G)[2],dim(G)[1])
       Gtalpha <- (GtP)%*%G
@@ -620,7 +627,6 @@ function (x,
   fitted(ret)  <- if (fit)
     predict(ret, x) else NA
 
-  scaling(ret) <- list(scaled = scaled, x.scale = x.scale)
   
 
   if (fit){
@@ -642,7 +648,7 @@ function (x,
         {
           cind <-  unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
           cret <- lssvm(x[cind,],y[cind],type = type(ret),kernel=kernel,kpar = NULL,reduced = reduced,
-      tau=tau,  tol=tol, rank = floor(rank/cross), delta = floor(delta/cross), scaled=FALSE, cross = 0, fit = FALSE ,cache = cache)
+      tau=tau,  tol=tol, rank = floor(rank/cross), delta = floor(delta/cross), scaled=FALSE, cross = 0, fit = FALSE )
           cres <- predict(cret, x[vgr[[i]],])
           cerror <- (1 - .classAgreement(table(y[vgr[[i]]],as.integer(cres))))/cross + cerror
         }
@@ -689,7 +695,7 @@ function (object, newdata, type = "response", coupler = "minpair")
   if (oldco != newco) stop ("test vector does not match model !")
   p<-0
 
-  if (is.list(scaling(object)) && sc != 1)
+  if (!is.null(scaling(object)$x.scale) && sc != 1)
     newdata[,scaling(object)$scaled] <-
       scale(newdata[,scaling(object)$scaled, drop = FALSE],
             center = scaling(object)$x.scale$"scaled:center",

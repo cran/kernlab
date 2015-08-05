@@ -101,7 +101,7 @@ centering = TRUE, kappa = 0.99 ,delta = 40 ,tol = 1e-5)
       Francis R. Bach, Michael I. Jordan\cr
       \emph{Predictive low-rank decomposition for kernel methods.}\cr
       Proceedings of the Twenty-second International Conference on Machine Learning (ICML) 2005\cr
-      \url{http://cmm.ensmp.fr/~bach/bach_jordan_csi.pdf}
+      \url{http://www.di.ens.fr/~fbach/bach_jordan_csi.pdf}
     }
 
 \author{Alexandros Karatzoglou (based on Matlab code by 

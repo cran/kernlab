@@ -13,7 +13,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   Terms <- attr(m, "terms")
   attr(Terms, "intercept") <- 0
   x <- model.matrix(Terms, m)
-  y <- model.extract(m, response)
+  y <- model.extract(m, "response")
 
   if (length(scaled) == 1)
     scaled <- rep(scaled, ncol(x))
@@ -57,7 +57,7 @@ function (x, y, scaled = TRUE, tau = 0.5, C = 0.1, kernel = "rbfdot", kpar = "au
     }
     ncols <- ncol(x)
     m <- nrows <- nrow(x)
-
+    tmpsc <- NULL
   x.scale <- y.scale <- NULL
  ## scaling
   if (length(scaled) == 1)
@@ -253,16 +253,11 @@ function (x, y, tau = 0.5, C = 0.1, fit = TRUE, cross = 0)
       for(i in 1:cross)
         {
           cind <- unsplit(vgr[-i],factor(rep((1:cross)[-i],unlist(lapply(vgr[-i],length)))))
-          cret <- kqr(x[cind,cind],y[cind], tau = tau, C = C, scale = FALSE, kernel = kernel, cross = 0, fit = FALSE)
+          cret <- kqr(x[cind,cind],y[cind], tau = tau, C = C, scale = FALSE, cross = 0, fit = FALSE)
           cres <- predict(cret, x[vgr[[i]],vgr[[i]]])
           crescs <- c(crescs,cres)
         }
-      if (!is.null(scaling(ret)$y.scale)){
-        crescs <- crescs * tmpsc$y.scale$"scaled:scale" + tmpsc$y.scale$"scaled:center"
-        ysvgr <- y[unlist(vgr)] * tmpsc$y.scale$"scaled:scale" + tmpsc$y.scale$"scaled:center"
-      }
-      else
-        ysvgr <-  y[unlist(vgr)]
+      ysvgr <-  y[unlist(vgr)]
       
       pinloss <- drop(pinloss(ysvgr, crescs, tau))
       ramloss <- drop(ramloss(ysvgr, crescs, tau))
