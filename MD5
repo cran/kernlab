@@ -1,4 +1,4 @@
-e95b276b533592c077cb8fe9a0052253 *DESCRIPTION
+29f9888009b3ff4e1a2f13eda6e8da18 *DESCRIPTION
 4bf5b70ad948b31056e6fc5102ddd995 *NAMESPACE
 7db9a58cb6e5aeae749727781fe388f5 *R/aobjects.R
 0750c9216dfd490ac36814b8b1ae24f2 *R/couplers.R
@@ -129,9 +129,9 @@ a7c14e599149c35dd243a8410cb2f9c0 *src/msufsort.h
 36b8004ade5fe1c5c2edb01cf74ce5cd *src/solvebqp.c
 823808c44b18f59c9eef3ad4f1f41930 *src/stack.h
 079a2f29ea98ab6f5ca4e814bb2917ba *src/stringk.c
-bd34b7d632c2985fe6c34916f13e317e *src/stringkernel.cpp
+a826262fdc41d078229ec858f1fcab1a *src/stringkernel.cpp
 393bf9882322163e203b2a03789e7b05 *src/stringkernel.h
-4e3bfc981d1ab6a57440fd4ab5bfb176 *src/svm.cpp
+ae74f6ea199b5d5b9b4b045afac5fa40 *src/svm.cpp
 670301bb88ff2b0f28ece190a96635c7 *src/svm.h
 5f5910aab31dc2ebacb4b15caba8e873 *src/wkasailcp.cpp
 fd6807b3526c7d5442f66a2660bd9e4c *src/wkasailcp.h

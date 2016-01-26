@@ -460,11 +460,11 @@ StringKernel::Set_Lvs()
 
 #endif
 
-extern "C" {
-
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+
+extern "C" {
 
   SEXP stringtv(SEXP rtext, // text document 
 		SEXP ltext, // list or vector of text documents to compute kvalues against 
