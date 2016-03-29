@@ -12,7 +12,7 @@ function(x,  data = NULL, na.action = na.omit, ...)
     mf <- match.call(expand.dots = FALSE)
     mf$formula <- mf$x
     mf$... <- NULL
-    mf[[1]] <- as.name("model.frame")
+    mf[[1L]] <- quote(stats::model.frame)
     mf <- eval(mf, parent.frame())
     na.act <- attr(mf, "na.action")
     Terms <- attr(mf, "terms")

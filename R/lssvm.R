@@ -13,7 +13,7 @@ function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
   m$formula <- m$x
   m$x <- NULL
   m$scaled <- NULL
-  m[[1]] <- as.name("model.frame")
+  m[[1L]] <- quote(stats::model.frame)    
   m <- eval(m, parent.frame())
   Terms <- attr(m, "terms")
    attr(Terms, "intercept") <- 0    ## no intercept
