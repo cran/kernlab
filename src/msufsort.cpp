@@ -161,7 +161,7 @@ void MSufSort::Initialize()
 	if (m_ISA)
 		delete [] m_ISA;
 	m_ISA = new unsigned int[m_sourceLength + 1];
-	memset(m_ISA, 0, m_sourceLength + 1);
+	memset(m_ISA, 0, sizeof(unsigned int) * (m_sourceLength + 1));
 
 	m_nextSortedSuffixValue = 0;
 	m_numSortedSuffixes = 0;

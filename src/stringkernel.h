@@ -64,15 +64,15 @@ enum WeightFunction{CONSTANT, EXPDECAY, KSPECTRUM, BOUNDRANGE};
 using namespace std;
 
 class StringKernel {
- 
-  
+
+
  public:
 	/// Variables
 	ESA				      *esa;
 	I_WeightFactory	*weigher;
 	Real            *val;  //' val array. Storing precomputed val(t) values.
 	Real			      *lvs;  //' leaves array. Storing weights for leaves.
-	
+
 
 	/// Constructors
 	StringKernel();
@@ -91,7 +91,7 @@ class StringKernel {
 
 	/// Precompute the contribution of each intervals (or internal nodes)
 	void PrecomputeVal();
-	
+
 	/// Compute Kernel matrix
 	void Compute_K(SYMBOL *xprime, const UInt32 &xprime_len, Real &value);
 

@@ -1,4 +1,4 @@
-a5c8cb684ee9e3cd5b7c8f136059e7d2 *DESCRIPTION
+dfb1bf6e7d4d9c9651f667c257ede4a3 *DESCRIPTION
 4bf5b70ad948b31056e6fc5102ddd995 *NAMESPACE
 7db9a58cb6e5aeae749727781fe388f5 *R/aobjects.R
 0750c9216dfd490ac36814b8b1ae24f2 *R/couplers.R
@@ -34,7 +34,7 @@ dd4ab7c1af302468605387cd7bc85dfa *data/spam.rda
 68fe0d0d842fbc1b217f45934a8edf7a *inst/COPYRIGHTS
 0d1b1a09dbb52e3b0e58676170c3ce3d *inst/doc/kernlab.R
 c4c223d07206b59e2d43a585d07164b1 *inst/doc/kernlab.Rnw
-d19f6c0cb3885e4fd5c2bcd482f1b42a *inst/doc/kernlab.pdf
+5dc201395b0cc80f9070716954dd12a6 *inst/doc/kernlab.pdf
 ca7923a78d389602d891a3cf6a5193d9 *man/as.kernelMatrix.Rd
 c0c282d5b6dd984608a1d5b9c92fe478 *man/couple.Rd
 e36dc0b16ba570c99ead7a48394dc66d *man/csi-class.Rd
@@ -109,7 +109,7 @@ e13d4f68dd0e3b613f40066c47387233 *src/dtron.c
 f3c6c30f24ade3e5aa146d0f0a6b11f5 *src/dtrpcg.c
 616fbd8165eddace388ffc7ffd90c753 *src/dtrqsol.c
 beb2c099ff3dd87e3474a30a49a8437e *src/errorcode.h
-403e60e8ef01e6fcd8820a78287b8c4e *src/esa.cpp
+a0f99b7568a3b1c4f0e47437b022e4dc *src/esa.cpp
 ab96f4b2f43cc0306c88547ab6abe1ad *src/esa.h
 5a7166f36e34cc037b9c2006f8bc00c9 *src/expdecayweight.cpp
 7f04e95fcd76ee21dcea4d7138d96326 *src/expdecayweight.h
@@ -124,13 +124,13 @@ b5d07bb286e3767cda7a371c50d0122e *src/kspectrumweight.h
 81884b6e3b3e02f26e75974febbdaa2d *src/lcp.cpp
 6de81523902a1d4dce2b38ce3d57ce98 *src/lcp.h
 f47f3118ea197009f6f0e12edeb5fc17 *src/misc.c
-6c508e5aad78e137392391c0d5e2fa4d *src/msufsort.cpp
-a7c14e599149c35dd243a8410cb2f9c0 *src/msufsort.h
+d5d113bf04eb7759c8fd0f915dd24c64 *src/msufsort.cpp
+82af93b02f090a83152b52239e0e3711 *src/msufsort.h
 36b8004ade5fe1c5c2edb01cf74ce5cd *src/solvebqp.c
 823808c44b18f59c9eef3ad4f1f41930 *src/stack.h
 079a2f29ea98ab6f5ca4e814bb2917ba *src/stringk.c
-a826262fdc41d078229ec858f1fcab1a *src/stringkernel.cpp
-393bf9882322163e203b2a03789e7b05 *src/stringkernel.h
+801972af49fa57499fc3e519d202a8ad *src/stringkernel.cpp
+1c19c2215be7a2b25f7439fc061f2daa *src/stringkernel.h
 ae74f6ea199b5d5b9b4b045afac5fa40 *src/svm.cpp
 670301bb88ff2b0f28ece190a96635c7 *src/svm.h
 5f5910aab31dc2ebacb4b15caba8e873 *src/wkasailcp.cpp

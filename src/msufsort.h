@@ -912,7 +912,7 @@ inline void MSufSort::ProcessSuffixesSortedByEnhancedInduction(unsigned short su
 inline void MSufSort::ShowProgress()
 {
 	// Update the progress indicator.
-	double p = ((double)(m_numSortedSuffixes & 0x3fffffff) / m_sourceLength) * 100;
+	//double p = ((double)(m_numSortedSuffixes & 0x3fffffff) / m_sourceLength) * 100;
 //	printf("Progress: %.2f%% %c", p, 13);
 }
 #endif

@@ -80,7 +80,8 @@ StringKernel::StringKernel(ESA *esa_, int weightfn, Real param, int verb): esa(e
         break;
 
     default:
-      int nothing = 0;
+      weigher = new ConstantWeight();
+      //int nothing = 0;
 
     }
 }
@@ -118,7 +119,8 @@ StringKernel::StringKernel(const UInt32 &size, SYMBOL *text, int weightfn, Real 
         break;
 
     default:
-      int nothing = 0;
+      weigher = new ConstantWeight();
+      //int nothing = 0;
     }
 }
 
@@ -272,10 +274,10 @@ StringKernel::IterativeCompute(const UInt32 &left, const UInt32 &right)
 
 
 /**
- *  Precomputation of val(t) of string kernel. 
+ *  Precomputation of val(t) of string kernel.
  *  Observation :Every internal node of a suffix tree can be represented by at
  *                 least one index of the corresponding lcp array. So, the val
- *                 of a node is stored in val[] at the index corresponding to that of 
+ *                 of a node is stored in val[] at the index corresponding to that of
  *                 the fist representative lcp value in lcp[].
  */
 void
@@ -295,7 +297,7 @@ StringKernel::PrecomputeVal()
 
 
 /**
- *  Compute k(text,x) by performing Chang and Lawler's matching statistics collection 
+ *  Compute k(text,x) by performing Chang and Lawler's matching statistics collection
  *    algorithm on the enhanced suffix array.
  *
  *  \param x     - (IN) The input string which is to be evaluated together with
@@ -366,7 +368,7 @@ StringKernel::Compute_K(SYMBOL *x, const UInt32 &x_len, Real &value)
 
 
 /**
- *  Assign leaf weights. 
+ *  Assign leaf weights.
  *
  *  Assumption: SENTINEL is only used in delimiting the concatenated strings.
  *                No string should contain SENTINEL.
@@ -466,39 +468,39 @@ StringKernel::Set_Lvs()
 
 extern "C" {
 
-  SEXP stringtv(SEXP rtext, // text document 
-		SEXP ltext, // list or vector of text documents to compute kvalues against 
+  SEXP stringtv(SEXP rtext, // text document
+		SEXP ltext, // list or vector of text documents to compute kvalues against
 		SEXP nltext, // number of text documents in ltext
 		SEXP vnchar, // number of characters in text
 		SEXP vnlchar, // characters per document in ltext
-		SEXP stype, // type of kernel 
+		SEXP stype, // type of kernel
 		SEXP param) // parameter for kernel
   {
     // R interface for text and list of text computation. Should return a vector of computed kernel values.
     // Construct ESASK
     UInt32 text_size = *INTEGER(vnchar);
     int number_ltext = *INTEGER(nltext);
-    int *ltext_size =  (int *) malloc (sizeof(int) * number_ltext);
+    unsigned int *ltext_size =  (unsigned int *) malloc (sizeof(unsigned int) * number_ltext);
     memcpy(ltext_size, INTEGER(vnlchar), number_ltext*sizeof(int));
     int weightfn = *INTEGER(stype);
-    const char *text = CHAR(STRING_ELT(rtext,0)); 
-    Real kparam = *REAL(param); 
+    const char *text = CHAR(STRING_ELT(rtext,0));
+    Real kparam = *REAL(param);
     double kVal;
     SEXP alpha;
-    
+
     PROTECT(alpha = allocVector(REALSXP, number_ltext));
-    
-    // Check if stringlength reported from R is correct  
+
+    // Check if stringlength reported from R is correct
     if(strlen(text)!= text_size)
       text_size= strlen(text);
 
     StringKernel sk(text_size, (SYMBOL*)text, (weightfn - 1), kparam, 0);
     sk.Set_Lvs();
     sk.PrecomputeVal();
-    
+
     for (int i=0; i<number_ltext; i++)
       {
-	
+
 	if(isList(ltext)){
 	  const char *pattern = CHAR(VECTOR_ELT(ltext, i));
 	  // Check if stringlength reported from R is correct
@@ -517,7 +519,7 @@ extern "C" {
       }
 
     free(ltext_size);
-    UNPROTECT(1); 
+    UNPROTECT(1);
     return alpha;
 
   }
