@@ -233,13 +233,45 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
                 
                 if (is(x,"vector") && is.null(y) && normalized == FALSE)
-                  return(.Call("subsequencek",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                    return(.Call(subsequencek,
+                                 as.character(x),
+                                 as.character(x),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(x)),
+                                 as.integer(length),
+                                 as.double(lambda))) 
                 if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
-                  return(.Call("subsequencek",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                    return(.Call(subsequencek,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(length),
+                                 as.double(lambda))) 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("subsequencek",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")/sqrt(.Call("subsequencek",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")*.Call("subsequencek",as.character(y), as.character(y), as.integer(nchar(y)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")))
+                    return(.Call(subsequencek,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(length),
+                                 as.double(lambda)) /
+                           sqrt(.Call(subsequencek,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(nchar(x)),
+                                      as.integer(nchar(x)),
+                                      as.integer(length),
+                                      as.double(lambda)) *
+                                .Call(subsequencek,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(nchar(y)),
+                                      as.integer(nchar(y)),
+                                      as.integer(length),
+                                      as.double(lambda))))
               }
           },
           
@@ -256,11 +288,43 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (normalized == FALSE){
                   if(is.null(y))
                     y <- x
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda)))}
+                  return(.Call(stringtv,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(1),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(2),
+                               as.double(lambda)))
+                }
+                
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(2),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(2),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(2),as.double(lambda))))
+                    return(.Call(stringtv,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(1),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(2),
+                                 as.double(lambda)) /
+                           sqrt(.Call(stringtv,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(1),
+                                      as.integer(nchar(x)),
+                                      as.integer(nchar(x)),
+                                      as.integer(2),
+                                      as.double(lambda)) *
+                                .Call(stringtv,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(1),
+                                      as.integer(nchar(y)),
+                                      as.integer(nchar(y)),
+                                      as.integer(2),
+                                      as.double(lambda))))
                 
               }
           },
@@ -278,11 +342,42 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (normalized == FALSE){
                   if(is.null(y))
                     y <- x
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda)))}
+                  return(.Call(stringtv,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(1),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(1),
+                               as.double(lambda)))
+                } 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(1),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(1),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(1),as.double(lambda))))
+                    return(.Call(stringtv,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(1),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(1),
+                                 as.double(lambda)) /
+                           sqrt(.Call(stringtv,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(1),
+                                      as.integer(nchar(x)),
+                                      as.integer(nchar(x)),
+                                      as.integer(1),
+                                      as.double(lambda)) *
+                                .Call(stringtv,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(1), 
+                                      as.integer(nchar(y)),
+                                      as.integer(nchar(y)),
+                                      as.integer(1),
+                                      as.double(lambda))))
               }
           },
           
@@ -305,12 +400,42 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (normalized == FALSE){
                   if(is.null(y))
                     y <- x
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length)))}
+                  return(.Call(stringtv,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(1),
+                               as.integer(n),
+                               as.integer(m),
+                               as.integer(3),
+                               as.double(length)))
+                } 
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(n),as.integer(m),as.integer(3),as.double(length))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(n),as.integer(n),as.integer(3),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(m),as.integer(m),as.integer(3),as.double(length))))
-                
+                    return(.Call(stringtv,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(1),
+                                 as.integer(n),
+                                 as.integer(m),
+                                 as.integer(3),
+                                 as.double(length)) /
+                           sqrt(.Call(stringtv,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(1),
+                                      as.integer(n),
+                                      as.integer(n),
+                                      as.integer(3),
+                                      as.double(lambda)) *
+                                .Call(stringtv,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(1),
+                                      as.integer(m),
+                                      as.integer(m),
+                                      as.integer(3),
+                                      as.double(length))))
               }
           },
           "boundrange" = {
@@ -326,12 +451,42 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if (normalized == FALSE){
                   if(is.null(y))
                     y <- x
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda)))}
+                  return(.Call(stringtv,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(1),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(4),
+                               as.double(lambda)))
+                }
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("stringtv",as.character(x),as.character(y),as.integer(1),as.integer(nchar(x)),as.integer(nchar(y)),as.integer(4),as.double(lambda))/sqrt(.Call("stringtv",as.character(x),as.character(x),as.integer(1),as.integer(nchar(x)),as.integer(nchar(x)),as.integer(4),as.double(lambda))*.Call("stringtv",as.character(y),as.character(y),as.integer(1),as.integer(nchar(y)),as.integer(nchar(y)),as.integer(4),as.double(lambda))))
-                
+                    return(.Call(stringtv,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(1),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(4),
+                                 as.double(lambda)) /
+                           sqrt(.Call(stringtv,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(1),
+                                      as.integer(nchar(x)),
+                                      as.integer(nchar(x)),
+                                      as.integer(4),
+                                      as.double(lambda)) *
+                                .Call(stringtv,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(1),
+                                      as.integer(nchar(y)),
+                                      as.integer(nchar(y)),
+                                      as.integer(4),
+                                      as.double(lambda)))) 
               }
           },
 
@@ -343,14 +498,46 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
                 
                 if (is(x,"vector") && is.null(y) && normalized == FALSE)
-                  return(.Call("substringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                  return(.Call(substringk,
+                               as.character(x),
+                               as.character(x),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(x)),
+                               as.integer(length),
+                               as.double(lambda)))
                 
                 if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
-                  return(.Call("substringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                  return(.Call(substringk,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(length),
+                               as.double(lambda)))
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("substringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")/sqrt(.Call("substringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")*.Call("substringk",as.character(y), as.character(y), as.integer(nchar(y)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")))
+                  return(.Call(substringk,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(length),
+                               as.double(lambda)) /
+                         sqrt(.Call(substringk,
+                                    as.character(x),
+                                    as.character(x),
+                                    as.integer(nchar(x)),
+                                    as.integer(nchar(x)),
+                                    as.integer(length),
+                                    as.double(lambda)) *
+                              .Call(substringk,
+                                    as.character(y),
+                                    as.character(y),
+                                    as.integer(nchar(y)),
+                                    as.integer(nchar(y)),
+                                    as.integer(length),
+                                    as.double(lambda))))
               }
           },
           
@@ -362,14 +549,46 @@ stringdot <- function(length = 4, lambda = 1.1, type = "spectrum", normalized = 
                 if(!is(y,"vector")&&!is.null(y)) stop("y must be a vector")
                 
                 if (is(x,"vector") && is.null(y) && normalized == FALSE)
-                  return(.Call("fullsubstringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                  return(.Call(fullsubstringk,
+                               as.character(x),
+                               as.character(x),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(x)),
+                               as.integer(length),
+                               as.double(lambda)))
                 
                 if (is(x,"vector") && is(y,"vector") && normalized == FALSE)
-                  return(.Call("fullsubstringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab"))
+                  return(.Call(fullsubstringk,
+                               as.character(x),
+                               as.character(y),
+                               as.integer(nchar(x)),
+                               as.integer(nchar(y)),
+                               as.integer(length),
+                               as.double(lambda)))
                 if (is(x,"vector") && is.null(y) && normalized == TRUE)
                   return(1)
                 if (is(x,"vector") && is(y,"vector") && normalized == TRUE)
-                  return(.Call("fullsubstringk",as.character(x), as.character(y), as.integer(nchar(x)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")/sqrt(.Call("fullsubstringk",as.character(x), as.character(x), as.integer(nchar(x)), as.integer(nchar(x)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")*.Call("fullsubstringk",as.character(y), as.character(y), as.integer(nchar(y)), as.integer(nchar(y)), as.integer(length), as.double(lambda),PACKAGE = "kernlab")))
+                    return(.Call(fullsubstringk,
+                                 as.character(x),
+                                 as.character(y),
+                                 as.integer(nchar(x)),
+                                 as.integer(nchar(y)),
+                                 as.integer(length),
+                                 as.double(lambda)) /
+                           sqrt(.Call(fullsubstringk,
+                                      as.character(x),
+                                      as.character(x),
+                                      as.integer(nchar(x)),
+                                      as.integer(nchar(x)),
+                                      as.integer(length),
+                                      as.double(lambda)) *
+                                .Call(fullsubstringk,
+                                      as.character(y),
+                                      as.character(y),
+                                      as.integer(nchar(y)),
+                                      as.integer(nchar(y)),
+                                      as.integer(length),
+                                      as.double(lambda))))
               }
           })
   
@@ -800,13 +1019,29 @@ kernelMatrix.stringkernel <- function(kernel, x, y=NULL)
 
           if(is.null(y)){
             for(i in 1:length(x))
-              ret[i,i:length(x)] <- .Call("stringtv",as.character(x[i]),as.character(x[i:length(x)]),as.integer(length(x) - i + 1),as.integer(nchar(x[i])),as.integer(nchar(x[i:length(x)])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                ret[i,i:length(x)] <-
+                    .Call(stringtv,
+                          as.character(x[i]),
+                          as.character(x[i:length(x)]),
+                          as.integer(length(x) - i + 1),
+                          as.integer(nchar(x[i])),
+                          as.integer(nchar(x[i:length(x)])),
+                          as.integer(sktype),
+                          as.double(kpar(kernel)$lambda))
             ret <- ret + t(ret)
             diag(ret) <- diag(ret)/2
           }
           else
             for(i in 1:length(x))
-              ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                ret[i,] <-
+                    .Call(stringtv,
+                          as.character(x[i]),
+                          as.character(y),
+                          as.integer(length(y)),
+                          as.integer(nchar(x[i])),
+                          as.integer(nchar(y)),
+                          as.integer(sktype),
+                          as.double(kpar(kernel)$lambda))
 
         if(normalized == TRUE){
           if(is.null(y))
@@ -815,9 +1050,23 @@ kernelMatrix.stringkernel <- function(kernel, x, y=NULL)
              norm1 <- rep(0,length(x))
              norm2 <- rep(0,length(y))
              for( i in 1:length(x))
-               norm1[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+               norm1[i] <- .Call(stringtv,
+                                 as.character(x[i]),
+                                 as.character(x[i]),
+                                 as.integer(1),
+                                 as.integer(nchar(x[i])),
+                                 as.integer(nchar(x[i])),
+                                 as.integer(sktype),
+                                 as.double(kpar(kernel)$lambda))
              for( i in 1:length(y))
-               norm2[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                 norm2[i] <- .Call(stringtv,
+                                   as.character(y[i]),
+                                   as.character(y[i]),
+                                   as.integer(1),
+                                   as.integer(nchar(y[i])),
+                                   as.integer(nchar(y[i])),
+                                   as.integer(sktype),
+                                   as.double(kpar(kernel)$lambda))
              ret <- t((1/sqrt(norm2))*t(ret*(1/sqrt(norm1))))
            }
         }
@@ -1629,14 +1878,30 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
           vres <- matrix(0,n,dz)
 
           for (i in 1:n)
-            resdiag[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+            resdiag[i] <- .Call(stringtv,
+                                as.character(x[i]),
+                                as.character(x[i]),
+                                as.integer(1),
+                                as.integer(nchar(x[i])),
+                                as.integer(nchar(x[i])),
+                                as.integer(sktype),
+                                as.double(kpar(kernel)$lambda))
 
           if (nblocks > 0){
             res1 <- matrix(0,blocksize,n)
             for(k in 1:nblocks){
               upperl <- upperl + blocksize
               for(i in lowerl:(upperl)) {
-                res1[i - (k-1)*blocksize, ] <-  .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag)
+                  res1[i - (k-1)*blocksize, ] <-
+                      .Call(stringtv,
+                            as.character(x[i]),
+                            as.character(x),
+                            as.integer(length(x)),
+                            as.integer(nchar(x[i])),
+                            as.integer(nchar(x)),
+                            as.integer(sktype),
+                            as.double(kpar(kernel)$lambda)) /
+                      sqrt(resdiag[i]*resdiag)
               }
               vres[lowerl:upperl,] <- res1 %*% z
               lowerl <- upperl +1
@@ -1646,7 +1911,16 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
             {
               res1 <- matrix(0,n-lowerl+1,n)
               for(i in lowerl:n) {
-                res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag)
+                  res1[i - nblocks*blocksize,] <-
+                      .Call(stringtv,
+                            as.character(x[i]),
+                            as.character(x),
+                            as.integer(length(x)),
+                            as.integer(nchar(x[i])),
+                            as.integer(nchar(x)),
+                            as.integer(sktype),
+                            as.double(kpar(kernel)$lambda)) /
+                      sqrt(resdiag[i]*resdiag)
               }
               vres[lowerl:n,] <- res1  %*% z
             }
@@ -1666,7 +1940,15 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
               for(k in 1:nblocks){
                 upperl <- upperl + blocksize
                 for(i in lowerl:(upperl)) {
-                  res1[i - (k-1)*blocksize, ] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                    res1[i - (k-1)*blocksize, ] <-
+                        .Call(stringtv,
+                              as.character(x[i]),
+                              as.character(x),
+                              as.integer(length(x)),
+                              as.integer(nchar(x[i])),
+                              as.integer(nchar(x)),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
                 }
                 vres[lowerl:upperl,] <- res1 %*% z
                 lowerl <- upperl +1
@@ -1676,7 +1958,15 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
               {
                 res1 <- matrix(0,n-lowerl+1,n)
                 for(i in lowerl:n) {
-                  res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                    res1[i - nblocks*blocksize,] <-
+                        .Call(stringtv,
+                              as.character(x[i]),
+                              as.character(x),
+                              as.integer(length(x)),
+                              as.integer(nchar(x[i])),
+                              as.integer(nchar(x)),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
                 }
                 vres[lowerl:n,] <- res1  %*% z
               }
@@ -1696,18 +1986,40 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
           vres <- matrix(0,n,dz)
           
           for(i in 1:n)
-            resdiag[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
-
+            resdiag[i] <- .Call(stringtv,
+                                as.character(x[i]),
+                                as.character(x[i]),
+                                as.integer(1),
+                                as.integer(nchar(x[i])),
+                                as.integer(nchar(x[i])),
+                                as.integer(sktype),
+                                as.double(kpar(kernel)$lambda))
           
           for(i in 1:m)
-            resdiag1[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+            resdiag1[i] <- .Call(stringtv,
+                                 as.character(y[i]),
+                                 as.character(y[i]),
+                                 as.integer(1),
+                                 as.integer(nchar(y[i])),
+                                 as.integer(nchar(y[i])),
+                                 as.integer(sktype),
+                                 as.double(kpar(kernel)$lambda))
           
           if (nblocks > 0){
             res1 <- matrix(0,blocksize,m)
             for(k in 1:nblocks){
               upperl <- upperl + blocksize
               for(i in lowerl:(upperl)) {
-                res1[i - (k-1)*blocksize, ] <-  .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag1)
+                  res1[i - (k-1)*blocksize, ] <-
+                      .Call(stringtv,
+                            as.character(x[i]),
+                            as.character(y),
+                            as.integer(length(y)),
+                            as.integer(nchar(x[i])),
+                            as.integer(nchar(y)),
+                            as.integer(sktype),
+                            as.double(kpar(kernel)$lambda)) /
+                      sqrt(resdiag[i]*resdiag1)
               }
               vres[lowerl:upperl,] <- res1 %*% z
               lowerl <- upperl +1
@@ -1717,7 +2029,16 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
             {
               res1 <- matrix(0,n-lowerl+1,m)
               for(i in lowerl:n) {
-                res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))/sqrt(resdiag[i]*resdiag1)
+                  res1[i - nblocks*blocksize,] <-
+                      .Call(stringtv,
+                            as.character(x[i]),
+                            as.character(y),
+                            as.integer(length(y)),
+                            as.integer(nchar(x[i])),
+                            as.integer(nchar(y)),
+                            as.integer(sktype),
+                            as.double(kpar(kernel)$lambda)) /
+                      sqrt(resdiag[i]*resdiag1)
               }
               vres[lowerl:n,] <- res1  %*% z
             }
@@ -1741,8 +2062,15 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
                 upperl <- upperl + blocksize
                 
                 for(i in lowerl:(upperl)) {
-                  res1[i - (k-1)*blocksize, ] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
-               
+                    res1[i - (k-1)*blocksize, ] <-
+                        .Call(stringtv,
+                              as.character(x[i]),
+                              as.character(y),
+                              as.integer(length(y)),
+                              as.integer(nchar(x[i])),
+                              as.integer(nchar(y)),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
                 }
                 vres[lowerl:upperl,] <- res1 %*% z
                 lowerl <- upperl +1
@@ -1752,7 +2080,15 @@ kernelMult.stringkernel <- function(kernel, x, y=NULL, z, blocksize = 256)
               {
                 res1 <- matrix(0,n-lowerl+1,m)
                 for(i in lowerl:n) {
-                  res1[i - nblocks*blocksize,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(y)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+                    res1[i - nblocks*blocksize,] <-
+                        .Call(stringtv,
+                              as.character(x[i]),
+                              as.character(y),
+                              as.integer(length(y)),
+                              as.integer(nchar(x[i])),
+                              as.integer(nchar(y)),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
                   }
                 vres[lowerl:n,] <- res1  %*% z
               }
@@ -2285,12 +2621,26 @@ kernelPol.stringkernel <- function(kernel, x, y=NULL ,z ,k=NULL)
     
     if(is.null(y)){
       for( i in 1:length(x))
-        ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(x),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(x)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+        ret[i,] <- .Call(stringtv,
+                         as.character(x[i]),
+                         as.character(x),
+                         as.integer(length(x)),
+                         as.integer(nchar(x[i])),
+                         as.integer(nchar(x)),
+                         as.integer(sktype),
+                         as.double(kpar(kernel)$lambda))
       res1 <- k*ret*k
     }
     else{
       for( i in 1:length(x))
-        ret[i,] <- .Call("stringtv",as.character(x[i]),as.character(y),as.integer(length(x)),as.integer(nchar(x[i])),as.integer(nchar(y)),as.integer(sktype),as.double(kpar(kernel)$lambda))
+        ret[i,] <- .Call(stringtv,
+                         as.character(x[i]),
+                         as.character(y),
+                         as.integer(length(x)),
+                         as.integer(nchar(x[i])),
+                         as.integer(nchar(y)),
+                         as.integer(sktype),
+                         as.double(kpar(kernel)$lambda))
       res1 <- k*ret*z
     }
     if(normalized == TRUE){
@@ -2302,9 +2652,23 @@ kernelPol.stringkernel <- function(kernel, x, y=NULL ,z ,k=NULL)
         norm1 <- rep(0,length(x))
         norm2 <- rep(0,length(y))
         for( i in 1:length(x))
-          norm1[i] <- .Call("stringtv",as.character(x[i]),as.character(x[i]),as.integer(1),as.integer(nchar(x[i])),as.integer(nchar(x[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+            norm1[i] <- .Call(stringtv,
+                              as.character(x[i]),
+                              as.character(x[i]),
+                              as.integer(1),
+                              as.integer(nchar(x[i])),
+                              as.integer(nchar(x[i])),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
         for( i in 1:length(y))
-          norm2[i] <- .Call("stringtv",as.character(y[i]),as.character(y[i]),as.integer(1),as.integer(nchar(y[i])),as.integer(nchar(y[i])),as.integer(sktype),as.double(kpar(kernel)$lambda))
+            norm2[i] <- .Call(stringtv,
+                              as.character(y[i]),
+                              as.character(y[i]),
+                              as.integer(1),
+                              as.integer(nchar(y[i])),
+                              as.integer(nchar(y[i])),
+                              as.integer(sktype),
+                              as.double(kpar(kernel)$lambda))
         ret <- t((1/sqrt(norm2))*t(ret*(1/sqrt(norm1))))
         res1 <- k*ret*z 
       }

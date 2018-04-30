@@ -297,7 +297,7 @@ function (x,
         if(ktype==4)
           K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
                
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
                       as.integer(li+lj),
                       as.integer(ncol(x)),
@@ -322,8 +322,7 @@ function (x,
                       as.integer(nweights),
                       as.double(cache), 
                       as.double(tol),
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
 
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
@@ -390,7 +389,7 @@ if(type(ret) == "nu-svc"){
         if(ktype==4)
              K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
         
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
                       as.integer(li+lj),
                       as.integer(ncol(x)),
@@ -414,8 +413,7 @@ if(type(ret) == "nu-svc"){
                       as.integer(nweights),
                       as.double(cache),
                       as.double(tol), 
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
         
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
@@ -482,7 +480,7 @@ if(type(ret) == "nu-svc"){
            if(ktype==4)
              K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])
         
-        resv <- .Call("tron_optim",
+        resv <- .Call(tron_optim,
                       as.double(t(x[c(indexes[[i]],indexes[[j]]), ,drop=FALSE])),
                       as.integer(li+lj),
                       as.integer(ncol(x)),
@@ -509,8 +507,7 @@ if(type(ret) == "nu-svc"){
                       as.double(cache), 
                       as.double(tol),
                       as.integer(10), ##qpsize
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
         
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         svind <- resv[-(li+lj+1)][reind] > 0
@@ -550,7 +547,7 @@ if(type(ret) =="spoc-svc")
        if(ktype==4)
           K <- kernelMatrix(kernel,x)
     
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(xd)),
                   as.integer(nrow(xd)),
                   as.integer(ncol(xd)),
@@ -577,8 +574,7 @@ if(type(ret) =="spoc-svc")
                   as.double(cache), 
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
     
     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
     alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xd) + 1)],nclass(ret)))[reind,,drop=FALSE]
@@ -605,7 +601,7 @@ if(type(ret) =="kbb-svc")
     count <-  sapply(unique(yd$x), function(c) length(yd$x[yd$x==c]))
     if(ktype==4)
       K <- kernelMatrix(kernel,x)
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(x)),
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
@@ -632,8 +628,7 @@ if(type(ret) =="kbb-svc")
                   as.double(cache),
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
 
     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
     alpha(ret) <- matrix(resv[-(nrow(x)*(nclass(ret)-1)+1)],nrow(x))[reind,,drop=FALSE]
@@ -652,7 +647,7 @@ if(type(ret) =="kbb-svc")
     if(ktype==4)
       K <- kernelMatrix(kernel,x)
        
-    resv <- .Call("smo_optim",
+    resv <- .Call(smo_optim,
                   as.double(t(x)),
                   as.integer(nrow(x)),
                   as.integer(ncol(x)),
@@ -675,8 +670,7 @@ if(type(ret) =="kbb-svc")
                   as.integer(0),
                   as.double(cache),
                   as.double(tol),
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
 
        tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
@@ -693,7 +687,7 @@ if(type(ret) =="kbb-svc")
       if(ktype==4)
         K <- kernelMatrix(kernel,x)
       
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(x)),
                     as.integer(nrow(x)),
                     as.integer(ncol(x)),
@@ -716,8 +710,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0) 
@@ -734,7 +727,7 @@ if(type(ret) =="kbb-svc")
       if(ktype==4)
         K <- kernelMatrix(kernel,x)
       
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(x)),
                     as.integer(nrow(x)),
                     as.integer(ncol(x)),
@@ -757,8 +750,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -775,7 +767,7 @@ if(type(ret) =="kbb-svc")
       if(ktype==4)
         K <- kernelMatrix(kernel,x)
       
-      resv <- .Call("tron_optim",
+      resv <- .Call(tron_optim,
                     as.double(t(x)),
                     as.integer(nrow(x)),
                     as.integer(ncol(x)),
@@ -802,8 +794,7 @@ if(type(ret) =="kbb-svc")
                     as.double(cache), 
                     as.double(tol),
                     as.integer(10), #qpsize
-                    as.integer(shrinking), 
-                   PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[-(m + 1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -1091,7 +1082,7 @@ function (x,
 
         xdd <- matrix(1,li+lj,1)
         
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -1116,8 +1107,7 @@ function (x,
                       as.integer(nweights),
                       as.double(cache), 
                       as.double(tol),
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
         
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix        
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
@@ -1187,7 +1177,7 @@ if(type(ret) == "nu-svc"){
 
         xdd <- matrix(1,li+lj,1)
         
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -1211,8 +1201,7 @@ if(type(ret) == "nu-svc"){
                       as.integer(nweights),
                       as.double(cache),
                       as.double(tol), 
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
 
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
@@ -1277,7 +1266,7 @@ if(type(ret) == "nu-svc"){
 
         xdd <- matrix(rnorm(li+lj),li+lj,1)
         
-        resv <- .Call("tron_optim",
+        resv <- .Call(tron_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -1304,8 +1293,7 @@ if(type(ret) == "nu-svc"){
                       as.double(cache), 
                       as.double(tol),
                       as.integer(10), ##qpsize
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
 
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         alpha(ret)[p] <- list(resv[-(li+lj+1)][reind][resv[-(li+lj+1)][reind] > 0])
@@ -1342,7 +1330,7 @@ if(type(ret) =="spoc-svc")
     
     xdd <- matrix(1,m,1)
     
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -1369,8 +1357,7 @@ if(type(ret) =="spoc-svc")
                   as.double(cache), 
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
     alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xdd)+1)],nclass(ret)))[reind,,drop=FALSE]
     coef(ret) <- lapply(1:nclass(ret), function(x) alpha(ret)[,x][alpha(ret)[,x]!=0])
@@ -1397,7 +1384,7 @@ if(type(ret) =="kbb-svc")
      
      xdd <- matrix(1,m,1)
 
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -1424,8 +1411,7 @@ if(type(ret) =="kbb-svc")
                   as.double(cache),
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
      
      reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
      alpha(ret) <- matrix(resv[-(nrow(x)*(nclass(ret)-1) + 1)],nrow(x))[reind,,drop=FALSE]
@@ -1442,7 +1428,7 @@ if(type(ret) =="kbb-svc")
   {
     xdd <- matrix(1,m,1)
        
-    resv <- .Call("smo_optim",
+    resv <- .Call(smo_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -1465,8 +1451,7 @@ if(type(ret) =="kbb-svc")
                   as.integer(0),
                   as.double(cache),
                   as.double(tol),
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
 
        tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
@@ -1481,7 +1466,7 @@ if(type(ret) =="kbb-svc")
   if(type(ret) =="eps-svr")
     {
       xdd <- matrix(1,m,1)
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -1504,8 +1489,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
 
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
@@ -1521,7 +1505,7 @@ if(type(ret) =="kbb-svc")
   if(type(ret) =="nu-svr")
     {
       xdd <- matrix(1,m,1)
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -1544,8 +1528,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -1560,7 +1543,7 @@ if(type(ret) =="kbb-svc")
   if(type(ret) =="eps-bsvr")
     {
       xdd <- matrix(1,m,1)
-      resv <- .Call("tron_optim",
+      resv <- .Call(tron_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -1587,8 +1570,7 @@ if(type(ret) =="kbb-svc")
                     as.double(cache), 
                     as.double(tol),
                     as.integer(10), #qpsize
-                    as.integer(shrinking), 
-                   PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[-(m+1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -1890,7 +1872,7 @@ function (x,
         
         K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1) 
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -1915,8 +1897,7 @@ function (x,
                       as.integer(nweights),
                       as.double(cache), 
                       as.double(tol),
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
 
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
@@ -1980,7 +1961,7 @@ if(type(ret) == "nu-svc"){
 
         K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1)
-        resv <- .Call("smo_optim",
+        resv <- .Call(smo_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -2004,8 +1985,7 @@ if(type(ret) == "nu-svc"){
                       as.integer(nweights),
                       as.double(cache),
                       as.double(tol), 
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         tmpres <- resv[c(-(li+lj+1),-(li+lj+2))][reind]
         alpha(ret)[p] <- coef(ret)[p] <- list(tmpres[tmpres != 0])
@@ -2069,7 +2049,7 @@ if(type(ret) == "nu-svc"){
         K <- kernelMatrix(kernel,x[c(indexes[[i]],indexes[[j]])])
         xdd <- matrix(1,li+lj,1) 
 
-        resv <- .Call("tron_optim",
+        resv <- .Call(tron_optim,
                       as.double(t(xdd)),
                       as.integer(nrow(xdd)),
                       as.integer(ncol(xdd)),
@@ -2096,8 +2076,7 @@ if(type(ret) == "nu-svc"){
                       as.double(cache), 
                       as.double(tol),
                       as.integer(10), ##qpsize
-                      as.integer(shrinking),
-                      PACKAGE="kernlab")
+                      as.integer(shrinking))
                 
         reind <- sort(c(indexes[[i]],indexes[[j]]),method="quick",index.return=TRUE)$ix
         alpha(ret)[p] <- list(resv[-(li+lj+1)][reind][resv[-(li+lj+1)][reind] > 0])
@@ -2134,7 +2113,7 @@ if(type(ret) =="spoc-svc")
 
     K <- kernelMatrix(kernel,x)
     xdd <- matrix(1,length(x),1) 
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -2161,8 +2140,7 @@ if(type(ret) =="spoc-svc")
                   as.double(cache), 
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
 
     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
     alpha(ret) <- t(matrix(resv[-(nclass(ret)*nrow(xdd) + 1)],nclass(ret)))[reind,,drop=FALSE]
@@ -2191,7 +2169,7 @@ if(type(ret) =="kbb-svc")
     K <- kernelMatrix(kernel,x)
     xdd <- matrix(1,length(x),1)
 
-    resv <- .Call("tron_optim",
+    resv <- .Call(tron_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -2218,8 +2196,7 @@ if(type(ret) =="kbb-svc")
                   as.double(cache),
                   as.double(tol),
                   as.integer(10), #qpsize
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
     reind <- sort(yd$ix,method="quick",index.return=TRUE)$ix
     alpha(ret) <- matrix(resv[-((nclass(ret)-1)*length(x)+1)],length(x))[reind,,drop=FALSE]
     xmatrix(ret) <- x<- x[reind]
@@ -2236,7 +2213,7 @@ if(type(ret) =="kbb-svc")
   {
     K <- kernelMatrix(kernel,x)
     xdd <- matrix(1,length(x),1) 
-    resv <- .Call("smo_optim",
+    resv <- .Call(smo_optim,
                   as.double(t(xdd)),
                   as.integer(nrow(xdd)),
                   as.integer(ncol(xdd)),
@@ -2259,8 +2236,7 @@ if(type(ret) =="kbb-svc")
                   as.integer(0),
                   as.double(cache),
                   as.double(tol),
-                  as.integer(shrinking),
-                  PACKAGE="kernlab")
+                  as.integer(shrinking))
 
        tmpres <- resv[c(-(m+1),-(m+2))]
        alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
@@ -2276,7 +2252,7 @@ if(type(ret) =="kbb-svc")
     {
       K <- kernelMatrix(kernel,x)
       xdd <- matrix(1,length(x),1)  
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -2299,8 +2275,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres != 0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -2316,7 +2291,7 @@ if(type(ret) =="kbb-svc")
     {
       K <- kernelMatrix(kernel,x)
       xdd <- matrix(1,length(x),1)
-      resv <- .Call("smo_optim",
+      resv <- .Call(smo_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -2339,8 +2314,7 @@ if(type(ret) =="kbb-svc")
                     as.integer(0),
                     as.double(cache), 
                     as.double(tol), 
-                    as.integer(shrinking), 
-                    PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[c(-(m+1),-(m+2))]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)
@@ -2356,7 +2330,7 @@ if(type(ret) =="kbb-svc")
     {
       K <- kernelMatrix(kernel,x)
       xdd <- matrix(1,length(x),1)	 
-      resv <- .Call("tron_optim",
+      resv <- .Call(tron_optim,
                     as.double(t(xdd)),
                     as.integer(nrow(xdd)),
                     as.integer(ncol(xdd)),
@@ -2383,8 +2357,7 @@ if(type(ret) =="kbb-svc")
                     as.double(cache), 
                     as.double(tol),
                     as.integer(10), #qpsize
-                    as.integer(shrinking), 
-                   PACKAGE="kernlab")
+                    as.integer(shrinking))
       tmpres <- resv[-(m+1)]
       alpha(ret) <- coef(ret) <- tmpres[tmpres!=0]
       svindex <-  alphaindex(ret) <- which(tmpres != 0)

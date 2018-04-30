@@ -145,7 +145,7 @@ vectors where a string kernel has to be used.
   A Unified view of Kernel k-means, Spectral Clustering and Graph
   Partitioning\cr
   UTCS Technical Report\cr
-  \url{http://web.cse.ohio-state.edu/~kulis/pubs/spectral_techreport.pdf}
+  \url{http://people.bu.edu/bkulis/pubs/spectral_techreport.pdf}
   }
 
   \author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

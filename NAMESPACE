@@ -1,4 +1,4 @@
-useDynLib("kernlab")
+useDynLib("kernlab", .registration = TRUE)
 
 import("methods")
 importFrom("stats", "coef", "delete.response", "fitted", "kmeans",
