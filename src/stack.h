@@ -33,8 +33,6 @@
 // Date: 7/30/04
 // email: michael@www.michael-maniscalco.com
 //
-// This code is free for non commercial use only.
-//
 //=============================================================================================
 
 #include "memory.h"
@@ -162,7 +160,7 @@ inline void Stack<T>::SetSize(unsigned int stackSize)
 		newStack = new T[stackSize];
 		unsigned int bytesToCopy = (unsigned int)(m_stackPtr - m_stack) * (unsigned int)sizeof(T);
 		if (bytesToCopy)
-			memcpy(newStack, m_stack, bytesToCopy);
+		    memcpy((void *)newStack, m_stack, bytesToCopy);
 
 		m_stackPtr = &newStack[m_stackPtr - m_stack];
 		m_endOfStack = &newStack[stackSize];
