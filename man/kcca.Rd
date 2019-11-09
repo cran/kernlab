@@ -76,10 +76,12 @@ gamma = 0.1, ncomps = 10, ...)
     
 }
 \references{ Malte Kuss, Thore Graepel \cr 
-	\emph{The Geometry Of Kernel Canonical Correlation Analysis}\cr
-	\url{http://www.kyb.tuebingen.mpg.de/publications/pdfs/pdf2233.pdf}}
-\author{ Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
-
+  \emph{The Geometry Of Kernel Canonical Correlation Analysis}\cr
+  \url{https://www.microsoft.com/en-us/research/publication/the-geometry-of-kernel-canonical-correlation-analysis/}}
+\author{
+  Alexandros Karatzoglou \cr
+  \email{alexandros.karatzoglou@ci.tuwien.ac.at}
+}
 
 \seealso{\code{\link{cancor}}, \code{\link{kpca}}, \code{\link{kfa}}, \code{\link{kha}}}
 \examples{

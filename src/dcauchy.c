@@ -11,7 +11,7 @@ extern void *xmalloc(size_t);
 extern void dbreakpt(int, double *, double *, double *, double *, int *, double *, double *);
 extern void dgpstep(int, double *, double *, double *, double, double *, double *);
 
-void dcauchy(int n, double *x, double *xl, double *xu, double *A, double *g, double delta, double *alpha, double *s)
+void dcauchy(int n, double *x, double *xl, double *xu, double *A, double *g, double delta, double *alpha, double *s, double *wa)
 {
 /*
 c     **********
@@ -87,7 +87,9 @@ c     **********
 	
 	int search, interp, nbrpt, nsteps = 1, i, inc = 1;
 	double alphas, brptmax, brptmin, gts, q; 
-	double *wa = (double *) xmalloc(sizeof(double)*n);
+	/* FIXME KH 2019-11-09:
+	   double *wa = (double *) xmalloc(sizeof(double)*n);
+	*/
 	
 	/* Find the minimal and maximal break-point on x - alpha*g. */
 	for (i=0;i<n;i++)
@@ -159,5 +161,7 @@ c     **********
 		dgpstep(n, x, xl, xu, -(*alpha), g, s);
 	}
 
-	free(wa);
+	/* FIXME KH 2019-11-09:
+	   free(wa);
+	*/
 }

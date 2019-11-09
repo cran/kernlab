@@ -105,7 +105,7 @@ score at the end of the iterations.
   \emph{Ranking on Data Manifolds}\cr
   Advances in Neural Information Processing Systems 16.\cr
   MIT Press Cambridge Mass. 2004 \cr
-  \url{http://www.kyb.mpg.de/publications/pdfs/pdf2334.pdf}
+  \url{http://papers.nips.cc/paper/2447-ranking-on-data-manifolds/}
 }
 
 \author{Alexandros Karatzoglou \cr

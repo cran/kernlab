@@ -88,8 +88,11 @@ LCP::compact(void){
   std::count_if(array, array + _size, std::bind2nd(std::greater<int>(),254),
 		idx_len);
 #else
-  UInt32 idx_len = std::count_if(array, array + _size, 
-                                 std::bind2nd(std::greater<int>(),254));
+  UInt32 idx_len = std::count_if(array,
+				 array + _size, 
+                                 std::bind(std::greater<int>(),
+					   std::placeholders::_1,
+					   254));
 #endif
 
   // Compact iff  idx_len/|array| > THRESHOLD

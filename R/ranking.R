@@ -63,17 +63,13 @@ setMethod("ranking",signature(x="matrix"),
               rm(sed)
               gc()
             }
-            else
-              {
+            else {
+                if(edgegraph && is(kernel)[1]!="rbfkernel")
+                    warning('edge graph is only implemented for use with the RBF kernel')
                 edgegraph <- matrix()
                 K <- kernelMatrix(kernel,x)   
-              }
-                        
-            if (edgegraph && is(kernel)[1]!="rbfkernel"){
-              warning('edge graph is only implemented for use with the RBF kernel')
-              edgegraph <- matrix()
             }
-            
+                        
             diag(K) <- 0
             ##K <- sparse(K)
             cs <- colSums(K)

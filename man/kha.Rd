@@ -100,7 +100,7 @@ all the slots of the object can be accessed by accessor functions.
 \references{Kwang In Kim, M.O. Franz and B. Schölkopf\cr
   \emph{Kernel Hebbian Algorithm for Iterative Kernel Principal Component Analysis}\cr
   Max-Planck-Institut für biologische Kybernetik, Tübingen (109)\cr
-  \url{http://www.kyb.tuebingen.mpg.de/publications/pdfs/pdf2302.pdf}
+  \url{http://www.is.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdf2302.pdf}
 }
 \author{Alexandros Karatzoglou \cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
