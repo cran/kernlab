@@ -1,5 +1,5 @@
 Package: kernlab
-Version: 0.9-28
+Version: 0.9-29
 Title: Kernel-Based Machine Learning Lab
 Authors@R: c(person("Alexandros", "Karatzoglou", role = c("aut", "cre"),
                     email = "alexandros.karatzoglou@gmail.com"),
@@ -19,8 +19,9 @@ Depends: R (>= 2.10)
 Imports: methods, stats, grDevices, graphics
 LazyLoad: Yes
 License: GPL-2
+SystemRequirements: C++11
 NeedsCompilation: yes
-Packaged: 2019-11-09 16:43:10 UTC; hornik
+Packaged: 2019-11-12 06:36:20 UTC; hornik
 Author: Alexandros Karatzoglou [aut, cre],
   Alex Smola [aut],
   Kurt Hornik [aut],
@@ -29,4 +30,4 @@ Author: Alexandros Karatzoglou [aut, cre],
   Choon Hui Teo [ctb]
 Maintainer: Alexandros Karatzoglou <alexandros.karatzoglou@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-11-09 16:52:12 UTC
+Date/Publication: 2019-11-12 07:05:02 UTC

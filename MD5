@@ -1,4 +1,4 @@
-41ab50026efd6d58d8e6b3ebc5061189 *DESCRIPTION
+4fd01f0b6bc53f02af524716d55599b2 *DESCRIPTION
 3114a4e24b015242a1b61147f7cffe25 *NAMESPACE
 7db9a58cb6e5aeae749727781fe388f5 *R/aobjects.R
 0750c9216dfd490ac36814b8b1ae24f2 *R/couplers.R
@@ -34,7 +34,7 @@ f4869068ca79b09d0b5f821b02d42c15 *data/spirals.rda
 68fe0d0d842fbc1b217f45934a8edf7a *inst/COPYRIGHTS
 0d1b1a09dbb52e3b0e58676170c3ce3d *inst/doc/kernlab.R
 c4c223d07206b59e2d43a585d07164b1 *inst/doc/kernlab.Rnw
-273a6221c4996cdb125381e8fe692175 *inst/doc/kernlab.pdf
+9d0b0783e6a9607a774d3bb803b7265a *inst/doc/kernlab.pdf
 ca7923a78d389602d891a3cf6a5193d9 *man/as.kernelMatrix.Rd
 c0c282d5b6dd984608a1d5b9c92fe478 *man/couple.Rd
 e36dc0b16ba570c99ead7a48394dc66d *man/csi-class.Rd
