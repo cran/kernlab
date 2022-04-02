@@ -40,13 +40,13 @@
     C. K. I. Williams and D. Barber \cr
     Bayesian classification with Gaussian processes. \cr
     IEEE Transactions on Pattern Analysis and Machine Intelligence, 20(12):1342-1351, 1998\cr
-    \url{http://www.dai.ed.ac.uk/homes/ckiw/postscript/pami_final.ps.gz}
+    \url{https://homepages.inf.ed.ac.uk/ckiw/postscript/pami_final.ps.gz}
   
    \item
        T.F. Wu, C.J. Lin, R.C. Weng. \cr
        \emph{Probability estimates for Multi-class Classification by
 	 Pairwise Coupling}\cr
-        \url{http://www.csie.ntu.edu.tw/~cjlin/papers/svmprob/svmprob.pdf}
+        \url{https://www.csie.ntu.edu.tw/~cjlin/papers/svmprob/svmprob.pdf}
  
     }
 }

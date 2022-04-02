@@ -167,7 +167,7 @@
       Tipping, M. E.\cr
       \emph{Sparse Bayesian learning and the relevance vector machine}\cr
       Journal of Machine Learning Research  1, 211-244\cr
-      \url{http://www.jmlr.org/papers/volume1/tipping01a/tipping01a.pdf}
+      \url{https://www.jmlr.org/papers/volume1/tipping01a/tipping01a.pdf}
     }
 \author{ Alexandros Karatzoglou \cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

@@ -20,7 +20,7 @@
 
 \source{
   UCI Machine Learning data repository \cr
-\url{ftp://ftp.ics.uci.edu/pub/machine-learning-databases/molecular-biology/promoter-gene-sequences}
+\url{https://archive.ics.uci.edu/ml/machine-learning-databases/molecular-biology/promoter-gene-sequences/}
 }
 \references{
   Towell, G., Shavlik, J. and Noordewier, M. \cr

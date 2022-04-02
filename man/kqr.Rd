@@ -163,7 +163,7 @@
   \references{Ichiro Takeuchi, Quoc V. Le, Timothy D. Sears, Alexander J. Smola\cr
     \emph{Nonparametric Quantile Estimation}\cr
     Journal of Machine Learning Research 7,2006,1231-1264  \cr
-     \url{http://www.jmlr.org/papers/volume7/takeuchi06a/takeuchi06a.pdf}
+     \url{https://www.jmlr.org/papers/volume7/takeuchi06a/takeuchi06a.pdf}
    }
    
   \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

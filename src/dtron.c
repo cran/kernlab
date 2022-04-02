@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef USE_FC_LEN_T
+# define USE_FC_LEN_T
+#endif
 #include <R_ext/BLAS.h>
 
 extern void *xmalloc(size_t);
@@ -153,7 +156,7 @@ c     **********
 
 		/* Compute the predicted reduction. */
 		memcpy(wa, g, sizeof(double)*n);
-		F77_CALL(dsymv)("U", &n, &p5, A, &n, s, &inc, &one, wa, &inc);
+		F77_CALL(dsymv)("U", &n, &p5, A, &n, s, &inc, &one, wa, &inc FCONE);
 		prered = -F77_CALL(ddot)(&n, s, &inc, wa, &inc);
                         
 		/* Compute the actual reduction. */

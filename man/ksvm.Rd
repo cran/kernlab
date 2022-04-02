@@ -271,12 +271,12 @@
     \item
       Chang Chih-Chung, Lin Chih-Jen\cr
       \emph{LIBSVM: a library for Support Vector Machines}\cr
-      \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm}
+      \url{https://www.csie.ntu.edu.tw/~cjlin/libsvm/}
    
    \item
       Chih-Wei Hsu, Chih-Jen Lin\cr
        \emph{BSVM}
-       \url{http://www.csie.ntu.edu.tw/~cjlin/bsvm/}
+       \url{https://www.csie.ntu.edu.tw/~cjlin/bsvm/}
 
      \item
      J. Platt\cr
@@ -287,19 +287,19 @@
     \item
     H.-T. Lin, C.-J. Lin and R. C. Weng\cr
     \emph{A note on Platt's probabilistic outputs for support vector machines}\cr
-    \url{http://www.csie.ntu.edu.tw/~htlin/paper/doc/plattprob.pdf}
+    \url{https://www.csie.ntu.edu.tw/~htlin/paper/doc/plattprob.pdf}
     
     \item
      C.-W. Hsu and C.-J. Lin \cr
      \emph{A comparison on methods for multi-class support vector machines}\cr
      IEEE Transactions on Neural Networks, 13(2002) 415-425.\cr
-     \url{http://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.ps.gz}
+     \url{https://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.ps.gz}
 
      \item
      K. Crammer, Y. Singer\cr
      \emph{On the learnability and design of output codes for multiclass prolems}\cr
      Computational Learning Theory, 35-46, 2000.\cr
-     \url{http://webee.technion.ac.il/people/koby/publications/ecoc-mlj02.pdf}
+     \url{http://www.learningtheory.org/colt2000/papers/CrammerSinger.pdf}
 
      \item
      J. Weston, C. Watkins\cr

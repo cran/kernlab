@@ -78,7 +78,7 @@ or by accessor functions with the same name (e.g., \code{pivots(object))}}
       Francis R. Bach, Michael I. Jordan\cr
       \emph{Kernel Independent Component Analysis}\cr
       Journal of Machine Learning Research  3, 1-48\cr
-      \url{http://www.jmlr.org/papers/volume3/bach02a/bach02a.pdf}
+      \url{https://www.jmlr.org/papers/volume3/bach02a/bach02a.pdf}
     }
     
 \author{Alexandros Karatzoglou (based on Matlab code by 

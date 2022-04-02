@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#ifndef USE_FC_LEN_T
+# define USE_FC_LEN_T
+#endif
 #include <R_ext/BLAS.h>
 /* LEVEL 1 BLAS */
 /*extern double ddot_(int *, double *, int *, double *, int *); */
@@ -27,14 +30,14 @@ int ugrad(int n, double *x, double *g)
 {
 	/* evaluate the gradient g = A*x + g0 */
 	memcpy(g, g0, sizeof(double)*n);
-	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &one, g, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &one, g, &inc FCONE);
 	return 0;
 }
 int ufv(int n, double *x, double *f)
 {
 	/* evaluate the function value f(x) = 0.5*x'*A*x + g0'*x */  
 	double *t = (double *) malloc(sizeof(double)*n);
-	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &zero, t, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, x, &inc, &zero, t, &inc FCONE);
 	*f = F77_CALL(ddot)(&n, x, &inc, g0, &inc) + 0.5 * F77_CALL(ddot)(&n, x, &inc, t, &inc);
 	free(t);
 	return ++nfev;

@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifndef USE_FC_LEN_T
+# define USE_FC_LEN_T
+#endif
 #include <R_ext/BLAS.h>
 
 extern void *xmalloc(size_t);
@@ -137,7 +140,7 @@ c     **********
 		w[i] = 0;
 		r[i] = t[i] = -g[i];
 	}
-	F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, r, &inc);
+	F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, r, &inc FCONE FCONE FCONE);
 
 	/* Initialize the direction p. */
 	memcpy(p, r, sizeof(double)*n);
@@ -159,13 +162,13 @@ c     **********
 		
 		/* Compute z by solving L'*z = p. */
 		memcpy(z, p, sizeof(double)*n);
-		F77_CALL(dtrsv)("L", "T", "N", &n, L, &n, z, &inc);
+		F77_CALL(dtrsv)("L", "T", "N", &n, L, &n, z, &inc FCONE FCONE FCONE);
 
 		/* Compute q by solving L*q = A*z and save L*q for
 		use in updating the residual t.	*/
-		F77_CALL(dsymv)("U", &n, &one, A, &n, z, &inc, &zero, q, &inc);
+		F77_CALL(dsymv)("U", &n, &one, A, &n, z, &inc, &zero, q, &inc FCONE);
 		memcpy(z, q, sizeof(double)*n);
-		F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, q, &inc);
+		F77_CALL(dtrsv)("L", "N", "N", &n, L, &n, q, &inc FCONE FCONE FCONE);
 		
 		/* Compute alpha and determine sigma such that the trust region
 		constraint || w + sigma*p || = delta is satisfied. */

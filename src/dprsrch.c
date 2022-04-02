@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#ifndef USE_FC_LEN_T
+# define USE_FC_LEN_T
+#endif
 #include <R_ext/BLAS.h>
 extern double mymin(double, double);
 extern double mymax(double, double);
@@ -101,7 +104,7 @@ c     **********
 		decrease condition. */
 		nsteps++;
 		dgpstep(n, x, xl, xu, alpha, w, wa1);
-		F77_CALL(dsymv)("U", &n, &one, A, &n, wa1, &inc, &zero, wa2, &inc);
+		F77_CALL(dsymv)("U", &n, &one, A, &n, wa1, &inc, &zero, wa2, &inc FCONE);
 		gts = F77_CALL(ddot)(&n, g, &inc, wa1, &inc);
 		q = 0.5*F77_CALL(ddot)(&n, wa1, &inc, wa2, &inc) + gts;
 		if (q <= mu0*gts)

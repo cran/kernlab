@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#ifndef USE_FC_LEN_T
+# define USE_FC_LEN_T
+#endif
 #include <R_ext/BLAS.h>
 extern void *xmalloc(size_t);
 extern double mymin(double, double);
@@ -123,7 +126,7 @@ c                       not allow further progress.
 	double *gfree = (double *) xmalloc(sizeof(double)*n);
 
 	/* Compute A*(x[1] - x[0]) and store in w. */
-	F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
+	F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc FCONE);
       
 	/* Compute the Cauchy point. */
 	for (j=0;j<n;j++)
@@ -170,7 +173,7 @@ c                       not allow further progress.
 		alpha = dprecond(nfree, B, L);
 		dtrpcg(nfree, B, gfree, delta, L, rtol*gfnorm, stol, w, &itertr, &infotr);
 		iters += itertr;
-		F77_CALL(dtrsv)("L", "T", "N", &nfree, L, &nfree, w, &inc);
+		F77_CALL(dtrsv)("L", "T", "N", &nfree, L, &nfree, w, &inc FCONE FCONE FCONE);
 
 		/* Use a projected search to obtain the next iterate.
 		The projected search algorithm stores s[k] in w. */
@@ -191,7 +194,7 @@ c                       not allow further progress.
 		}
 
 		/* Compute A*(x[k+1] - x[0]) and store in w. */
-		F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc);
+		F77_CALL(dsymv)("U", &n, &one, A, &n, s, &inc, &zero, w, &inc FCONE);
          
 		/* Compute the gradient grad q(x[k+1]) = g + A*(x[k+1] - x[0])
 		of q at x[k+1] for the free variables. */

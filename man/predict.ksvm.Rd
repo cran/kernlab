@@ -51,13 +51,13 @@
        T.F. Wu, C.J. Lin, R.C. Weng. \cr
        \emph{Probability estimates for Multi-class Classification by
 	 Pairwise Coupling}\cr
-        \url{http://www.csie.ntu.edu.tw/~cjlin/papers/svmprob/svmprob.pdf}
+        \url{https://www.csie.ntu.edu.tw/~cjlin/papers/svmprob/svmprob.pdf}
 
       \item
 	H.T. Lin, C.J. Lin, R.C. Weng\cr
 	\emph{A note on Platt's probabilistic outputs for support vector
 	  machines}\cr
-	\url{http://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.pdf}
+	\url{https://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.pdf}
     }
 }
 \author{Alexandros Karatzoglou\cr

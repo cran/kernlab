@@ -95,7 +95,7 @@ function (x, y, scaled = TRUE, tau = 0.5, C = 0.1, kernel = "rbfdot", kpar = "au
     }
     
     if (!is.function(kernel))
-      if (!is.list(kpar)&&is.character(kpar)&&(class(kernel)=="rbfkernel" || class(kernel) =="laplacedot" || kernel == "laplacedot"|| kernel=="rbfdot")){
+      if (!is.list(kpar)&&is.character(kpar)&&(is(kernel, "rbfkernel") || is(kernel, "laplacedot") || kernel == "laplacedot"|| kernel=="rbfdot")){
         kp <- match.arg(kpar,"automatic")
         if(kp=="automatic")
           kpar <- list(sigma=mean(sigest(x,scaled=FALSE,frac=1)[c(1,3)]))

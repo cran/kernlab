@@ -40,7 +40,7 @@ couple(probin, coupler = "minpair")
   \emph{Probability Estimates for Multi-class Classification by Pairwise
     Coupling}\cr
   Neural Information Processing Symposium 2003 \cr
-  \url{http://books.nips.cc/papers/files/nips16/NIPS2003_0538.pdf}
+  \url{http://papers.neurips.cc/paper/2454-probability-estimates-for-multi-class-classification-by-pairwise-coupling.pdf}
   }
 \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at} }
 

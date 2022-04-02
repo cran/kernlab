@@ -29,7 +29,7 @@ setMethod("kmmd", signature(x = "matrix"),
             }
 
             if (!is.function(kernel))
-              if (!is.list(kpar)&&is.character(kpar)&&(kernel == "laplacedot"|| kernel=="rbfdot")){
+              if (!is.list(kpar)&&is.character(kpar)&&(is(kernel, "laplacedot")|| kernel=="rbfdot")){
                 kp <- match.arg(kpar,"automatic")
                 if(kp=="automatic")
                   kpar <- list(sigma=sigest(rbind(x,y),scaled=FALSE)[2])

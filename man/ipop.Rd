@@ -51,7 +51,7 @@ ipop(c, H, A, b, l, u, r, sigf = 7, maxiter = 40, margin = 0.05,
   R. J. Vanderbei\cr
   \emph{LOQO: An interior point code for quadratic programming}\cr
   Optimization Methods and Software 11, 451-484, 1999 \cr
-  \url{http://www.princeton.edu/~rvdb/ps/loqo5.pdf}
+  \url{https://vanderbei.princeton.edu/ps/loqo5.pdf}
 }
 \author{Alexandros Karatzoglou (based on Matlab code by Alex Smola) \cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}
