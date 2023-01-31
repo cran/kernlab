@@ -121,7 +121,7 @@
   \references{Gretton, A., K. Borgwardt, M. Rasch, B. Schoelkopf and A. Smola\cr
     \emph{A Kernel Method for the Two-Sample-Problem}\cr
     Neural Information Processing Systems 2006, Vancouver   \cr
-     \url{http://papers.nips.cc/paper/3110-a-kernel-method-for-the-two-sample-problem.pdf}
+     \url{https://papers.neurips.cc/paper/3110-a-kernel-method-for-the-two-sample-problem.pdf}
    }
    
   \author{Alexandros Karatzoglou \cr \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

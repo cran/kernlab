@@ -100,7 +100,7 @@ all the slots of the object can be accessed by accessor functions.
   Schoelkopf B., A. Smola, K.-R. Mueller :\cr
   \emph{Nonlinear component analysis as a kernel eigenvalue problem}\cr
   Neural Computation 10, 1299-1319\cr
-  \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.29.1366}
+  \doi{10.1162/089976698300017467}.
 }
 \author{Alexandros Karatzoglou \cr
 \email{alexandros.karatzoglou@ci.tuwien.ac.at}}

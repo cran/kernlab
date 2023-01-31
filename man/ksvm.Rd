@@ -281,8 +281,7 @@
      \item
      J. Platt\cr
      \emph{Probabilistic outputs for support vector machines and comparison to regularized likelihood methods} \cr
-     Advances in Large Margin Classifiers, A. Smola, P. Bartlett, B. Schoelkopf and D. Schuurmans, Eds. Cambridge, MA: MIT Press, 2000.\cr
-     \url{http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.41.1639}
+     Advances in Large Margin Classifiers, A. Smola, P. Bartlett, B. Schoelkopf and D. Schuurmans, Eds. Cambridge, MA: MIT Press, 2000.
      
     \item
     H.-T. Lin, C.-J. Lin and R. C. Weng\cr
@@ -293,7 +292,7 @@
      C.-W. Hsu and C.-J. Lin \cr
      \emph{A comparison on methods for multi-class support vector machines}\cr
      IEEE Transactions on Neural Networks, 13(2002) 415-425.\cr
-     \url{https://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.ps.gz}
+     \url{https://www.csie.ntu.edu.tw/~cjlin/papers/multisvm.pdf}
 
      \item
      K. Crammer, Y. Singer\cr
@@ -303,9 +302,9 @@
 
      \item
      J. Weston, C. Watkins\cr
-     \emph{Multi-class support vector machines} \cr
-     In M. Verleysen, Proceedings of ESANN99 Brussels, 1999\cr
-     \url{http://citeseer.ist.psu.edu/8884.html}
+     \emph{Multi-class support vector machines}.
+     Technical Report CSD-TR-98-04,
+     Royal Holloway, University of London, Department of Computer Science.
   }
 }
 \author{

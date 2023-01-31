@@ -54,10 +54,11 @@
         \url{https://www.csie.ntu.edu.tw/~cjlin/papers/svmprob/svmprob.pdf}
 
       \item
-	H.T. Lin, C.J. Lin, R.C. Weng\cr
-	\emph{A note on Platt's probabilistic outputs for support vector
-	  machines}\cr
-	\url{https://www.csie.ntu.edu.tw/~cjlin/papers/plattprob.pdf}
+	H.T. Lin, C.J. Lin, R.C. Weng (2007),
+	A note on Platt's probabilistic outputs for support vector
+	machines.
+	\emph{Machine Learning}, \bold{68}, 267--276.
+	\doi{10.1007/s10994-007-5018-6}.
     }
 }
 \author{Alexandros Karatzoglou\cr

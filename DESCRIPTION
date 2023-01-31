@@ -1,10 +1,12 @@
 Package: kernlab
-Version: 0.9-31
+Version: 0.9-32
 Title: Kernel-Based Machine Learning Lab
 Authors@R: c(person("Alexandros", "Karatzoglou", role = c("aut", "cre"),
                     email = "alexandros.karatzoglou@gmail.com"),
              person("Alex", "Smola", role = "aut"),
-             person("Kurt", "Hornik", role = "aut"),
+             person("Kurt", "Hornik", role = "aut",
+	            email = "Kurt.Hornik@R-project.org",
+                    comment = c(ORCID = "0000-0003-4198-9911")),
 	     person("National ICT Australia (NICTA)",
 	            role = "cph"),
 	     person(c("Michael", "A."), "Maniscalco",
@@ -19,15 +21,14 @@ Depends: R (>= 2.10)
 Imports: methods, stats, grDevices, graphics
 LazyLoad: Yes
 License: GPL-2
-SystemRequirements: C++11
 NeedsCompilation: yes
-Packaged: 2022-06-08 19:06:47 UTC; hornik
+Packaged: 2023-01-31 14:16:15 UTC; hornik
 Author: Alexandros Karatzoglou [aut, cre],
   Alex Smola [aut],
-  Kurt Hornik [aut],
+  Kurt Hornik [aut] (<https://orcid.org/0000-0003-4198-9911>),
   National ICT Australia (NICTA) [cph],
   Michael A. Maniscalco [ctb, cph],
   Choon Hui Teo [ctb]
 Maintainer: Alexandros Karatzoglou <alexandros.karatzoglou@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-06-09 03:26:43 UTC
+Date/Publication: 2023-01-31 15:26:48 UTC
