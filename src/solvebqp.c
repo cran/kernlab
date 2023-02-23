@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#ifndef USE_FC_LEN_T
-# define USE_FC_LEN_T
-#endif
-#include <R_ext/BLAS.h>
+#include "blas.h"
 /* LEVEL 1 BLAS */
 /*extern double ddot_(int *, double *, int *, double *, int *); */
 /* LEVEL 2 BLAS */

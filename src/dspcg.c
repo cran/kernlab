@@ -1,8 +1,5 @@
 #include <stdlib.h>
-#ifndef USE_FC_LEN_T
-# define USE_FC_LEN_T
-#endif
-#include <R_ext/BLAS.h>
+#include "blas.h"
 extern void *xmalloc(size_t);
 extern double mymin(double, double);
 extern double mymax(double, double);
