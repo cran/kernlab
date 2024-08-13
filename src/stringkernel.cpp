@@ -488,7 +488,7 @@ extern "C" {
     double kVal;
     SEXP alpha;
 
-    PROTECT(alpha = allocVector(REALSXP, number_ltext));
+    PROTECT(alpha = Rf_allocVector(REALSXP, number_ltext));
 
     // Check if stringlength reported from R is correct
     if(strlen(text)!= text_size)
@@ -501,7 +501,7 @@ extern "C" {
     for (int i=0; i<number_ltext; i++)
       {
 
-	if(isList(ltext)){
+	if(Rf_isList(ltext)){
 	  const char *pattern = CHAR(VECTOR_ELT(ltext, i));
 	  // Check if stringlength reported from R is correct
 	  if(strlen(pattern)!=ltext_size[i])

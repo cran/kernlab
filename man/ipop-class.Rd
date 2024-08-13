@@ -24,10 +24,13 @@ Objects can be created by calls of the form \code{new("ipop", ...)}.
   }
 }
 \section{Methods}{
-\describe{
-  \item{primal}{Object of class \code{ipop}}{Return the primal of the problem}
-  \item{dual}{Object of class \code{ipop}}{Return the dual of the problem}
-  \item{how}{Object of class \code{ipop}}{Return information on convergence}
+  \describe{
+    \item{primal}{\code{signature(object = "ipop")}: Return the primal of
+      the problem}
+    \item{dual}{\code{signature(object = "ipop")}: Return the dual of
+      the problem}
+    \item{how}{\code{signature(object = "ipop")}: Return information on
+      convergence}
   }
 }
   \author{Alexandros Karatzoglou\cr

@@ -33,16 +33,13 @@ indicators or get a very wide collection of non-spam to
 generate a general purpose spam filter.
 }
 \source{
-\itemize{
-\item Creators: Mark Hopkins, Erik Reeber, George Forman, Jaap Suermondt at
-Hewlett-Packard Labs, 1501 Page Mill Rd., Palo Alto, CA 94304
-\item Donor: George Forman (gforman at nospam hpl.hp.com)  650-857-7835
+  \doi{10.24432/C53G6X}
 }
-These data have been taken from the UCI Repository Of Machine Learning
-Databases at \url{http://www.ics.uci.edu/~mlearn/MLRepository.html}}
+
 \references{
-T. Hastie, R. Tibshirani, J.H. Friedman. \emph{The Elements of Statistical
-Learning.} Springer, 2001.
+  T. Hastie, R. Tibshirani, J.H. Friedman.
+  \emph{The Elements of Statistical Learning}.
+  Springer, 2001.
 }
 
 \keyword{datasets}

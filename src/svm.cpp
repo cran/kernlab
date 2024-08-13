@@ -3955,7 +3955,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
    
      if(param.svm_type == 7)
       {  
-	PROTECT(alpha3 = allocVector(REALSXP, (nr_class*prob.l + 1)));
+	PROTECT(alpha3 = Rf_allocVector(REALSXP, (nr_class*prob.l + 1)));
 	UNPROTECT(1);  
 	for (i = 0; i < prob.l; i++) 
 	  free (prob.x[i]); 
@@ -3965,7 +3965,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
      
      if(param.svm_type == 8)
        { 
-	 PROTECT(alpha3 = allocVector(REALSXP, ((nr_class-1)*prob.l + 1)));
+	 PROTECT(alpha3 = Rf_allocVector(REALSXP, ((nr_class-1)*prob.l + 1)));
 	 UNPROTECT(1);   
 	 free(count);
 	 for (i = 0; i < prob.l; i++) 
@@ -3975,7 +3975,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
        }
      if(param.svm_type == 5||param.svm_type==6)
        {
-	PROTECT(alpha3 = allocVector(REALSXP, (prob.l + 1)));
+	PROTECT(alpha3 = Rf_allocVector(REALSXP, (prob.l + 1)));
 	UNPROTECT(1);  
 	for (i = 0; i < prob.l; i++) 
 	  free (prob.x[i]); 
@@ -4234,7 +4234,7 @@ struct svm_node ** transsparse (double *x, int r, int *rowindex, int *colindex)
       solve_smo(&prob, &param, alpha2, &si, *REAL(cost), REAL(linear_term));
     //}
     
-    PROTECT(alpha = allocVector(REALSXP, prob.l+2));
+    PROTECT(alpha = Rf_allocVector(REALSXP, prob.l+2));
     
     /* clean up memory */
     if (param.nr_weight > 0) {

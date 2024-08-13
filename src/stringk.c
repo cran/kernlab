@@ -79,7 +79,7 @@ SEXP subsequencek(SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
     }
   }
   
-  PROTECT(ret = allocVector(REALSXP, 1));
+  PROTECT(ret = Rf_allocVector(REALSXP, 1));
 
   /* invoke recursion */
   REAL(ret)[0] =  seqk (u, p, v, q, n, lambda);
@@ -127,7 +127,7 @@ SEXP fullsubstringk (SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) 
       }
   }
   
-  PROTECT(retk = allocVector(REALSXP, 1));
+  PROTECT(retk = Rf_allocVector(REALSXP, 1));
   REAL(retk)[0] = ret; 
   UNPROTECT(1); 
 
@@ -164,7 +164,7 @@ SEXP substringk (SEXP s1, SEXP s2, SEXP l1, SEXP l2, SEXP nr, SEXP lambdar) {
     }
   }
   
-  PROTECT(retk = allocVector(REALSXP, 1));
+  PROTECT(retk = Rf_allocVector(REALSXP, 1));
   REAL(retk)[0] = ret; 
   UNPROTECT(1); 
   
