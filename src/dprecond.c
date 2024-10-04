@@ -1,10 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifndef USE_FC_LEN_T
-# define USE_FC_LEN_T
-#endif
-#include <R_ext/Lapack.h>
+#include "lapack.h"
 /* LAPACK */
 /* extern int dpotf2_(char *, int *, double *, int *, int *); */
 
